@@ -1,26 +1,278 @@
 @import "tailwindcss";
 
+/*
+  Theme is driven by a `.dark` class on <html> (set before first paint by the
+  inline script in the root layout). This custom variant makes every `dark:`
+  utility respond to that class instead of the OS-level media query, so the
+  in-app toggle wins while still defaulting to prefers-color-scheme.
+*/
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---- Semantic surface tokens (swap per theme) ---- */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #16131f;
+  --surface: #ffffff;
+  --surface-2: #f5f4f9;
+  --elevated: #ffffff;
+  --border: rgba(22, 19, 31, 0.1);
+  --border-strong: rgba(22, 19, 31, 0.16);
+  --muted: #5c576e;
+  --ring: #402f75;
+  /* Brand purple tuned for icon legibility per theme. */
+  --brand-icon: #402f75;
+  --brand-soft: rgba(64, 47, 117, 0.08);
+  /* Amber status/warning text that meets WCAG AA on light surfaces. */
+  --warn: #8a6500;
+  --shadow-elevation: 0 1px 2px rgba(22, 19, 31, 0.06),
+    0 8px 24px rgba(22, 19, 31, 0.08);
+  --shadow-overlay: 0 24px 64px -12px rgba(22, 19, 31, 0.28);
 }
 
+.dark {
+  --background: #08060d;
+  --foreground: #ededf2;
+  --surface: #0c0a14;
+  --surface-2: #110e1b;
+  --elevated: #14111f;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --muted: #9c96ad;
+  --ring: #8574d6;
+  --brand-icon: #b3a6f0;
+  --brand-soft: rgba(179, 166, 240, 0.12);
+  --warn: #fbbb14;
+  --shadow-elevation: 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 12px 32px rgba(0, 0, 0, 0.55);
+  --shadow-overlay: 0 24px 80px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* ---- Static brand palette (from buyology.online) ---- */
+@theme {
+  --color-brand: #402f75;
+  --color-brand-deep: #2e1065;
+  --color-gold: #fbbb14;
+  --color-gold-deep: #e5a800;
+}
+
+/* ---- Map semantic tokens to Tailwind utilities (inline = reads live vars) ---- */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-elevated: var(--elevated);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-muted: var(--muted);
+  --color-ring: var(--ring);
+  --color-brand-icon: var(--brand-icon);
+  --color-brand-soft: var(--brand-soft);
+  --color-warn: var(--warn);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  /* Reserve the scrollbar gutter so locking scroll (modals/drawer) doesn't
+     shift the layout. */
+  scrollbar-gutter: stable;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Voice-search equalizer: gold bars that rise and fall while listening. */
+@keyframes buyo-equalize {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.buyo-eq-bar {
+  transform-origin: center;
+  animation: buyo-equalize 0.9s ease-in-out infinite;
+}
+
+/* Soft pulse ring around the mic while listening. */
+@keyframes buyo-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.buyo-pulse {
+  animation: buyo-pulse 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Command-palette entrance. */
+@keyframes buyo-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes buyo-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.buyo-overlay {
+  animation: buyo-overlay-in 0.16s ease-out;
+}
+
+.buyo-panel {
+  animation: buyo-panel-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Cart drawer slide-in (anchored to the right). */
+@keyframes buyo-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.buyo-drawer {
+  animation: buyo-drawer-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Add-to-cart confirmation pop + cart-badge bump. */
+@keyframes buyo-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.buyo-pop {
+  animation: buyo-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes buyo-badge-pop {
+  0% {
+    transform: scale(0.5);
+  }
+  55% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.buyo-badge-pop {
+  animation: buyo-badge-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Product-card hover: a gradient glow that travels around the whole card. */
+@property --buyo-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes buyo-border-spin {
+  to {
+    --buyo-angle: 360deg;
+  }
+}
+
+.buyo-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1.6px;
+  background: conic-gradient(
+    from var(--buyo-angle),
+    transparent 0deg,
+    var(--color-brand) 60deg,
+    var(--color-gold) 130deg,
+    transparent 210deg,
+    transparent 360deg
+  );
+  /* Mask so only the padding ring (the border) shows the gradient. */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.buyo-card:hover::before,
+.buyo-card:focus-within::before {
+  opacity: 1;
+  animation: buyo-border-spin 3.5s linear infinite;
+}
+
+/* Wrong-password shake for the entry gate. */
+@keyframes buyo-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+
+.buyo-shake {
+  animation: buyo-shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Keep the glow as a static ring rather than animating. */
+  .buyo-card:hover::before,
+  .buyo-card:focus-within::before {
+    opacity: 1;
+    animation: none;
+  }
 }

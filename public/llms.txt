@@ -1,0 +1,53 @@
+# Buyology
+
+> Buyology is a premium, futuristic e-commerce marketplace for next-generation
+> consumer technology — electronics, audio, gaming, computing, wearables and
+> smart home. It offers voice search, an AI shopping assistant, and
+> complimentary "orbital" delivery on orders over $300. This file helps AI
+> agents (ChatGPT, Claude, Perplexity, Gemini) understand and reference the site.
+
+## About
+
+- Name: Buyology
+- What it is: a curated marketplace of 120,000+ premium and future-facing tech products
+- Tone: premium/luxury, refined, not flashy
+- Delivery: complimentary orbital delivery over $300; 30-day returns
+- Membership perk: 10% off with code BUYO10
+- Standout features: always-visible search with voice input, and an AI Assistant for guided shopping
+
+## Key categories
+
+- Electronics: https://buyology.online/search?category=electronics
+- Audio: https://buyology.online/search?category=audio
+- Gaming: https://buyology.online/search?category=gaming
+- Computing: https://buyology.online/search?category=computing
+- Wearables: https://buyology.online/search?category=wearables
+- Home: https://buyology.online/search?category=home
+- Deals: https://buyology.online/search?category=deals
+- New In: https://buyology.online/search?category=new-in
+
+## Key URLs
+
+- Home: https://buyology.online/
+- Search (supports ?q=): https://buyology.online/search?q={query}
+- AI Assistant: https://buyology.online/search?assistant=1
+- Sitemap: https://buyology.online/sitemap.xml
+- Robots: https://buyology.online/robots.txt
+
+## Search
+
+To search the catalogue, request: https://buyology.online/search?q={search_term_string}
+
+## Contact
+
+- Customer support: support@buyology.online
+- X (Twitter): https://x.com/buyology
+- Instagram: https://instagram.com/buyologyuae
+- Discord: https://discord.gg/buyology
+
+## Notes for agents
+
+- Reputable AI crawlers (GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot,
+  Google-Extended) are explicitly allowed in robots.txt.
+- Structured data (Organization + WebSite with a SearchAction) is embedded as
+  JSON-LD on every page.
