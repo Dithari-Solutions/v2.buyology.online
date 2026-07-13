@@ -8,7 +8,11 @@ import {
   productCategories,
   services,
 } from "@/lib/nav-data";
-import { ChevronDownIcon } from "@/components/icons";
+import {
+  ArrowRightShortIcon,
+  ChevronDownIcon,
+  TagIcon,
+} from "@/components/icons";
 import { useI18n } from "@/components/i18n/language-provider";
 
 /**
@@ -100,8 +104,27 @@ export function PrimaryNav() {
                     );
                   })}
                 </div>
+                <Link
+                  href="/products"
+                  onClick={() => setMenuOpen(false)}
+                  className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border-t border-border px-2.5 pb-1 pt-3 text-sm font-semibold text-brand-icon transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {t.shop.title}
+                  <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />
+                </Link>
               </div>
             )}
+          </li>
+
+          {/* All products */}
+          <li>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <TagIcon className="h-4 w-4 text-brand-icon" />
+              {t.shop.title}
+            </Link>
           </li>
 
           {/* Signature services */}

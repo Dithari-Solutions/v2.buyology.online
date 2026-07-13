@@ -5,14 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { flashDeals, type Product } from "@/lib/products";
 import { useCart } from "@/components/cart/cart-provider";
+import { useFly } from "@/components/fx/FlyProvider";
 import { useI18n } from "@/components/i18n/language-provider";
 import { BotIcon, CheckIcon, SparklesIcon } from "@/components/icons";
 
-const IMG = "/mock/product-macbook.jpg";
+const IMG = "/mock/product-hero.jpg";
 
 function RecCard({ product }: { product: Product }) {
   const { t } = useI18n();
   const { addItem } = useCart();
+  const { fly } = useFly();
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -20,7 +22,7 @@ function RecCard({ product }: { product: Product }) {
     if (timer.current) clearTimeout(timer.current);
   }, []);
 
-  function add() {
+  function add(e: React.MouseEvent<HTMLButtonElement>) {
     addItem(
       {
         id: product.id,
@@ -30,6 +32,7 @@ function RecCard({ product }: { product: Product }) {
       },
       { openDrawer: false },
     );
+    fly(e.currentTarget, "cart", { open: false });
     setAdded(true);
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setAdded(false), 1400);
@@ -91,7 +94,7 @@ function RecCard({ product }: { product: Product }) {
 export function RecommendedProducts() {
   const { t } = useI18n();
   const { items } = useCart();
-  const inCart = new Set(items.map((i) => i.id));
+  const inCart = new Set(items.map((i) => i.id.split("::")[0]));
   const recs = flashDeals.filter((p) => !inCart.has(p.id)).slice(0, 4);
 
   if (recs.length === 0) return null;

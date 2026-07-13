@@ -9,7 +9,7 @@ import { BnplOptions } from "@/components/cart/BnplOptions";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 import { BagIcon, CloseIcon } from "@/components/icons";
 
-const SHARED_IMG = "/mock/product-macbook.jpg";
+const SHARED_IMG = "/mock/product-hero.jpg";
 
 /**
  * Cart drawer — a slide-over pinned to the right showing the cart contents,

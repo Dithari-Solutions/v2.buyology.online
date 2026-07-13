@@ -8,7 +8,11 @@ import { getLocale } from "@/lib/i18n/server";
 import { dictionaries } from "@/lib/i18n/dictionaries";
 import { LanguageProvider } from "@/components/i18n/language-provider";
 import { CartProvider } from "@/components/cart/cart-provider";
+import { WishlistProvider } from "@/components/wishlist/wishlist-provider";
+import { FlyProvider } from "@/components/fx/FlyProvider";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { Footer } from "@/components/footer/Footer";
+import { HideOnAuth } from "@/components/layout/HideOnAuth";
 import { PasswordGate } from "@/components/gate/PasswordGate";
 
 const geistSans = Geist({
@@ -107,8 +111,15 @@ export default async function RootLayout({
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <LanguageProvider locale={locale} dict={dictionaries[locale]}>
           <CartProvider>
-            {children}
-            <CartDrawer />
+            <WishlistProvider>
+              <FlyProvider>
+                {children}
+                <HideOnAuth>
+                  <Footer />
+                </HideOnAuth>
+                <CartDrawer />
+              </FlyProvider>
+            </WishlistProvider>
           </CartProvider>
           <PasswordGate />
         </LanguageProvider>

@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/lib/products";
 import { HeartIcon, StarIcon } from "@/components/icons";
 import { AddToCartButton } from "@/components/home/AddToCartButton";
+import { useWishlist } from "@/components/wishlist/wishlist-provider";
+import { useFly } from "@/components/fx/FlyProvider";
 
 /**
  * Premium product card. On hover, gold corner brackets slide outward into a
@@ -18,6 +22,9 @@ export function ProductCard({
   wishlistLabel: string;
 }) {
   const filled = Math.round(product.rating);
+  const { has, toggle } = useWishlist();
+  const { fly } = useFly();
+  const wished = has(product.id);
 
   return (
     <article className="group relative flex h-full flex-col rounded-2xl border border-border bg-surface p-3 shadow-[var(--shadow-elevation)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_44px_-14px_rgba(64,47,117,0.4)]">
@@ -43,9 +50,10 @@ export function ProductCard({
           every card; swap for a real per-product photo later. */}
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-surface-2">
         <Image
-          src="/mock/product-macbook.jpg"
+          src="/mock/product-hero.jpg"
           alt=""
           fill
+          quality={90}
           sizes="300px"
           className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
         />
@@ -71,10 +79,22 @@ export function ProductCard({
         {/* Wishlist (end) */}
         <button
           type="button"
+          onClick={(e) => {
+            const willAdd = !wished;
+            toggle(product.id);
+            if (willAdd) fly(e.currentTarget, "wishlist");
+          }}
           aria-label={`${wishlistLabel}: ${product.name}`}
-          className="absolute end-3 top-3 z-[3] flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-brand-icon shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          aria-pressed={wished}
+          className={`absolute end-3 top-3 z-[3] flex h-9 w-9 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+            wished
+              ? "bg-white text-brand dark:bg-black/80"
+              : "bg-white/85 text-brand-icon hover:bg-white hover:text-brand dark:bg-black/60"
+          }`}
         >
-          <HeartIcon className="h-[18px] w-[18px]" />
+          <HeartIcon
+            className={`h-[18px] w-[18px] ${wished ? "fill-brand text-brand dark:fill-gold dark:text-gold" : ""}`}
+          />
         </button>
       </div>
 

@@ -11,6 +11,11 @@ const KEY = "buyo-gate-unlocked";
 
 /* ---- tiny external store: unlock flag persisted for the browser session ---- */
 const listeners = new Set<() => void>();
+// In-memory source of truth for the current session. sessionStorage is only a
+// persistence layer on top: if it is unavailable (private mode, sandboxed
+// iframe, storage blocked by policy) the unlock still takes effect — we just
+// lose persistence across a reload.
+let unlockedMem = false;
 
 function subscribe(cb: () => void) {
   listeners.add(cb);
@@ -19,6 +24,7 @@ function subscribe(cb: () => void) {
   };
 }
 function getSnapshot() {
+  if (unlockedMem) return true;
   try {
     return sessionStorage.getItem(KEY) === "1";
   } catch {
@@ -29,10 +35,11 @@ function getServerSnapshot() {
   return false;
 }
 function unlockSession() {
+  unlockedMem = true;
   try {
     sessionStorage.setItem(KEY, "1");
   } catch {
-    /* private mode — stays unlocked for this render only */
+    /* storage blocked — the in-memory flag still unlocks for this session */
   }
   listeners.forEach((l) => l());
 }
@@ -53,6 +60,7 @@ export function PasswordGate() {
 
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
+  const [attempts, setAttempts] = useState(0);
   const [show, setShow] = useState(false);
   const [shake, setShake] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -63,21 +71,22 @@ export function PasswordGate() {
     if (unlocked) return;
     const release = lockBodyScroll();
     const gate = rootRef.current;
-    const changed: HTMLElement[] = [];
+    const changed: { el: HTMLElement; hadAriaHidden: boolean }[] = [];
     for (const el of Array.from(document.body.children)) {
       if (el === gate || !(el instanceof HTMLElement)) continue;
       if (!el.hasAttribute("inert")) {
+        const hadAriaHidden = el.hasAttribute("aria-hidden");
         el.setAttribute("inert", "");
-        el.setAttribute("aria-hidden", "true");
-        changed.push(el);
+        if (!hadAriaHidden) el.setAttribute("aria-hidden", "true");
+        changed.push({ el, hadAriaHidden });
       }
     }
     inputRef.current?.focus();
     return () => {
       release();
-      for (const el of changed) {
+      for (const { el, hadAriaHidden } of changed) {
         el.removeAttribute("inert");
-        el.removeAttribute("aria-hidden");
+        if (!hadAriaHidden) el.removeAttribute("aria-hidden");
       }
     };
   }, [unlocked]);
@@ -90,6 +99,7 @@ export function PasswordGate() {
       unlockSession();
     } else {
       setError(true);
+      setAttempts((a) => a + 1);
       setShake(true);
       inputRef.current?.select();
     }
@@ -141,7 +151,7 @@ export function PasswordGate() {
               aria-invalid={error}
               aria-describedby={error ? "gate-error" : undefined}
               placeholder={t.gate.placeholder}
-              className={`w-full rounded-2xl border bg-white/10 px-12 py-3.5 text-center text-white backdrop-blur-sm transition placeholder:text-white/40 focus:outline-none focus:ring-2 ${
+              className={`w-full rounded-2xl border bg-white/10 px-12 py-3.5 text-center text-white backdrop-blur-sm transition placeholder:text-white/60 focus:outline-none focus:ring-2 ${
                 error
                   ? "border-red-400/70 focus:ring-red-400/60"
                   : "border-white/20 focus:border-white/40 focus:ring-gold/60"
@@ -151,7 +161,6 @@ export function PasswordGate() {
               type="button"
               onClick={() => setShow((s) => !s)}
               aria-label={show ? t.gate.hide : t.gate.show}
-              aria-pressed={show}
               className="absolute inset-y-0 end-2 my-auto flex h-9 w-9 items-center justify-center rounded-xl text-white/50 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             >
               {show ? (
@@ -165,6 +174,7 @@ export function PasswordGate() {
           {error && (
             <p
               id="gate-error"
+              key={attempts}
               role="alert"
               className="mt-3 text-sm font-medium text-red-200"
             >

@@ -41,6 +41,12 @@ export function AnnouncementBar() {
           >
             {t.announcement.help}
           </Link>
+          <Link
+            href="/contact"
+            className="hidden rounded px-2 py-1 text-white/80 transition-colors hover:text-white sm:inline-block"
+          >
+            {t.contact.eyebrow}
+          </Link>
           <LanguageSwitcher />
           <span className="hidden font-medium text-white/70 sm:inline">
             AED

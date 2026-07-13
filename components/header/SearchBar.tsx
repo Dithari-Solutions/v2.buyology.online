@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { SearchModal } from "@/components/header/SearchModal";
 import { CommandIcon, MicIcon, SearchIcon } from "@/components/icons";
 import { useI18n } from "@/components/i18n/language-provider";
+
+/* Platform detection for the shortcut hint (⌘K on macOS, Ctrl K elsewhere). */
+const subscribe = () => () => {};
+function readIsMac() {
+  if (typeof navigator === "undefined") return true;
+  return /Mac|iPhone|iPod|iPad/i.test(navigator.platform || navigator.userAgent);
+}
+const readIsMacServer = () => true;
 
 /**
  * Header search entry point. Renders a search-bar-styled trigger; clicking it
@@ -13,6 +21,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 export function SearchBar({ className = "" }: { className?: string }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
+  const isMac = useSyncExternalStore(subscribe, readIsMac, readIsMacServer);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -44,7 +53,8 @@ export function SearchBar({ className = "" }: { className?: string }) {
           aria-hidden="true"
         />
         <kbd className="hidden shrink-0 items-center gap-0.5 rounded-md border border-border bg-surface-2 px-1.5 py-0.5 font-sans text-[11px] font-medium text-muted sm:inline-flex">
-          <CommandIcon className="h-3 w-3" />K
+          {isMac ? <CommandIcon className="h-3 w-3" /> : <span>Ctrl</span>}
+          <span>K</span>
         </kbd>
       </button>
 

@@ -4,6 +4,7 @@ import { CategoryBanners } from "@/components/home/CategoryBanners";
 import { FeatureStrip } from "@/components/home/FeatureStrip";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { BuyologyAI } from "@/components/home/BuyologyAI";
+import { Metrics } from "@/components/home/Metrics";
 import { BuyologyServices } from "@/components/home/BuyologyServices";
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
         <FeatureStrip />
         <ProductCarousel />
         <BuyologyAI />
+        <Metrics />
         <BuyologyServices />
       </main>
     </>

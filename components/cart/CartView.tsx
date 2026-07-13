@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart, type CartLine } from "@/components/cart/cart-provider";
+import { useWishlist } from "@/components/wishlist/wishlist-provider";
 import { useI18n } from "@/components/i18n/language-provider";
 import { BnplOptions } from "@/components/cart/BnplOptions";
 import { RecommendedProducts } from "@/components/cart/RecommendedProducts";
@@ -19,14 +19,17 @@ import {
   TruckIcon,
 } from "@/components/icons";
 
-const IMG = "/mock/product-macbook.jpg";
+const IMG = "/mock/product-hero.jpg";
 
 /** One rich cart line: image, rating, description, specs, qty + save-for-later. */
 function CartRow({ line }: { line: CartLine }) {
   const { t } = useI18n();
   const { removeItem, setQty } = useCart();
-  const [saved, setSaved] = useState(false);
-  const detail = getProduct(line.id);
+  const { has, toggle } = useWishlist();
+  // Line ids may carry a "::variant" suffix; product detail keys off the base id.
+  const baseId = line.id.split("::")[0];
+  const detail = getProduct(baseId);
+  const saved = has(baseId);
   const filled = detail ? Math.round(detail.rating) : 0;
 
   return (
@@ -89,7 +92,7 @@ function CartRow({ line }: { line: CartLine }) {
                 {tag}
               </span>
             ))}
-            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
               {t.cart.inStock}
             </span>
@@ -121,8 +124,7 @@ function CartRow({ line }: { line: CartLine }) {
             </div>
             <button
               type="button"
-              onClick={() => setSaved((s) => !s)}
-              aria-pressed={saved}
+              onClick={() => toggle(baseId)}
               className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 saved
                   ? "text-brand"

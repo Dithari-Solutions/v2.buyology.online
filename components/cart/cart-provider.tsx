@@ -23,7 +23,10 @@ type CartValue = {
   count: number;
   subtotal: number;
   isOpen: boolean;
-  addItem: (product: AddInput, opts?: { openDrawer?: boolean }) => void;
+  addItem: (
+    product: AddInput,
+    opts?: { openDrawer?: boolean; qty?: number },
+  ) => void;
   removeItem: (id: string) => void;
   setQty: (id: string, qty: number) => void;
   open: () => void;
@@ -38,15 +41,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const addItem = useCallback(
-    (product: AddInput, opts?: { openDrawer?: boolean }) => {
+    (product: AddInput, opts?: { openDrawer?: boolean; qty?: number }) => {
+      const add = Math.max(1, opts?.qty ?? 1);
       setItems((prev) => {
         const idx = prev.findIndex((l) => l.id === product.id);
         if (idx >= 0) {
           const next = [...prev];
-          next[idx] = { ...next[idx], qty: next[idx].qty + 1 };
+          next[idx] = { ...next[idx], qty: next[idx].qty + add };
           return next;
         }
-        return [...prev, { ...product, qty: 1 }];
+        return [...prev, { ...product, qty: add }];
       });
       if (opts?.openDrawer !== false) setIsOpen(true);
     },

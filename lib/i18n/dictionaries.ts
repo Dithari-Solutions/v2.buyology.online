@@ -109,6 +109,65 @@ export interface Dict {
     pick: string;
     features: Record<string, { title: string; desc: string }>;
   };
+  metrics: {
+    eyebrow: string;
+    heading: string;
+    subline: string;
+    scoreLabel: string;
+    outOf: string;
+    reviewsSuffix: string;
+    items: Record<string, string>;
+  };
+  pdp: {
+    home: string;
+    breadcrumb: string;
+    buyNow: string;
+    qty: string;
+    color: string;
+    configuration: string;
+    inStock: string;
+    freeDelivery: string;
+    deliveryNote: string;
+    warranty: string;
+    returns: string;
+    secure: string;
+    highlights: string;
+    specifications: string;
+    related: string;
+    spec: {
+      brand: string;
+      model: string;
+      category: string;
+      warranty: string;
+      box: string;
+      rating: string;
+    };
+    ai: {
+      eyebrow: string;
+      title: string;
+      verdict: string;
+      positive: string;
+      pros: string;
+      cons: string;
+      themes: string;
+      mentions: string;
+      disclaimer: string;
+    };
+    reviews: {
+      title: string;
+      write: string;
+      verified: string;
+      helpful: string;
+      basedOn: string;
+    };
+    qa: {
+      title: string;
+      ask: string;
+      answer: string;
+      by: string;
+      votes: string;
+    };
+  };
   services: {
     eyebrow: string;
     heading: string;
@@ -127,6 +186,250 @@ export interface Dict {
   slides: Record<string, SlideText>;
   /** Keyed by promo tile id. */
   promos: Record<string, PromoText>;
+  footer: {
+    newsletter: {
+      title: string;
+      subtitle: string;
+      placeholder: string;
+      subscribe: string;
+      success: string;
+      note: string;
+    };
+    tagline: string;
+    followUs: string;
+    contact: string;
+    cols: Record<string, string>;
+    links: Record<string, string>;
+    payments: string;
+    rights: string;
+    madeIn: string;
+    privacy: string;
+    terms: string;
+    cookies: string;
+  };
+  wishlist: {
+    empty: string;
+    emptyHint: string;
+    addAll: string;
+  };
+  account: {
+    title: string;
+    memberSince: string;
+    points: string;
+    tierMember: string;
+    signOut: string;
+    nav: Record<string, string>;
+    common: {
+      save: string;
+      saved: string;
+      cancel: string;
+      add: string;
+      edit: string;
+      remove: string;
+      default: string;
+      setDefault: string;
+    };
+    profile: {
+      title: string;
+      subtitle: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone: string;
+    };
+    orders: {
+      title: string;
+      subtitle: string;
+      order: string;
+      items: string;
+      view: string;
+      reorder: string;
+      statuses: Record<string, string>;
+    };
+    addresses: {
+      title: string;
+      subtitle: string;
+      addNew: string;
+      name: string;
+      street: string;
+      city: string;
+      country: string;
+      phone: string;
+    };
+    payments: {
+      title: string;
+      subtitle: string;
+      expires: string;
+      addCard: string;
+      bnpl: string;
+      connected: string;
+    };
+    preferences: {
+      title: string;
+      subtitle: string;
+      language: string;
+      currency: string;
+      notifications: string;
+      channelEmail: string;
+      channelSms: string;
+      channelPush: string;
+      newsletter: string;
+    };
+    security: {
+      title: string;
+      subtitle: string;
+      changePassword: string;
+      current: string;
+      newPass: string;
+      confirm: string;
+      update: string;
+      updated: string;
+      mismatch: string;
+      tooShort: string;
+      twofa: string;
+      twofaDesc: string;
+      signOutAll: string;
+    };
+    danger: {
+      title: string;
+      subtitle: string;
+      delete: string;
+      warning: string;
+      modalTitle: string;
+      modalBody: string;
+      confirmHint: string;
+      confirmWord: string;
+      confirm: string;
+      deletedTitle: string;
+      deletedBody: string;
+      backHome: string;
+    };
+  };
+  auth: {
+    welcomeTitle: string;
+    welcomeSub: string;
+    perks: { delivery: string; ai: string; warranty: string };
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    or: string;
+    continueWith: string;
+    floatChat: string;
+    passwordTab: string;
+    qrTab: string;
+    qr: {
+      title: string;
+      step1: string;
+      step2: string;
+      step3: string;
+      waiting: string;
+      getApp: string;
+    };
+    login: {
+      title: string;
+      subtitle: string;
+      submit: string;
+      remember: string;
+      forgot: string;
+      noAccount: string;
+      cta: string;
+    };
+    signup: {
+      title: string;
+      subtitle: string;
+      submit: string;
+      terms: string;
+      hasAccount: string;
+      cta: string;
+      personalTab: string;
+      businessTab: string;
+      business: {
+        name: string;
+        contact: string;
+        email: string;
+        phone: string;
+        industry: string;
+        selectIndustry: string;
+        employees: string;
+        selectEmployees: string;
+        licence: string;
+        licenceHint: string;
+        website: string;
+        uploadCta: string;
+        industries: Record<string, string>;
+      };
+    };
+    forgot: {
+      emailTitle: string;
+      emailSub: string;
+      send: string;
+      otpTitle: string;
+      otpSub: string;
+      verify: string;
+      changeEmail: string;
+      noCode: string;
+      resend: string;
+      resendIn: string;
+      resetTitle: string;
+      resetSub: string;
+      submit: string;
+      doneTitle: string;
+      doneSub: string;
+      backToSignin: string;
+    };
+  };
+  shop: {
+    title: string;
+    subtitle: string;
+    results: string;
+    sortBy: string;
+    sort: {
+      featured: string;
+      priceAsc: string;
+      priceDesc: string;
+      rating: string;
+      reviews: string;
+      discount: string;
+    };
+    filters: string;
+    category: string;
+    price: string;
+    rating: string;
+    onSale: string;
+    bestsellers: string;
+    ratingUp: string;
+    anyPrice: string;
+    brackets: { u100: string; mid1: string; mid2: string; high: string };
+    clearAll: string;
+    showResults: string;
+    loadMore: string;
+    empty: string;
+    emptyHint: string;
+  };
+  contact: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    address: string;
+    phone: string;
+    email: string;
+    hours: string;
+    regions: Record<string, string>;
+    form: {
+      title: string;
+      subtitle: string;
+      name: string;
+      email: string;
+      subject: string;
+      region: string;
+      message: string;
+      send: string;
+      sentTitle: string;
+      sentBody: string;
+      another: string;
+    };
+  };
 }
 
 const en: Dict = {
@@ -278,6 +581,71 @@ const en: Dict = {
       },
     },
   },
+  metrics: {
+    eyebrow: "By the numbers",
+    heading: "Trusted by millions of shoppers",
+    subline: "Real results from a marketplace built for confident buying.",
+    scoreLabel: "Average review score",
+    outOf: "out of 5",
+    reviewsSuffix: "verified reviews",
+    items: {
+      customers: "Happy customers",
+      orders: "Orders delivered",
+      chats: "Buyobot conversations",
+      ontime: "On-time delivery",
+    },
+  },
+  pdp: {
+    home: "Home",
+    breadcrumb: "Breadcrumb",
+    buyNow: "Buy now",
+    qty: "Quantity",
+    color: "Color",
+    configuration: "Configuration",
+    inStock: "In stock",
+    freeDelivery: "Free next-day delivery",
+    deliveryNote: "Order within 4 hours for delivery tomorrow",
+    warranty: "2-year warranty",
+    returns: "14-day free returns",
+    secure: "Secure, encrypted checkout",
+    highlights: "Highlights",
+    specifications: "Specifications",
+    related: "You may also like",
+    spec: {
+      brand: "Brand",
+      model: "Model",
+      category: "Category",
+      warranty: "Warranty",
+      box: "In the box",
+      rating: "Rating",
+    },
+    ai: {
+      eyebrow: "Buyobot review summary",
+      title: "AI review summary",
+      verdict: "The verdict",
+      positive: "positive",
+      pros: "What buyers love",
+      cons: "Worth noting",
+      themes: "Most mentioned",
+      mentions: "mentions",
+      disclaimer:
+        "AI-generated from verified reviews. May contain inaccuracies — always check the reviews below.",
+    },
+    reviews: {
+      title: "Customer reviews",
+      write: "Write a review",
+      verified: "Verified purchase",
+      helpful: "Helpful",
+      basedOn: "Based on",
+    },
+    qa: {
+      title: "Questions & answers",
+      ask: "Ask a question",
+      answer: "Answer",
+      by: "by",
+      votes: "found this helpful",
+    },
+  },
   services: {
     eyebrow: "More than a store",
     heading: "Services & experiences",
@@ -364,6 +732,314 @@ const en: Dict = {
   promos: {
     "gaming-gear": { eyebrow: "Save up to 40%", title: "Gaming Gear" },
     "new-wearables": { eyebrow: "Just landed", title: "New Wearables" },
+  },
+  footer: {
+    newsletter: {
+      title: "Join the future of shopping",
+      subtitle:
+        "Early access to drops, AI-picked deals and 10% off your first order.",
+      placeholder: "Enter your email",
+      subscribe: "Subscribe",
+      success: "You're in! Check your inbox to confirm.",
+      note: "By subscribing you agree to our Privacy Policy. Unsubscribe anytime.",
+    },
+    tagline:
+      "A premium, AI-native marketplace for the future you — electronics, audio, gaming and more, delivered fast.",
+    followUs: "Follow us",
+    contact: "Get in touch",
+    cols: { shop: "Shop", buyology: "Buyology", support: "Support", company: "Company" },
+    links: {
+      electronics: "Electronics",
+      audio: "Audio",
+      gaming: "Gaming",
+      computing: "Computing",
+      wearables: "Wearables",
+      home: "Smart Home",
+      buyobot: "Buyobot AI",
+      repair: "Repair",
+      rent: "Rent",
+      tradein: "Trade-in",
+      powerbank: "Powerbank Stations",
+      diy: "DIY",
+      help: "Help Center",
+      track: "Track Order",
+      shipping: "Shipping",
+      returns: "Returns",
+      warranty: "Warranty",
+      contact: "Contact Us",
+      about: "About Us",
+      careers: "Careers",
+      sustainability: "Sustainability",
+      press: "Press",
+      affiliates: "Affiliates",
+    },
+    payments: "We accept",
+    rights: "All rights reserved.",
+    madeIn: "Designed in the UAE · Prices in AED",
+    privacy: "Privacy Policy",
+    terms: "Terms of Service",
+    cookies: "Cookies",
+  },
+  wishlist: {
+    empty: "Your wishlist is empty",
+    emptyHint: "Tap the heart on any product to save it here.",
+    addAll: "Add all to cart",
+  },
+  account: {
+    title: "My account",
+    memberSince: "Member since",
+    points: "points",
+    tierMember: "member",
+    signOut: "Sign out",
+    nav: {
+      profile: "Profile",
+      orders: "Orders",
+      addresses: "Addresses",
+      payments: "Payment methods",
+      preferences: "Preferences",
+      security: "Security",
+      danger: "Delete account",
+    },
+    common: {
+      save: "Save changes",
+      saved: "Saved",
+      cancel: "Cancel",
+      add: "Add",
+      edit: "Edit",
+      remove: "Remove",
+      default: "Default",
+      setDefault: "Set as default",
+    },
+    profile: {
+      title: "Personal information",
+      subtitle: "Update your name and contact details.",
+      firstName: "First name",
+      lastName: "Last name",
+      email: "Email address",
+      phone: "Phone number",
+    },
+    orders: {
+      title: "Order history",
+      subtitle: "Track and manage your recent orders.",
+      order: "Order",
+      items: "items",
+      view: "View",
+      reorder: "Reorder",
+      statuses: {
+        delivered: "Delivered",
+        shipped: "Shipped",
+        processing: "Processing",
+        cancelled: "Cancelled",
+      },
+    },
+    addresses: {
+      title: "Saved addresses",
+      subtitle: "Manage where your orders are delivered.",
+      addNew: "Add address",
+      name: "Full name",
+      street: "Street address",
+      city: "City",
+      country: "Country",
+      phone: "Phone",
+    },
+    payments: {
+      title: "Payment methods",
+      subtitle: "Manage your saved cards and pay-later accounts.",
+      expires: "Expires",
+      addCard: "Add card",
+      bnpl: "Pay-later",
+      connected: "Connected",
+    },
+    preferences: {
+      title: "Preferences",
+      subtitle: "Language, currency and how we reach you.",
+      language: "Language",
+      currency: "Currency",
+      notifications: "Notifications",
+      channelEmail: "Email",
+      channelSms: "SMS",
+      channelPush: "Push",
+      newsletter: "Product news & offers",
+    },
+    security: {
+      title: "Security",
+      subtitle: "Keep your account safe.",
+      changePassword: "Change password",
+      current: "Current password",
+      newPass: "New password",
+      confirm: "Confirm new password",
+      update: "Update password",
+      updated: "Password updated",
+      mismatch: "Passwords don't match.",
+      tooShort: "Use at least 8 characters.",
+      twofa: "Two-factor authentication",
+      twofaDesc: "Add an extra layer of security at sign-in.",
+      signOutAll: "Sign out of all devices",
+    },
+    danger: {
+      title: "Delete account",
+      subtitle: "Permanently delete your account and all its data.",
+      delete: "Delete account",
+      warning:
+        "This can't be undone. Your orders, wishlist, addresses and rewards will be permanently removed.",
+      modalTitle: "Delete your account?",
+      modalBody:
+        "This will permanently erase your profile, order history, saved addresses and Buyology rewards. This action cannot be reversed.",
+      confirmHint: "Type DELETE to confirm",
+      confirmWord: "DELETE",
+      confirm: "Permanently delete",
+      deletedTitle: "Your account has been deleted",
+      deletedBody: "We're sorry to see you go. You can create a new account anytime.",
+      backHome: "Back to home",
+    },
+  },
+  auth: {
+    welcomeTitle: "The marketplace for the future you",
+    welcomeSub:
+      "Sign in to track orders, save wishlists and let Buyobot shop smarter with you.",
+    perks: {
+      delivery: "Free next-day delivery",
+      ai: "Your personal AI shopping assistant",
+      warranty: "2-year warranty on every product",
+    },
+    email: "Email address",
+    password: "Password",
+    firstName: "First name",
+    lastName: "Last name",
+    or: "or",
+    continueWith: "Continue with",
+    floatChat: "Found 3 laptops under your budget ✨",
+    passwordTab: "Password",
+    qrTab: "QR code",
+    qr: {
+      title: "Log in with the Buyology app",
+      step1: "Open the Buyology app on your phone",
+      step2: "Tap the scan icon in the top bar",
+      step3: "Point your camera at this code",
+      waiting: "Waiting for you to scan…",
+      getApp: "Don't have the app yet?",
+    },
+    login: {
+      title: "Welcome back",
+      subtitle: "Sign in to your Buyology account.",
+      submit: "Sign in",
+      remember: "Remember me",
+      forgot: "Forgot password?",
+      noAccount: "New to Buyology?",
+      cta: "Create an account",
+    },
+    signup: {
+      title: "Create your account",
+      subtitle: "Join Buyology and start shopping the future.",
+      submit: "Create account",
+      terms: "I agree to the Terms of Service and Privacy Policy.",
+      hasAccount: "Already have an account?",
+      cta: "Sign in",
+      personalTab: "Personal",
+      businessTab: "Business",
+      business: {
+        name: "Business name",
+        contact: "Contact person",
+        email: "Business email",
+        phone: "Phone number (optional)",
+        industry: "Industry",
+        selectIndustry: "Select an industry",
+        employees: "Number of employees",
+        selectEmployees: "Select a range",
+        licence: "Trade licence",
+        licenceHint: "PDF or image \u00b7 up to 10 MB",
+        website: "Website (optional)",
+        uploadCta: "Click to upload or drag & drop",
+        industries: {
+          retail: "Retail",
+          electronics: "Electronics",
+          services: "Services",
+          wholesale: "Wholesale",
+          manufacturing: "Manufacturing",
+          other: "Other",
+        },
+      },
+    },
+    forgot: {
+      emailTitle: "Forgot your password?",
+      emailSub: "Enter your email and we'll send you a 6-digit code.",
+      send: "Send code",
+      otpTitle: "Enter the code",
+      otpSub: "We sent a 6-digit code to",
+      verify: "Verify",
+      changeEmail: "Change email",
+      noCode: "Didn't get the code?",
+      resend: "Resend",
+      resendIn: "Resend in",
+      resetTitle: "Create a new password",
+      resetSub: "Choose a strong password you haven't used before.",
+      submit: "Reset password",
+      doneTitle: "Password reset",
+      doneSub: "Your password has been changed. You can now sign in.",
+      backToSignin: "Back to sign in",
+    },
+  },
+  shop: {
+    title: "All products",
+    subtitle: "Explore the full Buyology catalogue.",
+    results: "products",
+    sortBy: "Sort by",
+    sort: {
+      featured: "Featured",
+      priceAsc: "Price: low to high",
+      priceDesc: "Price: high to low",
+      rating: "Top rated",
+      reviews: "Most reviewed",
+      discount: "Biggest discount",
+    },
+    filters: "Filters",
+    category: "Category",
+    price: "Price",
+    rating: "Rating",
+    onSale: "On sale (25%+ off)",
+    bestsellers: "Bestsellers only",
+    ratingUp: "& up",
+    anyPrice: "Any price",
+    brackets: {
+      u100: "Under $100",
+      mid1: "$100 – $300",
+      mid2: "$300 – $700",
+      high: "$700+",
+    },
+    clearAll: "Clear all",
+    showResults: "Show results",
+    loadMore: "Load more",
+    empty: "No products match your filters",
+    emptyHint: "Try removing a filter or clearing all.",
+  },
+  contact: {
+    eyebrow: "Contact",
+    title: "Talk to Buyology",
+    subtitle: "We're across the region and ready to help — pick your country or send us a message.",
+    address: "Address",
+    phone: "Phone",
+    email: "Email",
+    hours: "Hours",
+    regions: {
+      uae: "United Arab Emirates",
+      qatar: "Qatar",
+      saudi: "Saudi Arabia",
+      bahrain: "Bahrain",
+      azerbaijan: "Azerbaijan",
+    },
+    form: {
+      title: "Send us a message",
+      subtitle: "Ask us anything — we usually reply within a day.",
+      name: "Your name",
+      email: "Email address",
+      subject: "Subject",
+      region: "Region",
+      message: "Message",
+      send: "Send message",
+      sentTitle: "Message sent!",
+      sentBody: "Thanks for reaching out. Our team will get back to you shortly.",
+      another: "Send another",
+    },
   },
 };
 
@@ -516,6 +1192,71 @@ const az: Dict = {
       },
     },
   },
+  metrics: {
+    eyebrow: "Rəqəmlərlə",
+    heading: "Milyonlarla alıcının etimadı",
+    subline: "Etibarlı alış üçün qurulmuş marketpleysdən real nəticələr.",
+    scoreLabel: "Orta rəy balı",
+    outOf: "5-dən",
+    reviewsSuffix: "təsdiqlənmiş rəy",
+    items: {
+      customers: "Məmnun müştəri",
+      orders: "Çatdırılmış sifariş",
+      chats: "Buyobot söhbəti",
+      ontime: "Vaxtında çatdırılma",
+    },
+  },
+  pdp: {
+    home: "Ana səhifə",
+    breadcrumb: "Naviqasiya cığırı",
+    buyNow: "İndi al",
+    qty: "Miqdar",
+    color: "Rəng",
+    configuration: "Konfiqurasiya",
+    inStock: "Stokda var",
+    freeDelivery: "Pulsuz növbəti gün çatdırılma",
+    deliveryNote: "Sabah çatdırılma üçün 4 saat ərzində sifariş verin",
+    warranty: "2 illik zəmanət",
+    returns: "14 gün pulsuz qaytarma",
+    secure: "Təhlükəsiz, şifrələnmiş ödəniş",
+    highlights: "Əsas xüsusiyyətlər",
+    specifications: "Texniki göstəricilər",
+    related: "Bunlar da xoşunuza gələ bilər",
+    spec: {
+      brand: "Brend",
+      model: "Model",
+      category: "Kateqoriya",
+      warranty: "Zəmanət",
+      box: "Qutunun içində",
+      rating: "Reytinq",
+    },
+    ai: {
+      eyebrow: "Buyobot rəy xülasəsi",
+      title: "Sİ rəy xülasəsi",
+      verdict: "Nəticə",
+      positive: "müsbət",
+      pros: "Alıcıların sevdiyi",
+      cons: "Nəzərə alınmalı",
+      themes: "Ən çox qeyd olunan",
+      mentions: "qeyd",
+      disclaimer:
+        "Təsdiqlənmiş rəylərdən Sİ tərəfindən yaradılıb. Yanlışlıqlar ola bilər — aşağıdakı rəyləri yoxlayın.",
+    },
+    reviews: {
+      title: "Müştəri rəyləri",
+      write: "Rəy yaz",
+      verified: "Təsdiqlənmiş alış",
+      helpful: "Faydalı",
+      basedOn: "Əsaslanır",
+    },
+    qa: {
+      title: "Suallar və cavablar",
+      ask: "Sual ver",
+      answer: "Cavab",
+      by: "—",
+      votes: "bunu faydalı bildi",
+    },
+  },
   services: {
     eyebrow: "Sadəcə mağaza deyil",
     heading: "Xidmətlər və təcrübələr",
@@ -617,6 +1358,314 @@ const az: Dict = {
   promos: {
     "gaming-gear": { eyebrow: "40%-dək qənaət", title: "Oyun Avadanlığı" },
     "new-wearables": { eyebrow: "Təzə gəldi", title: "Yeni Geyilə bilənlər" },
+  },
+  footer: {
+    newsletter: {
+      title: "Gələcəyin alış-verişinə qoşul",
+      subtitle:
+        "Yeni məhsullara erkən giriş, Sİ seçimli endirimlər və ilk sifarişinə 10% endirim.",
+      placeholder: "E-poçtunuzu daxil edin",
+      subscribe: "Abunə ol",
+      success: "Tamamdır! Təsdiq üçün poçtunuzu yoxlayın.",
+      note: "Abunə olmaqla Məxfilik Siyasətimizi qəbul edirsiniz. İstənilən vaxt imtina edə bilərsiniz.",
+    },
+    tagline:
+      "Gələcək sizin üçün premium, Sİ əsaslı marketpleys — elektronika, audio, oyun və daha çoxu sürətli çatdırılma ilə.",
+    followUs: "Bizi izləyin",
+    contact: "Əlaqə",
+    cols: { shop: "Alış-veriş", buyology: "Buyology", support: "Dəstək", company: "Şirkət" },
+    links: {
+      electronics: "Elektronika",
+      audio: "Audio",
+      gaming: "Oyun",
+      computing: "Kompüter",
+      wearables: "Geyilə bilənlər",
+      home: "Ağıllı ev",
+      buyobot: "Buyobot Sİ",
+      repair: "Təmir",
+      rent: "İcarə",
+      tradein: "Dəyişdirmə",
+      powerbank: "Powerbank Stansiyaları",
+      diy: "DIY",
+      help: "Yardım Mərkəzi",
+      track: "Sifarişi izlə",
+      shipping: "Çatdırılma",
+      returns: "Qaytarma",
+      warranty: "Zəmanət",
+      contact: "Bizimlə əlaqə",
+      about: "Haqqımızda",
+      careers: "Karyera",
+      sustainability: "Dayanıqlılıq",
+      press: "Mətbuat",
+      affiliates: "Tərəfdaşlar",
+    },
+    payments: "Qəbul edirik",
+    rights: "Bütün hüquqlar qorunur.",
+    madeIn: "BƏƏ-də dizayn edilib · Qiymətlər AED ilə",
+    privacy: "Məxfilik Siyasəti",
+    terms: "İstifadə Şərtləri",
+    cookies: "Kukilər",
+  },
+  wishlist: {
+    empty: "İstək siyahınız boşdur",
+    emptyHint: "Saxlamaq üçün istənilən məhsulun ürək işarəsinə toxunun.",
+    addAll: "Hamısını səbətə əlavə et",
+  },
+  account: {
+    title: "Hesabım",
+    memberSince: "Üzvlük tarixi",
+    points: "xal",
+    tierMember: "üzv",
+    signOut: "Çıxış",
+    nav: {
+      profile: "Profil",
+      orders: "Sifarişlər",
+      addresses: "Ünvanlar",
+      payments: "Ödəniş üsulları",
+      preferences: "Tənzimləmələr",
+      security: "Təhlükəsizlik",
+      danger: "Hesabı sil",
+    },
+    common: {
+      save: "Dəyişiklikləri yadda saxla",
+      saved: "Yadda saxlanıldı",
+      cancel: "Ləğv et",
+      add: "Əlavə et",
+      edit: "Redaktə et",
+      remove: "Sil",
+      default: "Əsas",
+      setDefault: "Əsas kimi təyin et",
+    },
+    profile: {
+      title: "Şəxsi məlumat",
+      subtitle: "Adınızı və əlaqə məlumatlarınızı yeniləyin.",
+      firstName: "Ad",
+      lastName: "Soyad",
+      email: "E-poçt ünvanı",
+      phone: "Telefon nömrəsi",
+    },
+    orders: {
+      title: "Sifariş tarixçəsi",
+      subtitle: "Son sifarişlərinizi izləyin və idarə edin.",
+      order: "Sifariş",
+      items: "məhsul",
+      view: "Bax",
+      reorder: "Yenidən sifariş",
+      statuses: {
+        delivered: "Çatdırıldı",
+        shipped: "Göndərildi",
+        processing: "Hazırlanır",
+        cancelled: "Ləğv edildi",
+      },
+    },
+    addresses: {
+      title: "Yadda saxlanmış ünvanlar",
+      subtitle: "Sifarişlərinizin çatdırıldığı yeri idarə edin.",
+      addNew: "Ünvan əlavə et",
+      name: "Tam ad",
+      street: "Küçə ünvanı",
+      city: "Şəhər",
+      country: "Ölkə",
+      phone: "Telefon",
+    },
+    payments: {
+      title: "Ödəniş üsulları",
+      subtitle: "Kartlarınızı və sonra-ödə hesablarınızı idarə edin.",
+      expires: "Bitmə tarixi",
+      addCard: "Kart əlavə et",
+      bnpl: "Sonra ödə",
+      connected: "Qoşulub",
+    },
+    preferences: {
+      title: "Tənzimləmələr",
+      subtitle: "Dil, valyuta və sizinlə əlaqə üsulu.",
+      language: "Dil",
+      currency: "Valyuta",
+      notifications: "Bildirişlər",
+      channelEmail: "E-poçt",
+      channelSms: "SMS",
+      channelPush: "Push",
+      newsletter: "Məhsul xəbərləri və təkliflər",
+    },
+    security: {
+      title: "Təhlükəsizlik",
+      subtitle: "Hesabınızı qoruyun.",
+      changePassword: "Parolu dəyiş",
+      current: "Cari parol",
+      newPass: "Yeni parol",
+      confirm: "Yeni parolu təsdiqlə",
+      update: "Parolu yenilə",
+      updated: "Parol yeniləndi",
+      mismatch: "Parollar uyğun gəlmir.",
+      tooShort: "Ən azı 8 simvol istifadə edin.",
+      twofa: "İki faktorlu autentifikasiya",
+      twofaDesc: "Girişdə əlavə təhlükəsizlik qatı əlavə edin.",
+      signOutAll: "Bütün cihazlardan çıx",
+    },
+    danger: {
+      title: "Hesabı sil",
+      subtitle: "Hesabınızı və bütün məlumatlarını həmişəlik silin.",
+      delete: "Hesabı sil",
+      warning:
+        "Bu geri qaytarıla bilməz. Sifarişləriniz, istək siyahınız, ünvanlarınız və bonuslarınız həmişəlik silinəcək.",
+      modalTitle: "Hesabınızı silmək istəyirsiniz?",
+      modalBody:
+        "Bu, profilinizi, sifariş tarixçənizi, ünvanlarınızı və Buyology bonuslarınızı həmişəlik siləcək. Bu əməliyyat geri qaytarıla bilməz.",
+      confirmHint: "Təsdiq üçün DELETE yazın",
+      confirmWord: "DELETE",
+      confirm: "Həmişəlik sil",
+      deletedTitle: "Hesabınız silindi",
+      deletedBody: "Getdiyinizə görə üzülürük. İstənilən vaxt yeni hesab yarada bilərsiniz.",
+      backHome: "Ana səhifəyə qayıt",
+    },
+  },
+  auth: {
+    welcomeTitle: "Gələcək sizin üçün marketpleys",
+    welcomeSub:
+      "Sifarişləri izləmək, istək siyahıları saxlamaq və Buyobot ilə daha ağıllı alış-veriş üçün daxil olun.",
+    perks: {
+      delivery: "Pulsuz növbəti gün çatdırılma",
+      ai: "Şəxsi Sİ alış-veriş köməkçiniz",
+      warranty: "Hər məhsula 2 illik zəmanət",
+    },
+    email: "E-poçt ünvanı",
+    password: "Parol",
+    firstName: "Ad",
+    lastName: "Soyad",
+    or: "və ya",
+    continueWith: "Davam et:",
+    floatChat: "Büdcənizə uyğun 3 noutbuk tapdım ✨",
+    passwordTab: "Parol",
+    qrTab: "QR kod",
+    qr: {
+      title: "Buyology tətbiqi ilə daxil ol",
+      step1: "Telefonunuzda Buyology tətbiqini açın",
+      step2: "Yuxarı paneldə skan ikonuna toxunun",
+      step3: "Kameranı bu koda tutun",
+      waiting: "Skan etməyinizi gözləyirik…",
+      getApp: "Hələ tətbiqiniz yoxdur?",
+    },
+    login: {
+      title: "Yenidən xoş gəldiniz",
+      subtitle: "Buyology hesabınıza daxil olun.",
+      submit: "Daxil ol",
+      remember: "Məni xatırla",
+      forgot: "Parolu unutmusunuz?",
+      noAccount: "Buyology-də yenisiniz?",
+      cta: "Hesab yarat",
+    },
+    signup: {
+      title: "Hesab yaradın",
+      subtitle: "Buyology-yə qoşulun və gələcəyi alış-veriş edin.",
+      submit: "Hesab yarat",
+      terms: "İstifadə Şərtləri və Məxfilik Siyasəti ilə razıyam.",
+      hasAccount: "Artıq hesabınız var?",
+      cta: "Daxil ol",
+      personalTab: "Şəxsi",
+      businessTab: "Biznes",
+      business: {
+        name: "Biznes adı",
+        contact: "Əlaqələndirici şəxs",
+        email: "Biznes e-poçtu",
+        phone: "Telefon nömrəsi (istəyə bağlı)",
+        industry: "Sahə",
+        selectIndustry: "Sahə seçin",
+        employees: "İşçilərin sayı",
+        selectEmployees: "Diapazon seçin",
+        licence: "Ticarət lisenziyası",
+        licenceHint: "PDF və ya şəkil \u00b7 10 MB-a qədər",
+        website: "Veb sayt (istəyə bağlı)",
+        uploadCta: "Yükləmək üçün klikləyin və ya sürükləyin",
+        industries: {
+          retail: "Pərakəndə",
+          electronics: "Elektronika",
+          services: "Xidmətlər",
+          wholesale: "Topdan",
+          manufacturing: "İstehsal",
+          other: "Digər",
+        },
+      },
+    },
+    forgot: {
+      emailTitle: "Parolu unutmusunuz?",
+      emailSub: "E-poçtunuzu daxil edin, sizə 6 rəqəmli kod göndərək.",
+      send: "Kod göndər",
+      otpTitle: "Kodu daxil edin",
+      otpSub: "6 rəqəmli kodu bura göndərdik:",
+      verify: "Təsdiqlə",
+      changeEmail: "E-poçtu dəyiş",
+      noCode: "Kod gəlmədi?",
+      resend: "Yenidən göndər",
+      resendIn: "Yenidən göndər:",
+      resetTitle: "Yeni parol yaradın",
+      resetSub: "Əvvəl istifadə etmədiyiniz güclü parol seçin.",
+      submit: "Parolu sıfırla",
+      doneTitle: "Parol sıfırlandı",
+      doneSub: "Parolunuz dəyişdirildi. İndi daxil ola bilərsiniz.",
+      backToSignin: "Girişə qayıt",
+    },
+  },
+  shop: {
+    title: "Bütün məhsullar",
+    subtitle: "Buyology kataloqunu tam kəşf edin.",
+    results: "məhsul",
+    sortBy: "Sıralama",
+    sort: {
+      featured: "Seçilmiş",
+      priceAsc: "Qiymət: aşağıdan yuxarı",
+      priceDesc: "Qiymət: yuxarıdan aşağı",
+      rating: "Ən yüksək reytinq",
+      reviews: "Ən çox rəy",
+      discount: "Ən böyük endirim",
+    },
+    filters: "Filtrlər",
+    category: "Kateqoriya",
+    price: "Qiymət",
+    rating: "Reytinq",
+    onSale: "Endirimdə (25%+)",
+    bestsellers: "Yalnız ən çox satılanlar",
+    ratingUp: "və yuxarı",
+    anyPrice: "İstənilən qiymət",
+    brackets: {
+      u100: "$100-dan aşağı",
+      mid1: "$100 – $300",
+      mid2: "$300 – $700",
+      high: "$700+",
+    },
+    clearAll: "Hamısını təmizlə",
+    showResults: "Nəticələri göstər",
+    loadMore: "Daha çox yüklə",
+    empty: "Filtrlərinizə uyğun məhsul yoxdur",
+    emptyHint: "Bir filtri silin və ya hamısını təmizləyin.",
+  },
+  contact: {
+    eyebrow: "Əlaqə",
+    title: "Buyology ilə əlaqə saxlayın",
+    subtitle: "Bütün region üzrə buradayıq və kömək etməyə hazırıq — ölkənizi seçin və ya mesaj göndərin.",
+    address: "Ünvan",
+    phone: "Telefon",
+    email: "E-poçt",
+    hours: "İş saatları",
+    regions: {
+      uae: "Birləşmiş Ərəb Əmirlikləri",
+      qatar: "Qətər",
+      saudi: "Səudiyyə Ərəbistanı",
+      bahrain: "Bəhreyn",
+      azerbaijan: "Azərbaycan",
+    },
+    form: {
+      title: "Bizə mesaj göndərin",
+      subtitle: "İstənilən sualı verin — adətən bir gün ərzində cavab veririk.",
+      name: "Adınız",
+      email: "E-poçt ünvanı",
+      subject: "Mövzu",
+      region: "Region",
+      message: "Mesaj",
+      send: "Mesaj göndər",
+      sentTitle: "Mesaj göndərildi!",
+      sentBody: "Müraciətiniz üçün təşəkkürlər. Komandamız tezliklə sizinlə əlaqə saxlayacaq.",
+      another: "Yenisini göndər",
+    },
   },
 };
 
@@ -768,6 +1817,71 @@ const ar: Dict = {
       },
     },
   },
+  metrics: {
+    eyebrow: "بالأرقام",
+    heading: "موثوق من ملايين المتسوّقين",
+    subline: "نتائج حقيقية من سوق مبني لتسوّق واثق.",
+    scoreLabel: "متوسّط تقييم المراجعات",
+    outOf: "من 5",
+    reviewsSuffix: "مراجعة موثّقة",
+    items: {
+      customers: "عميل سعيد",
+      orders: "طلب تم تسليمه",
+      chats: "محادثة مع Buyobot",
+      ontime: "تسليم في الوقت المحدد",
+    },
+  },
+  pdp: {
+    home: "الرئيسية",
+    breadcrumb: "مسار التنقل",
+    buyNow: "اشترِ الآن",
+    qty: "الكمية",
+    color: "اللون",
+    configuration: "التهيئة",
+    inStock: "متوفّر",
+    freeDelivery: "توصيل مجاني في اليوم التالي",
+    deliveryNote: "اطلب خلال 4 ساعات للتوصيل غدًا",
+    warranty: "ضمان لمدة سنتين",
+    returns: "إرجاع مجاني خلال 14 يومًا",
+    secure: "دفع آمن ومشفّر",
+    highlights: "أبرز المزايا",
+    specifications: "المواصفات",
+    related: "قد يعجبك أيضًا",
+    spec: {
+      brand: "العلامة التجارية",
+      model: "الطراز",
+      category: "الفئة",
+      warranty: "الضمان",
+      box: "محتويات العلبة",
+      rating: "التقييم",
+    },
+    ai: {
+      eyebrow: "ملخّص مراجعات Buyobot",
+      title: "ملخّص المراجعات بالذكاء الاصطناعي",
+      verdict: "الخلاصة",
+      positive: "إيجابية",
+      pros: "ما يحبّه المشترون",
+      cons: "ما يستحق الانتباه",
+      themes: "الأكثر ذكرًا",
+      mentions: "إشارة",
+      disclaimer:
+        "أُنشئ بالذكاء الاصطناعي من مراجعات موثّقة. قد يحتوي على أخطاء — راجع التقييمات أدناه.",
+    },
+    reviews: {
+      title: "تقييمات العملاء",
+      write: "اكتب مراجعة",
+      verified: "شراء موثّق",
+      helpful: "مفيد",
+      basedOn: "استنادًا إلى",
+    },
+    qa: {
+      title: "الأسئلة والأجوبة",
+      ask: "اطرح سؤالًا",
+      answer: "الإجابة",
+      by: "—",
+      votes: "وجدوا هذا مفيدًا",
+    },
+  },
   services: {
     eyebrow: "أكثر من متجر",
     heading: "الخدمات والتجارب",
@@ -854,6 +1968,314 @@ const ar: Dict = {
   promos: {
     "gaming-gear": { eyebrow: "وفّر حتى 40%", title: "معدّات الألعاب" },
     "new-wearables": { eyebrow: "وصل للتو", title: "أجهزة جديدة" },
+  },
+  footer: {
+    newsletter: {
+      title: "انضم إلى مستقبل التسوّق",
+      subtitle:
+        "وصول مبكر للإصدارات، وعروض يختارها الذكاء الاصطناعي، وخصم 10% على أول طلب.",
+      placeholder: "أدخل بريدك الإلكتروني",
+      subscribe: "اشترك",
+      success: "تم! تحقّق من بريدك للتأكيد.",
+      note: "بالاشتراك فأنت توافق على سياسة الخصوصية. يمكنك إلغاء الاشتراك في أي وقت.",
+    },
+    tagline:
+      "سوق مميّز قائم على الذكاء الاصطناعي من أجلك — إلكترونيات وصوتيات وألعاب والمزيد، بتوصيل سريع.",
+    followUs: "تابعنا",
+    contact: "تواصل معنا",
+    cols: { shop: "تسوّق", buyology: "Buyology", support: "الدعم", company: "الشركة" },
+    links: {
+      electronics: "إلكترونيات",
+      audio: "الصوتيات",
+      gaming: "الألعاب",
+      computing: "الحواسيب",
+      wearables: "الأجهزة القابلة للارتداء",
+      home: "المنزل الذكي",
+      buyobot: "Buyobot AI",
+      repair: "الإصلاح",
+      rent: "التأجير",
+      tradein: "الاستبدال",
+      powerbank: "محطات الشحن",
+      diy: "DIY",
+      help: "مركز المساعدة",
+      track: "تتبّع الطلب",
+      shipping: "الشحن",
+      returns: "الإرجاع",
+      warranty: "الضمان",
+      contact: "اتصل بنا",
+      about: "من نحن",
+      careers: "الوظائف",
+      sustainability: "الاستدامة",
+      press: "الصحافة",
+      affiliates: "الشركاء",
+    },
+    payments: "نقبل",
+    rights: "جميع الحقوق محفوظة.",
+    madeIn: "صُمّم في الإمارات · الأسعار بالدرهم",
+    privacy: "سياسة الخصوصية",
+    terms: "شروط الخدمة",
+    cookies: "ملفات تعريف الارتباط",
+  },
+  wishlist: {
+    empty: "قائمة أمنياتك فارغة",
+    emptyHint: "اضغط على القلب في أي منتج لحفظه هنا.",
+    addAll: "أضف الكل إلى السلة",
+  },
+  account: {
+    title: "حسابي",
+    memberSince: "عضو منذ",
+    points: "نقطة",
+    tierMember: "عضو",
+    signOut: "تسجيل الخروج",
+    nav: {
+      profile: "الملف الشخصي",
+      orders: "الطلبات",
+      addresses: "العناوين",
+      payments: "طرق الدفع",
+      preferences: "التفضيلات",
+      security: "الأمان",
+      danger: "حذف الحساب",
+    },
+    common: {
+      save: "حفظ التغييرات",
+      saved: "تم الحفظ",
+      cancel: "إلغاء",
+      add: "إضافة",
+      edit: "تعديل",
+      remove: "إزالة",
+      default: "افتراضي",
+      setDefault: "تعيين كافتراضي",
+    },
+    profile: {
+      title: "المعلومات الشخصية",
+      subtitle: "حدّث اسمك وبيانات التواصل.",
+      firstName: "الاسم الأول",
+      lastName: "اسم العائلة",
+      email: "البريد الإلكتروني",
+      phone: "رقم الهاتف",
+    },
+    orders: {
+      title: "سجل الطلبات",
+      subtitle: "تتبّع طلباتك الأخيرة وأدرها.",
+      order: "طلب",
+      items: "منتج",
+      view: "عرض",
+      reorder: "إعادة الطلب",
+      statuses: {
+        delivered: "تم التوصيل",
+        shipped: "تم الشحن",
+        processing: "قيد المعالجة",
+        cancelled: "ملغى",
+      },
+    },
+    addresses: {
+      title: "العناوين المحفوظة",
+      subtitle: "أدر أماكن توصيل طلباتك.",
+      addNew: "إضافة عنوان",
+      name: "الاسم الكامل",
+      street: "عنوان الشارع",
+      city: "المدينة",
+      country: "الدولة",
+      phone: "الهاتف",
+    },
+    payments: {
+      title: "طرق الدفع",
+      subtitle: "أدر بطاقاتك وحسابات الدفع لاحقًا.",
+      expires: "تنتهي في",
+      addCard: "إضافة بطاقة",
+      bnpl: "ادفع لاحقًا",
+      connected: "متصل",
+    },
+    preferences: {
+      title: "التفضيلات",
+      subtitle: "اللغة والعملة وكيفية تواصلنا معك.",
+      language: "اللغة",
+      currency: "العملة",
+      notifications: "الإشعارات",
+      channelEmail: "البريد",
+      channelSms: "رسالة نصية",
+      channelPush: "تنبيهات",
+      newsletter: "أخبار المنتجات والعروض",
+    },
+    security: {
+      title: "الأمان",
+      subtitle: "حافظ على أمان حسابك.",
+      changePassword: "تغيير كلمة المرور",
+      current: "كلمة المرور الحالية",
+      newPass: "كلمة المرور الجديدة",
+      confirm: "تأكيد كلمة المرور الجديدة",
+      update: "تحديث كلمة المرور",
+      updated: "تم تحديث كلمة المرور",
+      mismatch: "كلمتا المرور غير متطابقتين.",
+      tooShort: "استخدم 8 أحرف على الأقل.",
+      twofa: "المصادقة الثنائية",
+      twofaDesc: "أضف طبقة حماية إضافية عند تسجيل الدخول.",
+      signOutAll: "تسجيل الخروج من كل الأجهزة",
+    },
+    danger: {
+      title: "حذف الحساب",
+      subtitle: "احذف حسابك وكل بياناته نهائيًا.",
+      delete: "حذف الحساب",
+      warning:
+        "لا يمكن التراجع عن هذا. ستُحذف طلباتك وقائمة أمنياتك وعناوينك ومكافآتك نهائيًا.",
+      modalTitle: "حذف حسابك؟",
+      modalBody:
+        "سيؤدي هذا إلى محو ملفك الشخصي وسجل طلباتك وعناوينك المحفوظة ومكافآت Buyology نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+      confirmHint: "اكتب DELETE للتأكيد",
+      confirmWord: "DELETE",
+      confirm: "حذف نهائي",
+      deletedTitle: "تم حذف حسابك",
+      deletedBody: "يؤسفنا رحيلك. يمكنك إنشاء حساب جديد في أي وقت.",
+      backHome: "العودة إلى الرئيسية",
+    },
+  },
+  auth: {
+    welcomeTitle: "السوق من أجل مستقبلك",
+    welcomeSub:
+      "سجّل الدخول لتتبّع الطلبات وحفظ قوائم الأمنيات ولتسوّق بذكاء أكبر مع Buyobot.",
+    perks: {
+      delivery: "توصيل مجاني في اليوم التالي",
+      ai: "مساعد التسوّق الذكي الخاص بك",
+      warranty: "ضمان سنتين على كل منتج",
+    },
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    firstName: "الاسم الأول",
+    lastName: "اسم العائلة",
+    or: "أو",
+    continueWith: "المتابعة عبر",
+    floatChat: "وجدت 3 حواسيب ضمن ميزانيتك ✨",
+    passwordTab: "كلمة المرور",
+    qrTab: "رمز QR",
+    qr: {
+      title: "سجّل الدخول عبر تطبيق Buyology",
+      step1: "افتح تطبيق Buyology على هاتفك",
+      step2: "اضغط على أيقونة المسح في الشريط العلوي",
+      step3: "وجّه الكاميرا نحو هذا الرمز",
+      waiting: "بانتظار مسحك للرمز…",
+      getApp: "ليس لديك التطبيق بعد؟",
+    },
+    login: {
+      title: "مرحبًا بعودتك",
+      subtitle: "سجّل الدخول إلى حساب Buyology.",
+      submit: "تسجيل الدخول",
+      remember: "تذكّرني",
+      forgot: "نسيت كلمة المرور؟",
+      noAccount: "جديد على Buyology؟",
+      cta: "أنشئ حسابًا",
+    },
+    signup: {
+      title: "أنشئ حسابك",
+      subtitle: "انضم إلى Buyology وابدأ تسوّق المستقبل.",
+      submit: "إنشاء حساب",
+      terms: "أوافق على شروط الخدمة وسياسة الخصوصية.",
+      hasAccount: "لديك حساب بالفعل؟",
+      cta: "تسجيل الدخول",
+      personalTab: "شخصي",
+      businessTab: "أعمال",
+      business: {
+        name: "اسم النشاط التجاري",
+        contact: "الشخص المسؤول",
+        email: "بريد العمل الإلكتروني",
+        phone: "رقم الهاتف (اختياري)",
+        industry: "المجال",
+        selectIndustry: "اختر مجالًا",
+        employees: "عدد الموظفين",
+        selectEmployees: "اختر نطاقًا",
+        licence: "الرخصة التجارية",
+        licenceHint: "PDF أو صورة \u00b7 حتى 10 ميغابايت",
+        website: "الموقع الإلكتروني (اختياري)",
+        uploadCta: "انقر للرفع أو اسحب الملف وأفلته",
+        industries: {
+          retail: "تجزئة",
+          electronics: "إلكترونيات",
+          services: "خدمات",
+          wholesale: "جملة",
+          manufacturing: "تصنيع",
+          other: "أخرى",
+        },
+      },
+    },
+    forgot: {
+      emailTitle: "نسيت كلمة المرور؟",
+      emailSub: "أدخل بريدك الإلكتروني وسنرسل لك رمزًا من 6 أرقام.",
+      send: "إرسال الرمز",
+      otpTitle: "أدخل الرمز",
+      otpSub: "أرسلنا رمزًا من 6 أرقام إلى",
+      verify: "تحقّق",
+      changeEmail: "تغيير البريد",
+      noCode: "لم يصلك الرمز؟",
+      resend: "إعادة الإرسال",
+      resendIn: "إعادة الإرسال خلال",
+      resetTitle: "أنشئ كلمة مرور جديدة",
+      resetSub: "اختر كلمة مرور قوية لم تستخدمها من قبل.",
+      submit: "إعادة تعيين كلمة المرور",
+      doneTitle: "تمت إعادة التعيين",
+      doneSub: "تم تغيير كلمة مرورك. يمكنك تسجيل الدخول الآن.",
+      backToSignin: "العودة لتسجيل الدخول",
+    },
+  },
+  shop: {
+    title: "كل المنتجات",
+    subtitle: "استكشف كتالوج Buyology بالكامل.",
+    results: "منتج",
+    sortBy: "الترتيب حسب",
+    sort: {
+      featured: "مميّز",
+      priceAsc: "السعر: من الأقل للأعلى",
+      priceDesc: "السعر: من الأعلى للأقل",
+      rating: "الأعلى تقييمًا",
+      reviews: "الأكثر مراجعة",
+      discount: "أكبر خصم",
+    },
+    filters: "الفلاتر",
+    category: "الفئة",
+    price: "السعر",
+    rating: "التقييم",
+    onSale: "التخفيضات (خصم 25%+)",
+    bestsellers: "الأكثر مبيعًا فقط",
+    ratingUp: "فأكثر",
+    anyPrice: "أي سعر",
+    brackets: {
+      u100: "أقل من $100",
+      mid1: "$100 – $300",
+      mid2: "$300 – $700",
+      high: "$700+",
+    },
+    clearAll: "مسح الكل",
+    showResults: "عرض النتائج",
+    loadMore: "تحميل المزيد",
+    empty: "لا توجد منتجات تطابق فلاترك",
+    emptyHint: "جرّب إزالة فلتر أو مسح الكل.",
+  },
+  contact: {
+    eyebrow: "تواصل",
+    title: "تحدّث إلى Buyology",
+    subtitle: "نحن حاضرون في أنحاء المنطقة وجاهزون لمساعدتك — اختر دولتك أو أرسل لنا رسالة.",
+    address: "العنوان",
+    phone: "الهاتف",
+    email: "البريد الإلكتروني",
+    hours: "ساعات العمل",
+    regions: {
+      uae: "الإمارات العربية المتحدة",
+      qatar: "قطر",
+      saudi: "السعودية",
+      bahrain: "البحرين",
+      azerbaijan: "أذربيجان",
+    },
+    form: {
+      title: "أرسل لنا رسالة",
+      subtitle: "اسألنا أي شيء — نردّ عادةً خلال يوم.",
+      name: "اسمك",
+      email: "البريد الإلكتروني",
+      subject: "الموضوع",
+      region: "المنطقة",
+      message: "الرسالة",
+      send: "إرسال الرسالة",
+      sentTitle: "تم إرسال الرسالة!",
+      sentBody: "شكرًا لتواصلك. سيعود إليك فريقنا قريبًا.",
+      another: "إرسال رسالة أخرى",
+    },
   },
 };
 

@@ -8,17 +8,17 @@ import { PrimaryNav } from "@/components/header/PrimaryNav";
 import { AnnouncementBar } from "@/components/header/AnnouncementBar";
 import { buyobot, productCategories, services } from "@/lib/nav-data";
 import {
+  ArrowRightShortIcon,
   BagIcon,
   CloseIcon,
   HeartIcon,
   MenuIcon,
+  TagIcon,
   UserIcon,
 } from "@/components/icons";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useCart } from "@/components/cart/cart-provider";
-
-// Mock wishlist count — UI only. Cart count is live from the cart store.
-const WISHLIST_COUNT = 4;
+import { useWishlist } from "@/components/wishlist/wishlist-provider";
 
 function CountBadge({ count, bump }: { count: number; bump?: boolean }) {
   if (count <= 0) return null;
@@ -43,6 +43,7 @@ const mobileServices = [...services, buyobot];
 export function Header() {
   const { t } = useI18n();
   const { count: cartCount, open: openCart } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -106,15 +107,17 @@ export function Header() {
               </Link>
 
               <Link
+                id="header-wishlist"
                 href="/wishlist"
-                aria-label={`${t.header.wishlist}, ${WISHLIST_COUNT} ${t.header.itemsSuffix}`}
+                aria-label={`${t.header.wishlist}, ${wishlistCount} ${t.header.itemsSuffix}`}
                 className={actionButton}
               >
                 <HeartIcon className="h-[22px] w-[22px]" />
-                <CountBadge count={WISHLIST_COUNT} />
+                <CountBadge count={wishlistCount} bump />
               </Link>
 
               <button
+                id="header-cart"
                 type="button"
                 onClick={openCart}
                 aria-label={`${t.header.cart}, ${cartCount} ${t.header.itemsSuffix}`}
@@ -141,6 +144,18 @@ export function Header() {
             className="border-t border-border bg-background lg:hidden"
           >
             <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6">
+              <Link
+                href="/products"
+                onClick={close}
+                className="mb-3 flex items-center justify-between rounded-xl bg-brand-soft px-3 py-2.5 text-sm font-semibold text-brand-icon transition-colors hover:bg-brand hover:text-white"
+              >
+                <span className="flex items-center gap-2">
+                  <TagIcon className="h-[18px] w-[18px]" />
+                  {t.shop.title}
+                </span>
+                <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />
+              </Link>
+
               <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
                 {t.palette.services}
               </p>
@@ -189,13 +204,17 @@ export function Header() {
                 {t.header.account}
               </Link>
               <Link href="/wishlist" onClick={close} className="hover:text-foreground">
-                {t.header.wishlist} ({WISHLIST_COUNT})
+                {t.header.wishlist}
+                {wishlistCount > 0 ? ` (${wishlistCount})` : ""}
               </Link>
               <Link href="/orders/track" onClick={close} className="hover:text-foreground">
                 {t.announcement.trackOrder}
               </Link>
               <Link href="/help" onClick={close} className="hover:text-foreground">
                 {t.announcement.help}
+              </Link>
+              <Link href="/contact" onClick={close} className="hover:text-foreground">
+                {t.contact.eyebrow}
               </Link>
             </div>
           </nav>

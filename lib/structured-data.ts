@@ -1,4 +1,5 @@
 import { site } from "@/lib/site";
+import type { Product } from "@/lib/products";
 
 /**
  * Typed Schema.org (JSON-LD) builders. Rendered server-side in the root layout
@@ -54,6 +55,38 @@ export function webSiteSchema(): JsonLd {
         urlTemplate: `${site.url}/search?q={search_term_string}`,
       },
       "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+/**
+ * Product schema for a detail page — carries price, availability and the
+ * aggregate rating so search engines and AI shopping agents can surface it.
+ */
+export function productSchema(p: Product): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: p.name,
+    description: p.description,
+    category: p.category,
+    image: `${site.url}/mock/product-showcase.jpg`,
+    sku: p.id,
+    brand: { "@type": "Brand", name: site.name },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: p.rating,
+      reviewCount: p.reviews,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    offers: {
+      "@type": "Offer",
+      url: `${site.url}/product/${p.id}`,
+      priceCurrency: "AED",
+      price: p.price,
+      availability: "https://schema.org/InStock",
+      seller: { "@id": `${site.url}/#organization` },
     },
   };
 }
