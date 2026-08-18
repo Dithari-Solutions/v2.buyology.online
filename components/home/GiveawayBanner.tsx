@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getDict } from "@/lib/i18n/server";
 import { site } from "@/lib/site";
+import { GiveawayPhone } from "@/components/home/GiveawayPhone";
 import {
   ArrowRightShortIcon,
   InstagramIcon,
@@ -12,9 +13,9 @@ import {
  * Headline giveaway promotion — the first thing on the home page.
  *
  * Deliberately no product photograph: the iPhone 18 Pro is unannounced, so the
- * prize is drawn as an abstract handset rather than implying we have official
- * imagery. The two entry conditions are numbered because they are a genuine
- * sequence (account first, so the follow can be matched to a winner).
+ * prize is a vector rendition (see GiveawayPhone) rather than official imagery.
+ * The two entry conditions are numbered because they are a genuine sequence
+ * (account first, so the follow can be matched to a winner).
  */
 export async function GiveawayBanner() {
   const t = await getDict();
@@ -58,7 +59,7 @@ export async function GiveawayBanner() {
           />
         </div>
 
-        <div className="grid gap-8 p-6 sm:p-9 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center lg:gap-10 lg:p-12">
+        <div className="grid gap-8 p-6 sm:p-9 lg:min-h-[600px] lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center lg:gap-10 lg:p-12">
           {/* ── Copy ─────────────────────────────────────────────── */}
           <div>
             <p className="inline-flex items-center gap-2 rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-primary-fg">
@@ -128,21 +129,20 @@ export async function GiveawayBanner() {
             </p>
           </div>
 
-          {/* ── Prize artwork: an abstract handset, not a product photo ── */}
-          <div aria-hidden="true" className="relative hidden justify-self-center lg:block">
-            <div className="absolute inset-0 -z-10 rounded-full bg-gold/25 blur-[70px]" />
-            <div className="buyo-float relative h-[340px] w-[168px] rounded-[2.2rem] border border-white/25 bg-gradient-to-b from-white/20 to-white/5 p-2 shadow-2xl backdrop-blur-md">
-              <div className="relative h-full w-full overflow-hidden rounded-[1.7rem] bg-gradient-to-br from-[#2b1f52] via-[#402f75] to-[#0d0a18]">
-                <div className="absolute left-1/2 top-2.5 h-4 w-16 -translate-x-1/2 rounded-full bg-black/70" />
-                <div className="absolute -right-6 top-10 h-24 w-24 rounded-full bg-gold/40 blur-2xl" />
-                <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-1 p-4 text-center">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">
-                    {t.giveaway.eyebrow}
-                  </span>
-                  <span className="text-lg font-extrabold leading-tight text-gold">
-                    {t.giveaway.prize}
-                  </span>
-                </div>
+          {/* ── Prize artwork ────────────────────────────────────────
+              Sits in its own right-hand column, tilted 19° and centred so the
+              camera plateau clears the section's rounded clip. The tilt is
+              mirrored under RTL so the handset still leans into the copy. */}
+          <div aria-hidden="true" className="pointer-events-none relative hidden lg:block">
+            <div className="absolute start-1/2 top-1/2 h-[460px] w-[460px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/20 blur-[90px]" />
+            <div className="absolute start-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/25 blur-[70px]" />
+
+            {/* Centring and the float live on separate elements: `buyo-float`
+                animates `transform`, which would otherwise replace the
+                -translate-y-1/2 and drop the phone out of alignment. */}
+            <div className="absolute start-1/2 top-1/2 w-[270px] -translate-x-1/2 -translate-y-1/2">
+              <div className="buyo-float">
+                <GiveawayPhone className="w-full rotate-[19deg] drop-shadow-[0_38px_60px_rgba(0,0,0,0.62)] rtl:-rotate-[19deg]" />
               </div>
             </div>
           </div>
