@@ -39,6 +39,7 @@ export interface Dict {
     wishlist: string;
     cart: string;
     itemsSuffix: string;
+    whoWeAre: string;
   };
   nav: { allCategories: string; shopByCategory: string; menu: string };
   palette: {
@@ -430,6 +431,28 @@ export interface Dict {
       another: string;
     };
   };
+  giveaway: {
+    eyebrow: string;
+    title: string;
+    prize: string;
+    subtitle: string;
+    stepsLabel: string;
+    step1Title: string;
+    step1Body: string;
+    step2Title: string;
+    step2Body: string;
+    cta: string;
+    instagram: string;
+    note: string;
+  };
+  notFound: {
+    eyebrow: string;
+    title: string;
+    body: string;
+    home: string;
+    browse: string;
+    categoriesTitle: string;
+  };
 }
 
 const en: Dict = {
@@ -460,6 +483,7 @@ const en: Dict = {
     wishlist: "Wishlist",
     cart: "Cart",
     itemsSuffix: "items",
+    whoWeAre: "Who We Are",
   },
   nav: {
     allCategories: "All Categories",
@@ -1041,6 +1065,29 @@ const en: Dict = {
       another: "Send another",
     },
   },
+  giveaway: {
+    eyebrow: "Giveaway",
+    title: "Win the",
+    prize: "iPhone 18 Pro",
+    subtitle:
+      "One reader walks away with the newest iPhone. Entry takes about a minute and closes at launch.",
+    stepsLabel: "Two steps to enter",
+    step1Title: "Create your Buyology account",
+    step1Body: "Sign up on the site with the email you actually check — that is how we reach the winner.",
+    step2Title: "Follow us on Instagram",
+    step2Body: "Follow the Buyology page and keep notifications on. We announce the winner there.",
+    cta: "Enter the giveaway",
+    instagram: "Follow on Instagram",
+    note: "The iPhone 18 Pro will be given away in the first week of its release date.",
+  },
+  notFound: {
+    eyebrow: "Signal lost",
+    title: "This page has gone off the grid",
+    body: "The link may be broken, or the product may have sold out and moved on. Let's get you back to something good.",
+    home: "Back to home",
+    browse: "Browse all products",
+    categoriesTitle: "Or pick up where you left off",
+  },
 };
 
 const az: Dict = {
@@ -1071,6 +1118,7 @@ const az: Dict = {
     wishlist: "İstək siyahısı",
     cart: "Səbət",
     itemsSuffix: "məhsul",
+    whoWeAre: "Biz kimik",
   },
   nav: {
     allCategories: "Bütün Kateqoriyalar",
@@ -1667,6 +1715,29 @@ const az: Dict = {
       another: "Yenisini göndər",
     },
   },
+  giveaway: {
+    eyebrow: "Hədiyyə kampaniyası",
+    title: "Qazan",
+    prize: "iPhone 18 Pro",
+    subtitle:
+      "İştirakçılardan biri ən yeni iPhone-u qazanacaq. Qeydiyyat bir dəqiqə çəkir və təqdimat günü bağlanır.",
+    stepsLabel: "İştirak üçün iki addım",
+    step1Title: "Buyology hesabını yarat",
+    step1Body: "Saytda istifadə etdiyiniz e-poçt ilə qeydiyyatdan keçin — qalibi bu ünvandan tapacağıq.",
+    step2Title: "Instagram-da izləyin",
+    step2Body: "Buyology səhifəsini izləyin və bildirişləri aktiv saxlayın. Qalibi orada elan edirik.",
+    cta: "Kampaniyaya qoşul",
+    instagram: "Instagram-da izlə",
+    note: "iPhone 18 Pro təqdimat tarixindən sonrakı ilk həftə ərzində hədiyyə ediləcək.",
+  },
+  notFound: {
+    eyebrow: "Siqnal itdi",
+    title: "Bu səhifə şəbəkədən kənara çıxıb",
+    body: "Keçid işləməyə bilər və ya məhsul satılıb bitib. Gəlin sizi yenidən maraqlı bir şeyə qaytaraq.",
+    home: "Ana səhifəyə qayıt",
+    browse: "Bütün məhsullara bax",
+    categoriesTitle: "Və ya qaldığınız yerdən davam edin",
+  },
 };
 
 const ar: Dict = {
@@ -1697,6 +1768,7 @@ const ar: Dict = {
     wishlist: "قائمة الرغبات",
     cart: "السلة",
     itemsSuffix: "عناصر",
+    whoWeAre: "من نحن",
   },
   nav: {
     allCategories: "كل الفئات",
@@ -2276,6 +2348,29 @@ const ar: Dict = {
       sentBody: "شكرًا لتواصلك. سيعود إليك فريقنا قريبًا.",
       another: "إرسال رسالة أخرى",
     },
+  },
+  giveaway: {
+    eyebrow: "سحب وجوائز",
+    title: "اربح",
+    prize: "iPhone 18 Pro",
+    subtitle:
+      "أحد المشاركين سيفوز بأحدث iPhone. التسجيل يستغرق دقيقة واحدة ويُغلق يوم الإطلاق.",
+    stepsLabel: "خطوتان للمشاركة",
+    step1Title: "أنشئ حساب Buyology",
+    step1Body: "سجّل على الموقع بالبريد الإلكتروني الذي تستخدمه فعلاً — عبره سنتواصل مع الفائز.",
+    step2Title: "تابعنا على إنستغرام",
+    step2Body: "تابع صفحة Buyology وفعّل الإشعارات. نعلن اسم الفائز هناك.",
+    cta: "شارك في السحب",
+    instagram: "تابعنا على إنستغرام",
+    note: "سيتم تسليم iPhone 18 Pro خلال الأسبوع الأول من تاريخ إطلاقه.",
+  },
+  notFound: {
+    eyebrow: "انقطعت الإشارة",
+    title: "هذه الصفحة خارج نطاق التغطية",
+    body: "قد يكون الرابط معطلاً أو أن المنتج قد نفد من المخزون. دعنا نعيدك إلى شيء يستحق.",
+    home: "العودة إلى الرئيسية",
+    browse: "تصفح كل المنتجات",
+    categoriesTitle: "أو تابع من حيث توقفت",
   },
 };
 

@@ -12,7 +12,9 @@ import {
   ArrowRightShortIcon,
   ChevronDownIcon,
   TagIcon,
+  UsersIcon,
 } from "@/components/icons";
+import { WHO_WE_ARE_URL } from "@/lib/site";
 import { useI18n } from "@/components/i18n/language-provider";
 
 /**
@@ -142,6 +144,17 @@ export function PrimaryNav() {
               </li>
             );
           })}
+
+          {/* Who We Are — lives on the corporate site, not this storefront */}
+          <li>
+            <a
+              href={WHO_WE_ARE_URL}
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <UsersIcon className="h-4 w-4 text-brand-icon" />
+              {t.header.whoWeAre}
+            </a>
+          </li>
 
           {/* Buyobot — filled gold pill (dark text = high contrast) */}
           <li>

@@ -56,4 +56,7 @@ export const site = {
   },
 } as const;
 
+/** Corporate/about site — a separate property from this storefront. */
+export const WHO_WE_ARE_URL = "https://web.buyology.online";
+
 export type Site = typeof site;

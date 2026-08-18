@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/header/SearchBar";
 import { PrimaryNav } from "@/components/header/PrimaryNav";
 import { AnnouncementBar } from "@/components/header/AnnouncementBar";
 import { buyobot, productCategories, services } from "@/lib/nav-data";
+import { WHO_WE_ARE_URL } from "@/lib/site";
 import {
   ArrowRightShortIcon,
   BagIcon,
@@ -213,6 +214,9 @@ export function Header() {
               <Link href="/help" onClick={close} className="hover:text-foreground">
                 {t.announcement.help}
               </Link>
+              <a href={WHO_WE_ARE_URL} onClick={close} className="hover:text-foreground">
+                {t.header.whoWeAre}
+              </a>
               <Link href="/contact" onClick={close} className="hover:text-foreground">
                 {t.contact.eyebrow}
               </Link>

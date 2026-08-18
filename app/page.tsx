@@ -1,5 +1,6 @@
 import { Header } from "@/components/header/Header";
 import { Stories } from "@/components/home/Stories";
+import { GiveawayBanner } from "@/components/home/GiveawayBanner";
 import { CategoryBanners } from "@/components/home/CategoryBanners";
 import { FeatureStrip } from "@/components/home/FeatureStrip";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
@@ -13,6 +14,7 @@ export default function Home() {
       <Header />
       <main>
         <Stories />
+        <GiveawayBanner />
         <CategoryBanners />
         <FeatureStrip />
         <ProductCarousel />

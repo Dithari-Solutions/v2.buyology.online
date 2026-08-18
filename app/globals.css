@@ -368,3 +368,31 @@ main {
     animation: none;
   }
 }
+
+/* 404: the B-Wave draws itself, then flatlines. The reduced-motion block above
+   collapses the duration, which lands on the fully-drawn end state. */
+@keyframes buyo-trace {
+  from {
+    stroke-dashoffset: var(--buyo-trace-len, 1400);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.buyo-trace {
+  stroke-dasharray: var(--buyo-trace-len, 1400);
+  animation: buyo-trace 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* The dot where the pulse gives out. */
+@keyframes buyo-flatline-blip {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.82); }
+}
+
+.buyo-blip {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: buyo-flatline-blip 2.4s ease-in-out 1.6s infinite;
+}
