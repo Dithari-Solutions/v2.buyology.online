@@ -72,8 +72,8 @@ function RecCard({ product }: { product: Product }) {
           aria-label={`${added ? t.cart.added : t.deals.addToCart}: ${product.name}`}
           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
             added
-              ? "bg-brand text-white"
-              : "bg-surface-2 text-brand-icon hover:bg-brand hover:text-white"
+              ? "bg-primary text-primary-fg"
+              : "bg-surface-2 text-brand-icon hover:bg-primary hover:text-primary-fg"
           }`}
         >
           {added ? (

@@ -114,7 +114,7 @@ export function PasswordGate() {
       className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto px-6 py-10"
       style={{
         background:
-          "radial-gradient(1100px 620px at 50% -8%, #513399 0%, #3a1f7d 38%, #2e1065 66%, #1b0a45 100%)",
+          "radial-gradient(1100px 620px at 50% -8%, #665991 0%, #402f75 38%, #2b1f52 66%, #000000 100%)",
       }}
     >
       <div
@@ -184,7 +184,7 @@ export function PasswordGate() {
 
           <button
             type="submit"
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gold py-3.5 text-sm font-semibold text-[#2e1065] shadow-lg shadow-black/20 transition-colors hover:bg-gold-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-fg shadow-lg shadow-black/20 transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
           >
             <LockIcon className="h-4 w-4" />
             {t.gate.submit}

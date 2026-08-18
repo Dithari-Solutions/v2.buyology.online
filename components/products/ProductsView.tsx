@@ -167,7 +167,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
               key={chip.key}
               type="button"
               onClick={chip.remove}
-              className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand-icon transition-colors hover:bg-brand hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand-icon transition-colors hover:bg-primary hover:text-primary-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {chip.label}
               <CloseIcon className="h-3 w-3" />
@@ -207,7 +207,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
               <button
                 type="button"
                 onClick={clearAll}
-                className="mt-1 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="mt-1 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {t.shop.clearAll}
               </button>
@@ -283,7 +283,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
                 <button
                   type="button"
                   onClick={() => setDrawerOpen(false)}
-                  className="flex-1 rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex-1 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {t.shop.showResults} ({filtered.length})
                 </button>

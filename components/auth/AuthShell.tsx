@@ -31,14 +31,14 @@ export function AuthShell({ children }: { children: ReactNode }) {
         className="relative hidden overflow-hidden p-10 text-white lg:flex lg:flex-col xl:p-14"
         style={{
           background:
-            "linear-gradient(155deg, #4a2f8f 0%, #2e1065 50%, #160734 100%)",
+            "linear-gradient(155deg, #665991 0%, #402f75 50%, #2b1f52 100%)",
         }}
       >
         {/* Ambient decor */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute -end-24 -top-24 h-96 w-96 rounded-full bg-gold/25 blur-[90px]" />
-          <div className="absolute -bottom-28 -start-24 h-[26rem] w-[26rem] rounded-full bg-[#7c3aed]/40 blur-[100px]" />
-          <div className="absolute end-1/4 top-1/2 h-72 w-72 rounded-full bg-[#d946ef]/20 blur-[90px]" />
+          <div className="absolute -bottom-28 -start-24 h-[26rem] w-[26rem] rounded-full bg-brand-400/45 blur-[100px]" />
+          <div className="absolute end-1/4 top-1/2 h-72 w-72 rounded-full bg-gold-400/20 blur-[90px]" />
           <div
             className="absolute inset-0 opacity-[0.14]"
             style={{
@@ -69,7 +69,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           <div aria-hidden="true" className="absolute inset-0 hidden lg:block">
             <div className="buyo-float absolute end-0 top-2 w-60 rounded-2xl border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-md">
               <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gold text-[#2e1065]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-fg">
                   <BotIcon className="h-4 w-4" />
                 </span>
                 <span className="text-sm font-semibold">Buyobot</span>
@@ -113,7 +113,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           <ul className="mt-7 flex flex-wrap gap-x-5 gap-y-2">
             {perks.map((pk) => (
               <li key={pk} className="flex items-center gap-2 text-sm text-white/85">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-[#2e1065]">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-fg">
                   <CheckIcon className="h-3 w-3" />
                 </span>
                 {pk}

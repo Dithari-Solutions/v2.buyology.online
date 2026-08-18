@@ -64,7 +64,7 @@ export function ProductCard({
             {bestsellerLabel}
           </span>
         ) : (
-          <span className="absolute start-3 top-3 z-[1] inline-flex items-center rounded-full bg-gold px-2.5 py-1 text-[11px] font-bold text-brand-deep shadow-sm">
+          <span className="absolute start-3 top-3 z-[1] inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold text-primary-fg shadow-sm">
             -{product.discount}%
           </span>
         )}

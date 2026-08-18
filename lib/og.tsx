@@ -27,7 +27,7 @@ export function renderOgImage() {
           justifyContent: "space-between",
           padding: "72px 80px",
           background:
-            "radial-gradient(1100px 520px at 80% -10%, #402f75 0%, #1a1230 45%, #08060d 100%)",
+            "radial-gradient(1100px 520px at 80% -10%, #402f75 0%, #2b1f52 45%, #000000 100%)",
           color: "#ffffff",
           fontFamily: "sans-serif",
         }}
@@ -41,10 +41,10 @@ export function renderOgImage() {
               width: 84,
               height: 84,
               borderRadius: 22,
-              background: "linear-gradient(135deg, #402f75 0%, #fbbb14 130%)",
+              background: "linear-gradient(135deg, #ffbe12 0%, #e0a710 130%)",
               fontSize: 52,
               fontWeight: 800,
-              color: "#ffffff",
+              color: "#000000",
             }}
           >
             B
@@ -55,11 +55,11 @@ export function renderOgImage() {
               fontSize: 22,
               letterSpacing: 6,
               textTransform: "uppercase",
-              color: "#fbbb14",
+              color: "#ffbe12",
               fontWeight: 700,
             }}
           >
-            Premium · Futuristic · Marketplace
+            {site.tagline}
           </div>
         </div>
 
@@ -103,12 +103,12 @@ export function renderOgImage() {
                   width: 12,
                   height: h,
                   borderRadius: 999,
-                  background: "linear-gradient(180deg, #fbbb14 0%, #e5a800 100%)",
+                  background: "linear-gradient(180deg, #ffbe12 0%, #e0a710 100%)",
                 }}
               />
             ))}
           </div>
-          <div style={{ display: "flex", fontSize: 30, color: "#fbbb14", fontWeight: 600 }}>
+          <div style={{ display: "flex", fontSize: 30, color: "#ffbe12", fontWeight: 600 }}>
             {site.domain}
           </div>
         </div>

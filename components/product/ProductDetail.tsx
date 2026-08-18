@@ -100,7 +100,7 @@ export function ProductDetail({ productId }: { productId: string }) {
               {t.deals.bestseller}
             </span>
           )}
-          <span className="absolute end-4 top-4 inline-flex items-center rounded-full bg-gold px-3 py-1 text-xs font-bold text-brand-deep shadow-sm">
+          <span className="absolute end-4 top-4 inline-flex items-center rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-fg shadow-sm">
             -{product.discount}%
           </span>
         </div>
@@ -257,7 +257,7 @@ export function ProductDetail({ productId }: { productId: string }) {
           <button
             type="button"
             onClick={onAdd}
-            className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {added ? (
               <>

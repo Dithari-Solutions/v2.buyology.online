@@ -12,7 +12,8 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     orientation: "portrait",
     background_color: site.colors.darkBg,
-    theme_color: site.colors.brand,
+    // Mikado Yellow is the primary brand color (Color 4).
+    theme_color: site.colors.gold,
     categories: ["shopping", "lifestyle"],
     lang: "en-US",
     dir: "ltr",

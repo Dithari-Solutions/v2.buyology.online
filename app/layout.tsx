@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Manrope, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { jsonLdScript, siteJsonLd } from "@/lib/structured-data";
@@ -15,9 +15,13 @@ import { Footer } from "@/components/footer/Footer";
 import { HideOnAuth } from "@/components/layout/HideOnAuth";
 import { PasswordGate } from "@/components/gate/PasswordGate";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Manrope is the brand body face (Brand Identity Guidelines, Typeface 10).
+// The display face, Biennale, is licensed and self-hosted separately; the
+// --font-display stack in globals.css falls back to Manrope until it is added.
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -99,7 +103,7 @@ export default async function RootLayout({
       lang={locale}
       dir={dirFor(locale)}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full`}
+      className={`${manrope.variable} ${geistMono.variable} h-full`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

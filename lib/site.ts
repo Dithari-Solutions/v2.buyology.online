@@ -8,7 +8,8 @@ export const site = {
   legalName: "Buyology",
   domain: "buyology.online",
   url: "https://buyology.online",
-  tagline: "The marketplace for the future you",
+  // Primary tagline (Brand Identity Guidelines, Tagline 2).
+  tagline: "Buy the why",
   description:
     "Buyology is a premium futuristic marketplace for electronics, audio, gaming, computing, wearables and home tech — with voice search, an AI shopping assistant, and complimentary orbital delivery.",
   keywords: [
@@ -24,12 +25,24 @@ export const site = {
     "smart home",
   ],
   // Brand palette — kept in sync with globals.css theme tokens.
+  // Names and hexes come from the Brand Identity Guidelines (Color 4–6):
+  // Mikado Yellow is primary, American Blue secondary, Black tertiary.
   colors: {
+    // American Blue (secondary) + its published tints.
     brand: "#402f75",
-    brandDeep: "#2e1065",
-    gold: "#fbbb14",
-    goldDeep: "#e5a800",
-    darkBg: "#08060d",
+    brand400: "#665991",
+    brand300: "#8c82ac",
+    brand200: "#b3acc8",
+    brand100: "#d9d5e3",
+    brandDeep: "#2b1f52",
+    // Mikado Yellow (primary) + its published tints.
+    gold: "#ffbe12",
+    gold400: "#ffcb41",
+    gold300: "#ffd871",
+    gold200: "#ffe5a0",
+    gold100: "#fff2d0",
+    goldDeep: "#e0a710",
+    darkBg: "#000000",
     lightBg: "#ffffff",
   },
   contact: {

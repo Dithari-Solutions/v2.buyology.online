@@ -147,7 +147,7 @@ export function PrimaryNav() {
           <li>
             <Link
               href={buyobot.href}
-              className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-sm font-semibold text-brand-deep transition-colors hover:bg-gold-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <BuyobotIcon className="h-4 w-4" />
               {t.items[buyobot.key].label}

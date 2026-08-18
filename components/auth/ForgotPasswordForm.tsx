@@ -10,7 +10,7 @@ import { CheckIcon, ChevronLeftIcon } from "@/components/icons";
 type Step = "email" | "otp" | "reset" | "done";
 
 const submitBtn =
-  "w-full rounded-full bg-brand py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50";
+  "w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50";
 
 export function ForgotPasswordForm() {
   const { t } = useI18n();

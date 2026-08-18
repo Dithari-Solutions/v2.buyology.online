@@ -74,7 +74,7 @@ export function QrCode({ size = 176 }: { size?: number }) {
         aria-label="QR login code"
       >
         <rect x={-2} y={-2} width={N + 4} height={N + 4} rx={3} fill="#ffffff" />
-        <g fill="#2e1065">{rects}</g>
+        <g fill="#402f75">{rects}</g>
       </svg>
       <span className="absolute left-1/2 top-1/2 flex h-[21%] w-[21%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg bg-brand text-white ring-4 ring-white">
         <BagIcon className="h-1/2 w-1/2" />

@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 
-// Home-screen icon: larger "B" mark with the signature gold wave beneath it.
+// Home-screen icon: "B" mark over the B-Wave, set as American Blue on Mikado
+// Yellow — the primary/secondary pairing from the guide (Secondary logo 10).
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
@@ -15,8 +16,8 @@ export default function AppleIcon() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(140deg, #402f75 0%, #2e1065 60%, #e5a800 150%)",
-          color: "#ffffff",
+          background: "linear-gradient(140deg, #ffbe12 0%, #e0a710 100%)",
+          color: "#402f75",
         }}
       >
         <div style={{ display: "flex", fontSize: 108, fontWeight: 800, lineHeight: 1 }}>
@@ -30,7 +31,7 @@ export default function AppleIcon() {
                 width: 8,
                 height: h,
                 borderRadius: 999,
-                background: "#fbbb14",
+                background: "#402f75",
               }}
             />
           ))}

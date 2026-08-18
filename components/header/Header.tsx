@@ -25,7 +25,7 @@ function CountBadge({ count, bump }: { count: number; bump?: boolean }) {
   return (
     <span
       key={bump ? count : undefined}
-      className={`absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-brand-deep ring-2 ring-background rtl:right-auto rtl:-left-0.5 ${
+      className={`absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-fg ring-2 ring-background rtl:right-auto rtl:-left-0.5 ${
         bump ? "buyo-badge-pop" : ""
       }`}
     >
@@ -147,7 +147,7 @@ export function Header() {
               <Link
                 href="/products"
                 onClick={close}
-                className="mb-3 flex items-center justify-between rounded-xl bg-brand-soft px-3 py-2.5 text-sm font-semibold text-brand-icon transition-colors hover:bg-brand hover:text-white"
+                className="mb-3 flex items-center justify-between rounded-xl bg-brand-soft px-3 py-2.5 text-sm font-semibold text-brand-icon transition-colors hover:bg-primary hover:text-primary-fg"
               >
                 <span className="flex items-center gap-2">
                   <TagIcon className="h-[18px] w-[18px]" />

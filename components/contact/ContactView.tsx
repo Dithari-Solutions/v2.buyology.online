@@ -37,7 +37,7 @@ export function ContactView() {
             className="relative overflow-hidden rounded-3xl p-4 sm:p-6"
             style={{
               background:
-                "radial-gradient(120% 120% at 50% 0%, #3a1f7d 0%, #241056 45%, #160734 100%)",
+                "radial-gradient(120% 120% at 50% 0%, #665991 0%, #402f75 45%, #2b1f52 100%)",
             }}
           >
             <Globe activeId={active} onSelect={setActive} />

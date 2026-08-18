@@ -96,7 +96,7 @@ export function FeaturedCarousel({ slides }: { slides: CarouselSlide[] }) {
               <div className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-3">
                 <Link
                   href={slide.cta.href}
-                  className="inline-flex items-center rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-brand-deep transition-colors hover:bg-gold-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
+                  className="inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
                 >
                   {slide.cta.label}
                 </Link>

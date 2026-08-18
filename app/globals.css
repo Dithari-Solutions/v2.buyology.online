@@ -8,51 +8,84 @@
 */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ---- Semantic surface tokens (swap per theme) ---- */
+/* ---- Semantic surface tokens (swap per theme) ----
+   Derived from the Buyology Brand Identity Guidelines (Feb 2024): Mikado
+   Yellow is the primary/dominant brand color, American Blue the secondary,
+   Black the tertiary neutral. Yellow carries primary actions; American Blue
+   carries supporting chrome, headings and secondary surfaces. */
 :root {
   --background: #ffffff;
-  --foreground: #16131f;
+  --foreground: #000000;
   --surface: #ffffff;
-  --surface-2: #f5f4f9;
+  --surface-2: #f6f4f9;
   --elevated: #ffffff;
-  --border: rgba(22, 19, 31, 0.1);
-  --border-strong: rgba(22, 19, 31, 0.16);
-  --muted: #5c576e;
+  --border: rgba(64, 47, 117, 0.12);
+  --border-strong: rgba(64, 47, 117, 0.22);
+  --muted: #5b5175;
+  /* Focus ring stays American Blue on light surfaces: Mikado Yellow only
+     reaches 1.7:1 against white and would fail WCAG 1.4.11 as an indicator. */
   --ring: #402f75;
-  /* Brand purple tuned for icon legibility per theme. */
+  /* American Blue tuned for icon legibility per theme. */
   --brand-icon: #402f75;
   --brand-soft: rgba(64, 47, 117, 0.08);
+  /* Primary action surface — Mikado Yellow with Black label (11.4:1). */
+  --primary: #ffbe12;
+  --primary-hover: #e0a710;
+  --primary-fg: #000000;
+  --primary-soft: rgba(255, 190, 18, 0.16);
+  /* Hairline keeps a yellow fill readable as a control against white. */
+  --primary-border: rgba(0, 0, 0, 0.18);
   /* Amber status/warning text that meets WCAG AA on light surfaces. */
   --warn: #8a6500;
-  --shadow-elevation: 0 1px 2px rgba(22, 19, 31, 0.06),
-    0 8px 24px rgba(22, 19, 31, 0.08);
-  --shadow-overlay: 0 24px 64px -12px rgba(22, 19, 31, 0.28);
+  --shadow-elevation: 0 1px 2px rgba(64, 47, 117, 0.06),
+    0 8px 24px rgba(64, 47, 117, 0.08);
+  --shadow-overlay: 0 24px 64px -12px rgba(64, 47, 117, 0.28);
 }
 
 .dark {
-  --background: #08060d;
-  --foreground: #ededf2;
-  --surface: #0c0a14;
-  --surface-2: #110e1b;
-  --elevated: #14111f;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --muted: #9c96ad;
-  --ring: #8574d6;
-  --brand-icon: #b3a6f0;
-  --brand-soft: rgba(179, 166, 240, 0.12);
-  --warn: #fbbb14;
-  --shadow-elevation: 0 1px 2px rgba(0, 0, 0, 0.4),
-    0 12px 32px rgba(0, 0, 0, 0.55);
-  --shadow-overlay: 0 24px 80px -12px rgba(0, 0, 0, 0.7);
+  /* Black is the guide's tertiary neutral — it grounds the dark theme. */
+  --background: #000000;
+  --foreground: #ffffff;
+  --surface: #0a090c;
+  --surface-2: #141219;
+  --elevated: #191721;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --muted: #b3acc8;
+  /* On black, Mikado Yellow is the clearest indicator (12.2:1). */
+  --ring: #ffbe12;
+  --brand-icon: #b3acc8;
+  --brand-soft: rgba(179, 172, 200, 0.12);
+  --primary: #ffbe12;
+  --primary-hover: #ffcb41;
+  --primary-fg: #000000;
+  --primary-soft: rgba(255, 190, 18, 0.16);
+  --primary-border: transparent;
+  --warn: #ffbe12;
+  --shadow-elevation: 0 1px 2px rgba(0, 0, 0, 0.5),
+    0 12px 32px rgba(0, 0, 0, 0.6);
+  --shadow-overlay: 0 24px 80px -12px rgba(0, 0, 0, 0.75);
 }
 
-/* ---- Static brand palette (from buyology.online) ---- */
+/* ---- Static brand palette (Brand Identity Guidelines, Color 4–6) ---- */
 @theme {
+  /* Secondary — American Blue #402F75 and its four published tints. */
   --color-brand: #402f75;
-  --color-brand-deep: #2e1065;
-  --color-gold: #fbbb14;
-  --color-gold-deep: #e5a800;
+  --color-brand-400: #665991;
+  --color-brand-300: #8c82ac;
+  --color-brand-200: #b3acc8;
+  --color-brand-100: #d9d5e3;
+  /* Not in the guide: a deeper American Blue for gradient anchors. */
+  --color-brand-deep: #2b1f52;
+
+  /* Primary — Mikado Yellow #FFBE12 and its four published tints. */
+  --color-gold: #ffbe12;
+  --color-gold-400: #ffcb41;
+  --color-gold-300: #ffd871;
+  --color-gold-200: #ffe5a0;
+  --color-gold-100: #fff2d0;
+  /* Not in the guide: a deeper Mikado for hover/pressed states. */
+  --color-gold-deep: #e0a710;
 }
 
 /* ---- Map semantic tokens to Tailwind utilities (inline = reads live vars) ---- */
@@ -68,8 +101,18 @@
   --color-ring: var(--ring);
   --color-brand-icon: var(--brand-icon);
   --color-brand-soft: var(--brand-soft);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-border: var(--primary-border);
   --color-warn: var(--warn);
-  --font-sans: var(--font-geist-sans);
+  /* Biennale is the brand display face; it is licensed from Zetafonts and is
+     not bundled. Self-host it and the stack picks it up with no code change —
+     until then headings render in Manrope, differentiated by the guide's
+     tighter display leading and tracking below. */
+  --font-display: "Biennale", var(--font-manrope), system-ui, sans-serif;
+  --font-sans: var(--font-manrope);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -84,6 +127,21 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  /* Guide: body leading 130–140%, tracking 0–2%. */
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+
+/* Guide: headings set in the display face at 96–110% leading, −1% tracking. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
 }
 
 /* Push the footer to the bottom on short pages (body is a flex column). */

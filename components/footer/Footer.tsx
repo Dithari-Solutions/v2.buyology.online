@@ -21,7 +21,7 @@ export async function Footer() {
     <footer
       className="text-white"
       style={{
-        background: "linear-gradient(180deg, #2e1065 0%, #1c0a45 100%)",
+        background: "linear-gradient(180deg, #402f75 0%, #2b1f52 100%)",
       }}
     >
       {/* Newsletter */}
@@ -67,7 +67,7 @@ export async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-gold hover:text-[#2e1065] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-gold hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
                   <Icon className="h-[18px] w-[18px]" />
                 </a>

@@ -43,8 +43,8 @@ export function AddToCartButton({ product }: { product: Product }) {
         aria-label={t.deals.addToCart}
         className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
           added
-            ? "bg-brand text-white"
-            : "bg-surface-2 text-foreground hover:bg-brand hover:text-white"
+            ? "bg-primary text-primary-fg"
+            : "bg-surface-2 text-foreground hover:bg-primary hover:text-primary-fg"
         }`}
       >
         {added ? (

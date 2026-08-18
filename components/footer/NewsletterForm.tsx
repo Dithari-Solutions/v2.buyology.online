@@ -37,7 +37,7 @@ export function NewsletterForm() {
           />
           <button
             type="submit"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gold px-5 py-3.5 text-sm font-semibold text-[#2e1065] transition-colors hover:bg-gold-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-5 py-3.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
           >
             {nl.subscribe}
             <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />

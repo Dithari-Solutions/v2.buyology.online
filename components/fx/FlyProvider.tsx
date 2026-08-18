@@ -128,7 +128,7 @@ function FlyingDot({ p, onDone }: { p: Particle; onDone: () => void }) {
       className={`pointer-events-none flex h-7 w-7 items-center justify-center rounded-full shadow-lg ${
         isCart
           ? "bg-gradient-to-br from-brand to-brand-deep text-white"
-          : "bg-gold text-brand-deep"
+          : "bg-primary text-primary-fg"
       }`}
     >
       {isCart ? (

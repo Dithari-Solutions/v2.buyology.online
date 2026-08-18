@@ -324,7 +324,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
                         <span
                           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
                             isActive
-                              ? "bg-brand text-white"
+                              ? "bg-primary text-primary-fg"
                               : "bg-brand-soft text-brand-icon"
                           }`}
                         >

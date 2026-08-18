@@ -7,7 +7,7 @@ import type { SVGProps } from "react";
  */
 
 const WORDMARK_FONT =
-  "var(--font-geist-sans), system-ui, -apple-system, sans-serif";
+  "var(--font-manrope), system-ui, -apple-system, sans-serif";
 
 export function TabbyLogo(props: SVGProps<SVGSVGElement>) {
   return (
