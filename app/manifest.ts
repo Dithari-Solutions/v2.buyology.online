@@ -18,8 +18,8 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "en-US",
     dir: "ltr",
     icons: [
-      // Rounded brand favicon (app/icon.png) is auto-linked by Next in <head>.
-      { src: "/icon.png", sizes: "512x512", type: "image/png" },
+      // Brand mark from /public — also the tab favicon (see layout metadata).
+      { src: "/favicon.png", sizes: "445x445", type: "image/png" },
       { src: "/apple-icon", sizes: "180x180", type: "image/png" },
       // The full-bleed square mark serves as the maskable install icon.
       {

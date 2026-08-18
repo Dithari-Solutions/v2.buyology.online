@@ -42,6 +42,14 @@ export const metadata: Metadata = {
   applicationName: site.name,
   category: "shopping",
   alternates: { canonical: "/" },
+  // Served straight from /public. The app/ file conventions (favicon.ico,
+  // icon.png) were removed so this is the single source for the tab icon —
+  // keeping both would emit competing <link rel="icon"> tags. The
+  // apple-touch-icon still comes from app/apple-icon.tsx.
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png", sizes: "445x445" }],
+    shortcut: [{ url: "/favicon.png", type: "image/png" }],
+  },
   openGraph: {
     type: "website",
     siteName: site.name,
