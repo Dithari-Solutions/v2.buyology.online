@@ -1,7 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getDict } from "@/lib/i18n/server";
 import { site } from "@/lib/site";
-import { GiveawayPhone } from "@/components/home/GiveawayPhone";
 import {
   ArrowRightShortIcon,
   InstagramIcon,
@@ -12,8 +12,10 @@ import {
 /**
  * Headline giveaway promotion — the first thing on the home page.
  *
- * Deliberately no product photograph: the iPhone 18 Pro is unannounced, so the
- * prize is a vector rendition (see GiveawayPhone) rather than official imagery.
+ * The prize shot lives at /public/mock/iphone-18-pro.png — supply a
+ * transparent PNG so it sits on the purple ground cleanly. `fill` +
+ * `object-contain` keeps any aspect ratio undistorted.
+ *
  * The two entry conditions are numbered because they are a genuine sequence
  * (account first, so the follow can be matched to a winner).
  */
@@ -133,16 +135,28 @@ export async function GiveawayBanner() {
               Sits in its own right-hand column, tilted 19° and centred so the
               camera plateau clears the section's rounded clip. The tilt is
               mirrored under RTL so the handset still leans into the copy. */}
-          <div aria-hidden="true" className="pointer-events-none relative hidden lg:block">
-            <div className="absolute start-1/2 top-1/2 h-[460px] w-[460px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/20 blur-[90px]" />
-            <div className="absolute start-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/25 blur-[70px]" />
+          <div className="pointer-events-none relative hidden lg:block">
+            <div
+              aria-hidden="true"
+              className="absolute start-1/2 top-1/2 h-[460px] w-[460px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/20 blur-[90px]"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute start-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/25 blur-[70px]"
+            />
 
             {/* Centring and the float live on separate elements: `buyo-float`
                 animates `transform`, which would otherwise replace the
-                -translate-y-1/2 and drop the phone out of alignment. */}
-            <div className="absolute start-1/2 top-1/2 w-[270px] -translate-x-1/2 -translate-y-1/2">
-              <div className="buyo-float">
-                <GiveawayPhone className="w-full rotate-[19deg] drop-shadow-[0_38px_60px_rgba(0,0,0,0.62)] rtl:-rotate-[19deg]" />
+                -translate-x/y-1/2 and drop the phone out of alignment. */}
+            <div className="absolute start-1/2 top-1/2 h-[520px] w-[300px] -translate-x-1/2 -translate-y-1/2">
+              <div className="buyo-float relative h-full w-full">
+                <Image
+                  src="/mock/iphone-18-pro.png"
+                  alt={t.giveaway.prize}
+                  fill
+                  sizes="300px"
+                  className="rotate-[19deg] object-contain drop-shadow-[0_38px_60px_rgba(0,0,0,0.62)] rtl:-rotate-[19deg]"
+                />
               </div>
             </div>
           </div>
