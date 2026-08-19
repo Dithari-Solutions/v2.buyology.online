@@ -8,22 +8,33 @@ import { useI18n } from "@/components/i18n/language-provider";
  * Buyobot avatar — drawn rather than imported so it inherits the brand palette
  * and stays sharp at every size. Mikado Yellow shell, American Blue visor.
  */
-function BuyobotAvatar({ className = "" }: { className?: string }) {
+function BuyobotAvatar({
+  className = "",
+  waving = false,
+}: {
+  className?: string;
+  /** Animates the raised arm. Only the launcher waves; the header stays still. */
+  waving?: boolean;
+}) {
   return (
     <svg viewBox="0 0 48 48" role="presentation" aria-hidden="true" className={className}>
       {/* antenna */}
-      <line x1="24" y1="6" x2="24" y2="12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="24" cy="5" r="3" fill="currentColor" />
+      <line x1="21" y1="8" x2="21" y2="14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="21" cy="7" r="2.8" fill="currentColor" />
       {/* head */}
-      <rect x="8" y="12" width="32" height="26" rx="9" fill="currentColor" />
+      <rect x="7" y="14" width="28" height="24" rx="8" fill="currentColor" />
       {/* visor */}
-      <rect x="13" y="18" width="22" height="13" rx="6.5" fill="var(--color-brand)" />
+      <rect x="12" y="20" width="18" height="11" rx="5.5" fill="var(--color-brand)" />
       {/* eyes */}
-      <circle cx="19.5" cy="24.5" r="2.6" fill="var(--color-gold)" />
-      <circle cx="28.5" cy="24.5" r="2.6" fill="var(--color-gold)" />
-      {/* ears */}
-      <rect x="4" y="21" width="3.5" height="8" rx="1.75" fill="currentColor" />
-      <rect x="40.5" y="21" width="3.5" height="8" rx="1.75" fill="currentColor" />
+      <circle cx="17.5" cy="25.5" r="2.4" fill="var(--color-gold)" />
+      <circle cx="25.5" cy="25.5" r="2.4" fill="var(--color-gold)" />
+      {/* left ear */}
+      <rect x="3.4" y="22" width="3.2" height="8" rx="1.6" fill="currentColor" />
+      {/* raised arm — pivots at the elbow (40.5, 31) */}
+      <g className={waving ? "buyo-wave" : undefined}>
+        <rect x="38.5" y="22" width="4" height="9.5" rx="2" fill="currentColor" />
+        <circle cx="40.5" cy="19.5" r="3.8" fill="currentColor" />
+      </g>
     </svg>
   );
 }
@@ -227,6 +238,19 @@ export function ChatWidget() {
         </div>
       )}
 
+      {/* Greeting bubble. aria-hidden because the launcher's own aria-label
+          already names the action — announcing both would be redundant. */}
+      {!open && (
+        <div className="pointer-events-none flex w-full justify-end pe-[4.25rem]">
+          <p
+            aria-hidden="true"
+            className="buyo-rise relative -mb-11 max-w-[13rem] rounded-2xl rounded-ee-sm border border-border bg-elevated px-3.5 py-2 text-sm font-medium text-foreground shadow-[var(--shadow-elevation)]"
+          >
+            {c.greeting}
+          </p>
+        </div>
+      )}
+
       {/* Launcher */}
       <button
         ref={launcherRef}
@@ -241,7 +265,7 @@ export function ChatWidget() {
           <CloseIcon className="h-6 w-6" />
         ) : (
           <>
-            <BuyobotAvatar className="h-8 w-8" />
+            <BuyobotAvatar className="h-8 w-8" waving />
             {/* Availability dot — the 24/7 signal, mirrored under RTL. */}
             <span
               aria-hidden="true"

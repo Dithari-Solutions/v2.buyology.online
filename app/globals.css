@@ -395,3 +395,29 @@ main {
   transform-box: fill-box;
   animation: buyo-flatline-blip 2.4s ease-in-out 1.6s infinite;
 }
+
+/* Buyobot waves from the chat launcher. transform-box keeps the pivot in the
+   SVG's own coordinate system so the arm rotates at the elbow, not the origin.
+   The prefers-reduced-motion block above collapses this to a still arm. */
+@keyframes buyo-wave {
+  0%,
+  55%,
+  100% {
+    transform: rotate(0deg);
+  }
+  65% {
+    transform: rotate(-22deg);
+  }
+  75% {
+    transform: rotate(14deg);
+  }
+  85% {
+    transform: rotate(-14deg);
+  }
+}
+
+.buyo-wave {
+  transform-box: view-box;
+  transform-origin: 40.5px 31px;
+  animation: buyo-wave 2.8s ease-in-out infinite;
+}

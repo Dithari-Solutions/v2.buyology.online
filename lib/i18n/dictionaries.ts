@@ -469,6 +469,7 @@ export interface Dict {
   };
   chat: {
     launch: string;
+    greeting: string;
     title: string;
     status: string;
     intro: string;
@@ -1137,6 +1138,7 @@ const en: Dict = {
   },
   chat: {
     launch: "Chat with Buyobot",
+    greeting: "I'm here to help you",
     title: "Buyobot",
     status: "Online · 24/7",
     intro: "Hi! I'm Buyobot. Ask me about an order, a product, or a return — any time, day or night.",
@@ -1820,6 +1822,7 @@ const az: Dict = {
   },
   chat: {
     launch: "Buyobot ilə söhbət",
+    greeting: "Sizə kömək etmək üçün buradayam",
     title: "Buyobot",
     status: "Onlayn · 24/7",
     intro: "Salam! Mən Buyobotam. Sifariş, məhsul və ya geri qaytarma barədə istənilən vaxt soruşun.",
@@ -2487,6 +2490,7 @@ const ar: Dict = {
   },
   chat: {
     launch: "الدردشة مع Buyobot",
+    greeting: "أنا هنا لمساعدتك",
     title: "Buyobot",
     status: "متصل · على مدار الساعة",
     intro: "مرحبًا! أنا Buyobot. اسألني عن طلب أو منتج أو إرجاع، في أي وقت ليلًا أو نهارًا.",
