@@ -12,9 +12,10 @@ import {
 /**
  * Headline giveaway promotion — the first thing on the home page.
  *
- * The prize shot lives at /public/mock/iphone-18-pro.png — supply a
- * transparent PNG so it sits on the purple ground cleanly. `fill` +
- * `object-contain` keeps any aspect ratio undistorted.
+ * The prize shot lives at /public/mock/iphone-18-pro.png — the supplied
+ * render with its flat background cut out. `fill` + `object-contain` keeps the
+ * aspect ratio undistorted; a back-only crop sits alongside it as
+ * iphone-18-pro-back.png if the pair ever reads too small.
  *
  * The two entry conditions are numbered because they are a genuine sequence
  * (account first, so the follow can be matched to a winner).
@@ -44,13 +45,13 @@ export async function GiveawayBanner() {
         className="relative isolate overflow-hidden rounded-3xl border border-border text-white"
         style={{
           background:
-            "radial-gradient(120% 130% at 82% -20%, #665991 0%, #402f75 42%, #2b1f52 72%, #16102b 100%)",
+            "radial-gradient(120% 130% at 82% -20%, #402f75 0%, #392a67 42%, #2f2255 72%, #1e1639 100%)",
         }}
       >
         {/* Ambient brand light */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -end-16 -top-24 h-80 w-80 rounded-full bg-gold/25 blur-[90px]" />
-          <div className="absolute -bottom-28 start-1/4 h-72 w-72 rounded-full bg-brand-400/40 blur-[100px]" />
+          <div className="absolute -bottom-28 start-1/4 h-72 w-72 rounded-full bg-brand/45 blur-[100px]" />
           <div
             className="absolute inset-0 opacity-[0.12]"
             style={{
@@ -132,9 +133,9 @@ export async function GiveawayBanner() {
           </div>
 
           {/* ── Prize artwork ────────────────────────────────────────
-              Sits in its own right-hand column, tilted 19° and centred so the
-              camera plateau clears the section's rounded clip. The tilt is
-              mirrored under RTL so the handset still leans into the copy. */}
+              Sits in its own right-hand column, tilted 12° and centred. The
+              tilt is gentler than for a single handset because the supplied
+              render is a front/back pair, and is mirrored under RTL. */}
           <div className="pointer-events-none relative hidden lg:block">
             <div
               aria-hidden="true"
@@ -148,14 +149,14 @@ export async function GiveawayBanner() {
             {/* Centring and the float live on separate elements: `buyo-float`
                 animates `transform`, which would otherwise replace the
                 -translate-x/y-1/2 and drop the phone out of alignment. */}
-            <div className="absolute start-1/2 top-1/2 h-[520px] w-[300px] -translate-x-1/2 -translate-y-1/2">
+            <div className="absolute start-1/2 top-1/2 h-[420px] w-[336px] -translate-x-1/2 -translate-y-1/2">
               <div className="buyo-float relative h-full w-full">
                 <Image
                   src="/mock/iphone-18-pro.png"
                   alt={t.giveaway.prize}
                   fill
-                  sizes="300px"
-                  className="rotate-[19deg] object-contain drop-shadow-[0_38px_60px_rgba(0,0,0,0.62)] rtl:-rotate-[19deg]"
+                  sizes="336px"
+                  className="rotate-[12deg] object-contain drop-shadow-[0_38px_60px_rgba(0,0,0,0.62)] rtl:-rotate-[12deg]"
                 />
               </div>
             </div>
