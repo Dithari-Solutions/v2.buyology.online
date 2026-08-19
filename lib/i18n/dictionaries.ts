@@ -486,6 +486,15 @@ export interface Dict {
     replyHuman: string;
     fallback: string;
     disclaimer: string;
+    typing: string;
+    errorGeneric: string;
+    rateLimited: string;
+    charsLeft: string;
+    escalateCta: string;
+    viewProduct: string;
+    outOfStock: string;
+    preOrder: string;
+    refurbished: string;
   };
 }
 
@@ -1155,6 +1164,15 @@ const en: Dict = {
     replyHuman: "Our team is on support@buyology.online and replies within one working day. The contact page has regional phone numbers too.",
     fallback: "I haven't been taught that one yet. Try one of the buttons above, or email support@buyology.online.",
     disclaimer: "Buyobot is a demo assistant — answers are illustrative, not account-specific.",
+    typing: "Typing…",
+    errorGeneric: "That didn't go through. Try again, or contact our team.",
+    rateLimited: "Too many messages just now. Try again in {s}s.",
+    charsLeft: "{n} characters left",
+    escalateCta: "Talk to our team",
+    viewProduct: "View product",
+    outOfStock: "Out of stock",
+    preOrder: "Pre-order",
+    refurbished: "Refurbished",
   },
 };
 
@@ -1839,6 +1857,15 @@ const az: Dict = {
     replyHuman: "Komandamız support@buyology.online ünvanında bir iş günü ərzində cavab verir. Əlaqə səhifəsində regional nömrələr də var.",
     fallback: "Bunu hələ öyrənməmişəm. Yuxarıdakı düymələrdən birini seçin və ya support@buyology.online ünvanına yazın.",
     disclaimer: "Buyobot nümayiş assistentidir — cavablar nümunə xarakterlidir, hesaba aid deyil.",
+    typing: "Yazır…",
+    errorGeneric: "Alınmadı. Yenidən cəhd edin və ya komandamızla əlaqə saxlayın.",
+    rateLimited: "Çox sayda mesaj göndərildi. {s} saniyə sonra yenidən cəhd edin.",
+    charsLeft: "{n} simvol qalıb",
+    escalateCta: "Komandamızla danışın",
+    viewProduct: "Məhsula bax",
+    outOfStock: "Stokda yoxdur",
+    preOrder: "Ön sifariş",
+    refurbished: "Bərpa edilmiş",
   },
 };
 
@@ -2507,6 +2534,15 @@ const ar: Dict = {
     replyHuman: "فريقنا متاح على support@buyology.online ويرد خلال يوم عمل واحد. صفحة التواصل تضم أرقامًا إقليمية أيضًا.",
     fallback: "لم أتعلّم هذا بعد. جرّب أحد الأزرار أعلاه أو راسلنا على support@buyology.online.",
     disclaimer: "Buyobot مساعد تجريبي — الإجابات توضيحية وليست خاصة بحسابك.",
+    typing: "يكتب…",
+    errorGeneric: "لم تنجح العملية. حاول مرة أخرى أو تواصل مع فريقنا.",
+    rateLimited: "رسائل كثيرة الآن. أعد المحاولة بعد {s} ثانية.",
+    charsLeft: "بقي {n} حرفًا",
+    escalateCta: "تحدث مع فريقنا",
+    viewProduct: "عرض المنتج",
+    outOfStock: "غير متوفر",
+    preOrder: "طلب مسبق",
+    refurbished: "مُجدَّد",
   },
 };
 

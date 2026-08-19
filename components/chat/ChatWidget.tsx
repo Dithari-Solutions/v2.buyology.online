@@ -1,8 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { CloseIcon, SendIcon } from "@/components/icons";
 import { useI18n } from "@/components/i18n/language-provider";
+import { useAssistant } from "@/lib/assistant/useAssistant";
+import { MAX_MESSAGE_LENGTH } from "@/lib/assistant/client";
+import type { AssistantProductCard } from "@/types/assistant";
+
+/** Market the assistant scopes products and prices to. */
+const COUNTRY_CODE = "AE";
+const CURRENCY = "AED";
+
+/** Show the remaining-characters hint only near the cap. */
+const COUNTER_THRESHOLD = 100;
 
 /**
  * Buyobot avatar — drawn rather than imported so it inherits the brand palette
@@ -18,17 +29,12 @@ function BuyobotAvatar({
 }) {
   return (
     <svg viewBox="0 0 48 48" role="presentation" aria-hidden="true" className={className}>
-      {/* antenna */}
       <line x1="21" y1="8" x2="21" y2="14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
       <circle cx="21" cy="7" r="2.8" fill="currentColor" />
-      {/* head */}
       <rect x="7" y="14" width="28" height="24" rx="8" fill="currentColor" />
-      {/* visor */}
       <rect x="12" y="20" width="18" height="11" rx="5.5" fill="var(--color-brand)" />
-      {/* eyes */}
       <circle cx="17.5" cy="25.5" r="2.4" fill="var(--color-gold)" />
       <circle cx="25.5" cy="25.5" r="2.4" fill="var(--color-gold)" />
-      {/* left ear */}
       <rect x="3.4" y="22" width="3.2" height="8" rx="1.6" fill="currentColor" />
       {/* raised arm — pivots at the elbow (40.5, 31) */}
       <g className={waving ? "buyo-wave" : undefined}>
@@ -39,10 +45,92 @@ function BuyobotAvatar({
   );
 }
 
-type Msg = { id: number; from: "bot" | "user"; text: string };
+/**
+ * A product the assistant referred to. Every price/image field can be ABSENT —
+ * the server omits nulls rather than sending them — so each is read optionally.
+ */
+function AssistantCard({
+  card,
+  viewLabel,
+  outOfStockLabel,
+  preOrderLabel,
+  refurbishedLabel,
+}: {
+  card: AssistantProductCard;
+  viewLabel: string;
+  outOfStockLabel: string;
+  preOrderLabel: string;
+  refurbishedLabel: string;
+}) {
+  const badge =
+    card.availabilityStatus === "OUT_OF_STOCK"
+      ? outOfStockLabel
+      : card.availabilityStatus === "PRE_ORDER"
+        ? preOrderLabel
+        : null;
+
+  const body = (
+    <>
+      {card.imageUrl ? (
+        /* The image host comes from the API at runtime, so it cannot be added to
+           next.config remotePatterns at build time — next/image would throw. */
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={card.imageUrl}
+          alt=""
+          loading="lazy"
+          className="h-12 w-12 shrink-0 rounded-lg border border-border object-cover"
+        />
+      ) : (
+        <span
+          aria-hidden="true"
+          className="h-12 w-12 shrink-0 rounded-lg border border-border bg-surface-2"
+        />
+      )}
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-semibold text-foreground">
+          {card.title ?? viewLabel}
+        </span>
+        {card.brandName && (
+          <span className="block truncate text-xs text-muted">{card.brandName}</span>
+        )}
+        <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs">
+          {card.price != null && card.currency && (
+            <span className="font-semibold text-foreground">
+              {card.price} {card.currency}
+            </span>
+          )}
+          {card.originalPrice != null && card.originalPrice > (card.price ?? 0) && (
+            <s className="text-muted">{card.originalPrice}</s>
+          )}
+          {card.isRefurbished && <span className="text-muted">{refurbishedLabel}</span>}
+          {badge && <span className="font-medium text-warn">{badge}</span>}
+        </span>
+      </span>
+    </>
+  );
+
+  // Linked by slug, not id — the id is for analytics and dedupe.
+  return (
+    <li>
+      {card.slug ? (
+        <Link
+          href={`/product/${card.slug}`}
+          className="flex items-center gap-2.5 rounded-xl border border-border bg-surface p-2 transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {body}
+        </Link>
+      ) : (
+        <div className="flex items-center gap-2.5 rounded-xl border border-border bg-surface p-2">
+          {body}
+        </div>
+      )}
+    </li>
+  );
+}
 
 /**
- * Always-on chat launcher and panel.
+ * Always-on chat launcher and panel, backed by the Buyology assistant API.
  *
  * The panel is a NON-modal dialog on purpose: a support widget should not trap
  * focus or lock page scroll the way the cart drawer and command palette do —
@@ -50,92 +138,79 @@ type Msg = { id: number; from: "bot" | "user"; text: string };
  * and on its own close button, but not on outside click, which would throw away
  * a half-typed question.
  *
- * Replies are matched locally against the quick-reply topics. There is no
- * backend in this build; wire `respond()` to the real assistant endpoint and the
- * rest of the component is unchanged.
+ * The whole widget — launcher included — stays hidden until /status confirms the
+ * assistant is switched on. A chat box that refuses the first message is a worse
+ * first impression than no chat box.
  */
 export function ChatWidget() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const c = t.chat;
 
+  const copy = useMemo(
+    () => ({
+      intro: c.intro,
+      errorGeneric: c.errorGeneric,
+      rateLimited: c.rateLimited,
+    }),
+    [c.intro, c.errorGeneric, c.rateLimited],
+  );
+
+  const { enabled, turns, busy, send, greet } = useAssistant(
+    { language: locale, countryCode: COUNTRY_CODE, currency: CURRENCY },
+    copy,
+  );
+
   const [open, setOpen] = useState(false);
-  const [text, setText] = useState("");
-  const [msgs, setMsgs] = useState<Msg[]>([]);
-  const seq = useRef(0);
+  const [draft, setDraft] = useState("");
 
   const panelId = `chat${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   const launcherRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
 
-  const topics = [
-    { key: "track", label: c.quickTrack, reply: c.replyTrack },
-    { key: "returns", label: c.quickReturns, reply: c.replyReturns },
-    { key: "product", label: c.quickProduct, reply: c.replyProduct },
-    { key: "human", label: c.quickHuman, reply: c.replyHuman },
-  ];
-
-  const push = useCallback((from: Msg["from"], body: string) => {
-    seq.current += 1;
-    setMsgs((m) => [...m, { id: seq.current, from, text: body }]);
-  }, []);
-
-  // Greet once, the first time the panel is opened.
-  useEffect(() => {
-    if (open && msgs.length === 0) push("bot", c.intro);
-  }, [open, msgs.length, push, c.intro]);
+  const quickReplies = [c.quickTrack, c.quickReturns, c.quickProduct, c.quickHuman];
 
   useEffect(() => {
-    if (open) inputRef.current?.focus();
-  }, [open]);
+    if (!open) return;
+    greet();
+    inputRef.current?.focus();
+  }, [open, greet]);
 
-  // Keep the newest message in view as the log grows.
+  // Keep the newest turn in view as the transcript grows.
   useEffect(() => {
     if (open) logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
-  }, [msgs, open]);
-
-  const close = useCallback(() => {
-    setOpen(false);
-    launcherRef.current?.focus();
-  }, []);
+  }, [turns, busy, open]);
 
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         e.stopPropagation();
-        close();
+        setOpen(false);
+        launcherRef.current?.focus();
       }
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, close]);
+  }, [open]);
 
-  /** Local stand-in for the assistant. Swap for a real call when one exists. */
-  function respond(question: string) {
-    const q = question.toLowerCase();
-    const hit = topics.find(
-      (topic) =>
-        q.includes(topic.label.toLowerCase()) ||
-        topic.label.toLowerCase().includes(q),
-    );
-    push("bot", hit ? hit.reply : c.fallback);
+  function close() {
+    setOpen(false);
+    launcherRef.current?.focus();
   }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    const body = text.trim();
-    if (!body) return;
-    push("user", body);
-    setText("");
-    respond(body);
+    const body = draft.trim();
+    if (!body || busy) return;
+    setDraft("");
+    void send(body);
   }
 
-  function askTopic(topic: (typeof topics)[number]) {
-    push("user", topic.label);
-    push("bot", topic.reply);
-    inputRef.current?.focus();
-  }
+  // Hidden while checking, and entirely absent when the assistant is off.
+  if (enabled !== true) return null;
+
+  const remaining = MAX_MESSAGE_LENGTH - draft.length;
 
   return (
     <div className="pointer-events-none fixed bottom-4 end-4 z-[120] flex flex-col items-end gap-3 sm:bottom-6 sm:end-6">
@@ -144,7 +219,7 @@ export function ChatWidget() {
           id={panelId}
           role="dialog"
           aria-label={c.title}
-          className="buyo-rise pointer-events-auto flex h-[min(30rem,calc(100vh-7rem))] w-[min(22rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border bg-elevated shadow-[var(--shadow-overlay)]"
+          className="buyo-rise pointer-events-auto flex h-[min(32rem,calc(100vh-7rem))] w-[min(23rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border bg-elevated shadow-[var(--shadow-overlay)]"
         >
           {/* Header */}
           <div className="flex items-center gap-3 border-b border-border bg-brand px-4 py-3 text-white">
@@ -154,10 +229,7 @@ export function ChatWidget() {
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-bold">{c.title}</span>
               <span className="flex items-center gap-1.5 text-xs text-white/75">
-                <span
-                  aria-hidden="true"
-                  className="block h-1.5 w-1.5 rounded-full bg-emerald-400"
-                />
+                <span aria-hidden="true" className="block h-1.5 w-1.5 rounded-full bg-emerald-400" />
                 {c.status}
               </span>
             </span>
@@ -179,53 +251,101 @@ export function ChatWidget() {
             aria-label={c.title}
             className="flex-1 space-y-2.5 overflow-y-auto overscroll-contain bg-surface-2 p-3"
           >
-            {msgs.map((m) => (
-              <div
-                key={m.id}
-                className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <p
-                  className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-sm ${
-                    m.from === "user"
-                      ? "bg-primary text-primary-fg"
-                      : "border border-border bg-surface text-foreground"
-                  }`}
-                >
-                  {m.text}
-                </p>
-              </div>
-            ))}
+            {turns.map((turn) => {
+              if (turn.role === "notice") {
+                return (
+                  <p
+                    key={turn.id}
+                    role="alert"
+                    className="rounded-xl border border-border bg-surface px-3.5 py-2 text-center text-xs text-warn"
+                  >
+                    {turn.text}
+                  </p>
+                );
+              }
+              const mine = turn.role === "customer";
+              return (
+                <div key={turn.id} className={mine ? "flex justify-end" : "space-y-2"}>
+                  <p
+                    // Model-generated plain text: rendered as a string child,
+                    // never as HTML. Line breaks come from CSS, not markup.
+                    className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2 text-sm ${
+                      mine
+                        ? "bg-primary text-primary-fg"
+                        : "inline-block border border-border bg-surface text-foreground"
+                    }`}
+                  >
+                    {turn.text}
+                  </p>
+
+                  {!mine && turn.products.length > 0 && (
+                    <ul className="space-y-1.5">
+                      {turn.products.map((card) => (
+                        <AssistantCard
+                          key={card.id}
+                          card={card}
+                          viewLabel={c.viewProduct}
+                          outOfStockLabel={c.outOfStock}
+                          preOrderLabel={c.preOrder}
+                          refurbishedLabel={c.refurbished}
+                        />
+                      ))}
+                    </ul>
+                  )}
+
+                  {!mine && turn.escalate && (
+                    <Link
+                      href="/contact"
+                      onClick={close}
+                      className="inline-flex items-center rounded-full bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      {c.escalateCta}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
+
+            {busy && (
+              <p className="w-fit rounded-2xl border border-border bg-surface px-3.5 py-2 text-sm text-muted">
+                {c.typing}
+              </p>
+            )}
           </div>
 
-          {/* Quick replies */}
-          <div className="flex flex-wrap gap-1.5 border-t border-border bg-surface px-3 pt-2.5">
-            {topics.map((topic) => (
-              <button
-                key={topic.key}
-                type="button"
-                onClick={() => askTopic(topic)}
-                className="rounded-full border border-border-strong px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {topic.label}
-              </button>
-            ))}
-          </div>
+          {/* Quick replies — real questions, sent through the assistant. */}
+          {turns.length <= 1 && !busy && (
+            <div className="flex flex-wrap gap-1.5 border-t border-border bg-surface px-3 pt-2.5">
+              {quickReplies.map((label) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => void send(label)}
+                  className="rounded-full border border-border-strong px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Composer */}
           <form onSubmit={submit} className="flex items-center gap-2 bg-surface p-3">
             <input
               ref={inputRef}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
+              value={draft}
+              maxLength={MAX_MESSAGE_LENGTH}
+              disabled={busy}
+              onChange={(e) => setDraft(e.target.value)}
               placeholder={c.placeholder}
               aria-label={c.placeholder}
               autoComplete="off"
-              className="min-w-0 flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring"
+              className="min-w-0 flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
             />
             <button
               type="submit"
               aria-label={c.send}
-              disabled={!text.trim()}
+              disabled={busy || !draft.trim()}
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             >
               <SendIcon className="h-4 w-4 rtl:-scale-x-100" />
@@ -233,7 +353,9 @@ export function ChatWidget() {
           </form>
 
           <p className="border-t border-border bg-surface px-3 py-2 text-[11px] leading-snug text-muted">
-            {c.disclaimer}
+            {remaining <= COUNTER_THRESHOLD
+              ? c.charsLeft.replace("{n}", String(remaining))
+              : c.disclaimer}
           </p>
         </div>
       )}
