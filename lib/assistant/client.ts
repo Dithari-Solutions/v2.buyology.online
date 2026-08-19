@@ -18,7 +18,18 @@ import type {
  * the backend's CORS config — an unlisted origin fails in the browser while
  * working fine in curl.
  */
-const API_BASE = process.env.NEXT_PUBLIC_ASSISTANT_API_BASE ?? "";
+const DIRECT_BASE = process.env.NEXT_PUBLIC_ASSISTANT_API_BASE ?? "";
+
+/**
+ * Route through the same-origin dev proxy instead of calling the API directly.
+ * Only for local development, where localhost is not in the backend's CORS
+ * allowlist — see app/api/assistant/[...path]/route.ts for why this must stay
+ * off in production.
+ */
+const USE_PROXY = process.env.NEXT_PUBLIC_ASSISTANT_PROXY === "true";
+
+/** Empty string means same-origin, i.e. the proxy route. */
+const API_BASE = USE_PROXY ? "" : DIRECT_BASE;
 
 const CID_KEY = "buy_assistant_cid";
 const VID_KEY = "buy_visitor_id";
@@ -83,7 +94,7 @@ export class AssistantClient {
 
   /** Whether the assistant is configured and switched on. */
   async isEnabled(signal?: AbortSignal): Promise<boolean> {
-    if (!API_BASE) return false;
+    if (!USE_PROXY && !API_BASE) return false;
     try {
       const res = await fetch(`${API_BASE}/api/assistant/status`, { signal });
       if (!res.ok) return false;
