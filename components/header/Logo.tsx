@@ -4,9 +4,10 @@ import { site } from "@/lib/site";
 
 /**
  * Brand lockup using the official BUYOLOGY.ONLINE wordmark, swapped per theme:
- * the dark-on-white asset in light mode (its white field blends into the light
- * header) and a transparent white-on-transparent variant in dark mode. No plate
- * or border in either theme.
+ * the black-wordmark asset in light mode and the white-wordmark one in dark.
+ * Both are transparent PNGs, so the mark sits on any surface without a plate —
+ * but the swap is still required, because the black wordmark is unreadable on
+ * a dark ground and vice versa.
  */
 export function Logo({ className = "" }: { className?: string }) {
   return (
