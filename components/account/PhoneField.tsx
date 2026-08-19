@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { CheckIcon, ChevronDownIcon, SearchIcon } from "@/components/icons";
+import { useI18n } from "@/components/i18n/language-provider";
 import {
   findPhoneCountry,
   phoneCountries,
@@ -51,6 +52,8 @@ export function PhoneField({
   required,
   searchLabel,
   noResultsLabel,
+  resultsLabel,
+  resultOneLabel,
 }: {
   label: string;
   name: string;
@@ -58,7 +61,13 @@ export function PhoneField({
   required?: boolean;
   searchLabel: string;
   noResultsLabel: string;
+  /** Plural noun announced with the match count, e.g. "countries". */
+  resultsLabel: string;
+  /** Singular form, used when exactly one country matches. */
+  resultOneLabel: string;
 }) {
+  const { locale } = useI18n();
+
   // useId() emits punctuation that querySelector would choke on; strip it and
   // prefix so option ids stay plain CSS identifiers.
   const uid = `phone${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
@@ -71,6 +80,7 @@ export function PhoneField({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   // Seeded once, like an uncontrolled defaultValue: later prop changes are
   // ignored so typing is never clobbered.
@@ -95,12 +105,43 @@ export function PhoneField({
     ] as const;
   }, []);
 
+  // The dataset carries English names only. Intl.DisplayNames renders each
+  // ISO2 in the active locale, so an Arabic user reads (and can filter on)
+  // Arabic country names. Falls back to the English name for codes CLDR does
+  // not know (e.g. XK) or if the runtime lacks the API.
+  const regionNames = useMemo(() => {
+    try {
+      return new Intl.DisplayNames([locale], { type: "region" });
+    } catch {
+      return null;
+    }
+  }, [locale]);
+
+  // Built eagerly inside the memo so the lookup below is a pure read — a
+  // lazily-filled cache would be a render-time mutation.
+  const localisedNames = useMemo(() => {
+    const out = new Map<string, string>();
+    for (const c of phoneCountries) {
+      let n = c.name;
+      try {
+        n = regionNames?.of(c.iso2) || c.name;
+      } catch {
+        n = c.name;
+      }
+      out.set(c.iso2, n);
+    }
+    return out;
+  }, [regionNames]);
+
+  const nameOf = (c: PhoneCountry) => localisedNames.get(c.iso2) ?? c.name;
+
   const q = query.trim().toLowerCase();
   const digits = q.replace(/\D/g, "");
 
   function matches(c: PhoneCountry) {
     if (!q) return true;
     if (c.name.toLowerCase().includes(q)) return true;
+    if (nameOf(c).toLowerCase().includes(q)) return true;
     if (c.iso2.toLowerCase().startsWith(q)) return true;
     return digits.length > 0 && c.dial.replace(/\D/g, "").startsWith(digits);
   }
@@ -162,11 +203,19 @@ export function PhoneField({
       }
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setOpen(false);
-        setQuery("");
-        triggerRef.current?.focus();
-      }
+      // Only claim Escape while focus is still inside this control. Otherwise
+      // typing in the national-number field and pressing Escape would rip
+      // focus back to the trigger (WCAG 2.4.3).
+      if (e.key !== "Escape") return;
+      const focused = document.activeElement;
+      if (!wrapRef.current?.contains(focused)) return;
+      const wasInPopup = popupRef.current?.contains(focused) ?? false;
+      setOpen(false);
+      setQuery("");
+      // Only reclaim focus if it was inside the popup we just dismissed. If
+      // the user is typing in the national-number field, moving focus would be
+      // an unrequested change (WCAG 2.4.3).
+      if (wasInPopup) triggerRef.current?.focus();
     }
     document.addEventListener("mousedown", onDocMouseDown);
     document.addEventListener("keydown", onKey);
@@ -223,12 +272,6 @@ export function PhoneField({
       e.preventDefault();
       if (total > 0)
         setActive((i) => (Math.min(i, total - 1) - 1 + total) % total);
-    } else if (k === "Home") {
-      e.preventDefault();
-      setActive(0);
-    } else if (k === "End") {
-      e.preventDefault();
-      setActive(Math.max(total - 1, 0));
     } else if (k === "PageDown") {
       e.preventDefault();
       setActive((i) => Math.min(Math.min(i, total - 1) + 10, total - 1));
@@ -243,6 +286,10 @@ export function PhoneField({
       e.preventDefault();
       e.stopPropagation();
       closeList(true);
+    } else if (k === "Tab") {
+      // APG: Tab dismisses the popup and moves on. Do NOT preventDefault and
+      // do NOT pull focus back — the browser's own tab order takes over.
+      closeList(false);
     }
   }
 
@@ -281,7 +328,7 @@ export function PhoneField({
           {c.flag}
         </span>
         <span className="min-w-0 flex-1 truncate text-sm text-foreground">
-          {c.name}
+          {nameOf(c)}
         </span>
         <span className="shrink-0 text-xs text-muted">{c.dial}</span>
         {isSelected ? (
@@ -343,7 +390,10 @@ export function PhoneField({
           </button>
 
           {open && (
-            <div className="absolute start-0 top-full z-50 mt-1 w-[min(20rem,calc(100vw-3rem))] overflow-hidden rounded-xl border border-border bg-elevated shadow-[var(--shadow-overlay)]">
+            <div
+              ref={popupRef}
+              className="absolute start-0 top-full z-50 mt-1 w-[min(20rem,calc(100vw-3rem))] overflow-hidden rounded-xl border border-border bg-elevated shadow-[var(--shadow-overlay)]"
+            >
               <div className="flex items-center gap-2 border-b border-border px-3">
                 <SearchIcon className="h-4 w-4 shrink-0 text-brand-icon" />
                 <input
@@ -369,11 +419,20 @@ export function PhoneField({
                 />
               </div>
 
+              <p role="status" aria-live="polite" className="sr-only">
+                {total === 0
+                  ? noResultsLabel
+                  : `${total} ${total === 1 ? resultOneLabel : resultsLabel}`}
+              </p>
+
               <div
                 ref={listRef}
                 id={listId}
                 role="listbox"
                 aria-label={label}
+                // Chromium makes an overflow scroller focusable, which would
+                // add a dead tab stop; navigation is via aria-activedescendant.
+                tabIndex={-1}
                 className="max-h-64 overflow-y-auto overscroll-contain p-1"
               >
                 {total === 0 ? (

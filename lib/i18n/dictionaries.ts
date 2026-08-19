@@ -239,6 +239,8 @@ export interface Dict {
       phone: string;
       phoneSearch: string;
       phoneNoResults: string;
+      phoneResults: string;
+      phoneResultOne: string;
       photo: string;
       photoHint: string;
       photoChoose: string;
@@ -464,6 +466,25 @@ export interface Dict {
     home: string;
     browse: string;
     categoriesTitle: string;
+  };
+  chat: {
+    launch: string;
+    title: string;
+    status: string;
+    intro: string;
+    placeholder: string;
+    send: string;
+    close: string;
+    quickTrack: string;
+    quickReturns: string;
+    quickProduct: string;
+    quickHuman: string;
+    replyTrack: string;
+    replyReturns: string;
+    replyProduct: string;
+    replyHuman: string;
+    fallback: string;
+    disclaimer: string;
   };
 }
 
@@ -855,6 +876,8 @@ const en: Dict = {
       phone: "Phone number",
       phoneSearch: "Search countries",
       phoneNoResults: "No country matches that search.",
+      phoneResults: "countries",
+      phoneResultOne: "country",
       photo: "Profile photo",
       photoHint: "Optional. PNG, JPG or WebP, up to 5 MB.",
       photoChoose: "Add photo",
@@ -1111,6 +1134,25 @@ const en: Dict = {
     home: "Back to home",
     browse: "Browse all products",
     categoriesTitle: "Or pick up where you left off",
+  },
+  chat: {
+    launch: "Chat with Buyobot",
+    title: "Buyobot",
+    status: "Online · 24/7",
+    intro: "Hi! I'm Buyobot. Ask me about an order, a product, or a return — any time, day or night.",
+    placeholder: "Ask about orders, products, returns…",
+    send: "Send message",
+    close: "Close chat",
+    quickTrack: "Track my order",
+    quickReturns: "Returns & refunds",
+    quickProduct: "Find a product",
+    quickHuman: "Talk to a human",
+    replyTrack: "Open Account → Orders and pick the order you want. Every order shows its current status and delivery window.",
+    replyReturns: "You have 14 days from delivery to start a return. Unopened items are collected free of charge.",
+    replyProduct: "Tell me the category and your budget and I'll narrow it down — or try voice search from the header.",
+    replyHuman: "Our team is on support@buyology.online and replies within one working day. The contact page has regional phone numbers too.",
+    fallback: "I haven't been taught that one yet. Try one of the buttons above, or email support@buyology.online.",
+    disclaimer: "Buyobot is a demo assistant — answers are illustrative, not account-specific.",
   },
 };
 
@@ -1517,6 +1559,8 @@ const az: Dict = {
       phone: "Telefon nömrəsi",
       phoneSearch: "Ölkə axtarın",
       phoneNoResults: "Axtarışa uyğun ölkə tapılmadı.",
+      phoneResults: "ölkə",
+      phoneResultOne: "ölkə",
       photo: "Profil şəkli",
       photoHint: "İstəyə bağlı. PNG, JPG və ya WebP, 5 MB-a qədər.",
       photoChoose: "Şəkil əlavə edin",
@@ -1773,6 +1817,25 @@ const az: Dict = {
     home: "Ana səhifəyə qayıt",
     browse: "Bütün məhsullara bax",
     categoriesTitle: "Və ya qaldığınız yerdən davam edin",
+  },
+  chat: {
+    launch: "Buyobot ilə söhbət",
+    title: "Buyobot",
+    status: "Onlayn · 24/7",
+    intro: "Salam! Mən Buyobotam. Sifariş, məhsul və ya geri qaytarma barədə istənilən vaxt soruşun.",
+    placeholder: "Sifariş, məhsul, geri qaytarma…",
+    send: "Mesaj göndər",
+    close: "Söhbəti bağla",
+    quickTrack: "Sifarişimi izlə",
+    quickReturns: "Geri qaytarma və vəsait",
+    quickProduct: "Məhsul tap",
+    quickHuman: "Operatorla danış",
+    replyTrack: "Hesab → Sifarişlər bölməsini açın və istədiyiniz sifarişi seçin. Hər sifarişin statusu və çatdırılma vaxtı göstərilir.",
+    replyReturns: "Çatdırılmadan sonra 14 gün ərzində geri qaytara bilərsiniz. Açılmamış məhsullar pulsuz götürülür.",
+    replyProduct: "Kateqoriya və büdcənizi deyin, seçimi daraldım — və ya başlıqdakı səsli axtarışdan istifadə edin.",
+    replyHuman: "Komandamız support@buyology.online ünvanında bir iş günü ərzində cavab verir. Əlaqə səhifəsində regional nömrələr də var.",
+    fallback: "Bunu hələ öyrənməmişəm. Yuxarıdakı düymələrdən birini seçin və ya support@buyology.online ünvanına yazın.",
+    disclaimer: "Buyobot nümayiş assistentidir — cavablar nümunə xarakterlidir, hesaba aid deyil.",
   },
 };
 
@@ -2163,6 +2226,8 @@ const ar: Dict = {
       phone: "رقم الهاتف",
       phoneSearch: "ابحث عن دولة",
       phoneNoResults: "لا توجد دولة مطابقة لبحثك.",
+      phoneResults: "دولة",
+      phoneResultOne: "دولة",
       photo: "صورة الملف الشخصي",
       photoHint: "اختياري. PNG أو JPG أو WebP، حتى 5 ميغابايت.",
       photoChoose: "إضافة صورة",
@@ -2419,6 +2484,25 @@ const ar: Dict = {
     home: "العودة إلى الرئيسية",
     browse: "تصفح كل المنتجات",
     categoriesTitle: "أو تابع من حيث توقفت",
+  },
+  chat: {
+    launch: "الدردشة مع Buyobot",
+    title: "Buyobot",
+    status: "متصل · على مدار الساعة",
+    intro: "مرحبًا! أنا Buyobot. اسألني عن طلب أو منتج أو إرجاع، في أي وقت ليلًا أو نهارًا.",
+    placeholder: "اسأل عن الطلبات أو المنتجات أو الإرجاع…",
+    send: "إرسال الرسالة",
+    close: "إغلاق الدردشة",
+    quickTrack: "تتبّع طلبي",
+    quickReturns: "الإرجاع والاسترداد",
+    quickProduct: "ابحث عن منتج",
+    quickHuman: "التحدث إلى موظف",
+    replyTrack: "افتح الحساب ← الطلبات واختر الطلب المطلوب. يعرض كل طلب حالته الحالية وموعد التسليم.",
+    replyReturns: "لديك 14 يومًا من تاريخ التسليم لبدء الإرجاع. تُستلم المنتجات غير المفتوحة مجانًا.",
+    replyProduct: "أخبرني بالفئة وميزانيتك وسأضيّق الخيارات — أو جرّب البحث الصوتي من الأعلى.",
+    replyHuman: "فريقنا متاح على support@buyology.online ويرد خلال يوم عمل واحد. صفحة التواصل تضم أرقامًا إقليمية أيضًا.",
+    fallback: "لم أتعلّم هذا بعد. جرّب أحد الأزرار أعلاه أو راسلنا على support@buyology.online.",
+    disclaimer: "Buyobot مساعد تجريبي — الإجابات توضيحية وليست خاصة بحسابك.",
   },
 };
 

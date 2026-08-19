@@ -80,6 +80,8 @@ export function ProfileSection() {
           defaultValue={account.phone}
           searchLabel={p.phoneSearch}
           noResultsLabel={p.phoneNoResults}
+          resultsLabel={p.phoneResults}
+          resultOneLabel={p.phoneResultOne}
         />
         <div className="flex items-center gap-3 pt-1">
           <button
