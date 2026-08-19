@@ -12,23 +12,12 @@ function formatSize(bytes: number) {
 }
 
 /**
- * The strings below are the only ones this control does not receive as props.
- * They belong in `t.account.profile` in lib/i18n/dictionaries.ts; move them there
- * (and add matching props) when the dictionary keys land.
- */
-const copy = {
-  notAnImage: "That file isn’t an image. Choose a PNG, JPG or WebP instead.",
-  tooLarge: (size: string) =>
-    `That image is ${size}. Choose one under 5 MB, or resize it first.`,
-  previewAlt: "Profile picture preview",
-  selected: (fileName: string) => `${fileName} selected.`,
-  removed: "Profile picture removed.",
-};
-
-/**
- * Optional profile picture: initials by default, click or drag & drop to pick an
- * image, then change or remove it. Purely CSS transitions, so the global
- * `prefers-reduced-motion` block in app/globals.css already neutralises the motion.
+ * Optional profile picture: initials by default, click or drag & drop the avatar
+ * to pick an image, then change or remove it. Nothing is required — there is no
+ * `required` on the input and no asterisk on the label.
+ *
+ * Motion is CSS-only (colour transitions), so the global `prefers-reduced-motion`
+ * block in app/globals.css already collapses it; no per-component guard needed.
  */
 export function AvatarUpload({
   label,
@@ -38,6 +27,11 @@ export function AvatarUpload({
   removeLabel,
   initials,
   name,
+  notAnImageLabel,
+  tooLargeLabel,
+  previewAltLabel,
+  selectedLabel,
+  removedLabel,
 }: {
   label: string;
   hint: string;
@@ -46,6 +40,14 @@ export function AvatarUpload({
   removeLabel: string;
   initials: string;
   name: string;
+  /** Shown when the picked file is not an image. */
+  notAnImageLabel: string;
+  /** Shown when the image exceeds the size cap; the actual size is appended. */
+  tooLargeLabel: string;
+  previewAltLabel: string;
+  /** Announced with the file name appended, e.g. "Photo selected: cat.png". */
+  selectedLabel: string;
+  removedLabel: string;
 }) {
   const uid = useId();
   const inputId = `${uid}-avatar`;
@@ -54,66 +56,65 @@ export function AvatarUpload({
   const errorId = `${uid}-error`;
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  // File and its object URL are held together so the two can never drift apart.
+  const [picked, setPicked] = useState<{ file: File; url: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState("");
   const [dragOver, setDragOver] = useState(false);
 
-  // Mirrors `preview` so the unmount cleanup below can revoke the live URL
-  // without re-running (and revoking early) on every change.
-  const previewRef = useRef<string | null>(null);
+  const file = picked?.file ?? null;
+  const preview = picked?.url ?? null;
 
-  // Revoke on unmount; `showPreview` revokes on every replace/remove.
+  // Mirrors `picked` so the unmount cleanup can revoke whatever URL is live
+  // without depending on state (a dep here would revoke early, on every change).
+  const pickedRef = useRef<{ file: File; url: string } | null>(null);
+
+  // Revoke on unmount. `replacePreview` covers replace and remove; between the
+  // two, an object URL never outlives the component or the file it points at.
   useEffect(
     () => () => {
-      if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-      previewRef.current = null;
+      if (pickedRef.current) URL.revokeObjectURL(pickedRef.current.url);
+      pickedRef.current = null;
     },
     [],
   );
 
-  /** Swap the object URL, always revoking the one it replaces. */
-  function showPreview(next: File | null) {
-    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-    const url = next ? URL.createObjectURL(next) : null;
-    previewRef.current = url;
-    setPreview(url);
+  /** Swap the preview, always revoking the URL it replaces. */
+  function replacePreview(next: File | null) {
+    if (pickedRef.current) URL.revokeObjectURL(pickedRef.current.url);
+    const entry = next ? { file: next, url: URL.createObjectURL(next) } : null;
+    pickedRef.current = entry;
+    setPicked(entry);
   }
 
-  function clearInput() {
-    // Without this, re-picking the very same file fires no `change` event.
+  /** Re-picking the same file fires no `change` event unless the value is cleared. */
+  function clearInputValue() {
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  function accept(next: File) {
+  function selectFile(next: File) {
     if (!next.type.startsWith("image/")) {
-      setError(copy.notAnImage);
-      setStatus(copy.notAnImage);
-      clearInput();
+      setError(notAnImageLabel);
+      clearInputValue();
       return;
     }
     if (next.size > MAX_BYTES) {
-      const message = copy.tooLarge(formatSize(next.size));
-      setError(message);
-      setStatus(message);
-      clearInput();
+      setError(`${tooLargeLabel} (${formatSize(next.size)})`);
+      clearInputValue();
       return;
     }
     setError(null);
-    setFile(next);
-    showPreview(next);
-    setStatus(copy.selected(next.name));
+    replacePreview(next);
+    setStatus(`${selectedLabel}: ${next.name}`);
   }
 
   function onRemove() {
-    setFile(null);
-    showPreview(null);
+    replacePreview(null);
     setError(null);
-    setStatus(copy.removed);
-    clearInput();
-    // The remove button unmounts on click, so hand focus back to the input
-    // (its ring shows on the visible "choose" label) instead of dropping to body.
+    setStatus(removedLabel);
+    clearInputValue();
+    // This button unmounts on click, so hand focus back to the file input (its
+    // ring shows on the visible label) rather than letting it fall to <body>.
     inputRef.current?.focus();
   }
 
@@ -127,8 +128,8 @@ export function AvatarUpload({
       </span>
 
       <div className="flex items-center gap-4">
-        {/* Pointer-only convenience: click and drag & drop mirror the labelled
-            button beside it, which stays the keyboard and screen-reader path. */}
+        {/* Pointer-only convenience. The labelled control beside it stays the
+            keyboard and screen-reader path, so this is never the sole affordance. */}
         <div
           onClick={() => inputRef.current?.click()}
           onDragOver={(e) => {
@@ -140,7 +141,7 @@ export function AvatarUpload({
             e.preventDefault();
             setDragOver(false);
             const dropped = e.dataTransfer.files?.[0];
-            if (dropped) accept(dropped);
+            if (dropped) selectFile(dropped);
           }}
           className={`relative flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 bg-brand-soft text-brand-icon transition-colors ${
             dragOver
@@ -151,13 +152,14 @@ export function AvatarUpload({
           }`}
         >
           {preview ? (
-            // next/image can't take a blob: URL — its `src` must be an internal
-            // path, a configured remote URL or a static import
-            // (node_modules/next/dist/docs/01-app/03-api-reference/02-components/image.md),
+            // next/image cannot take a blob: URL — its `src` must be an internal
+            // path, a configured remote URL or a static import (see
+            // node_modules/next/dist/docs/01-app/03-api-reference/02-components/image.md),
             // and there is nothing to optimise for a local, never-served preview.
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={preview}
-              alt={copy.previewAlt}
+              alt={previewAltLabel}
               width={80}
               height={80}
               className="h-full w-full object-cover"
@@ -171,6 +173,7 @@ export function AvatarUpload({
 
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
+            {/* Visually hidden but focusable and in the tab order — never `hidden`. */}
             <input
               ref={inputRef}
               id={inputId}
@@ -182,7 +185,7 @@ export function AvatarUpload({
               className="peer sr-only"
               onChange={(e) => {
                 const picked = e.target.files?.[0];
-                if (picked) accept(picked);
+                if (picked) selectFile(picked);
               }}
             />
             <label
@@ -224,7 +227,7 @@ export function AvatarUpload({
         </div>
       </div>
 
-      {/* Mounted up front so the text swap is announced. */}
+      {/* Mounted up front so the text swap is announced when it changes. */}
       <span className="sr-only" role="status" aria-live="polite">
         {status}
       </span>

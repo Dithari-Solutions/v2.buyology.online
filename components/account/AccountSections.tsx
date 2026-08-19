@@ -16,6 +16,8 @@ import {
   type OrderStatus,
 } from "@/lib/account";
 import { Field, Panel, SectionHead, Toggle } from "@/components/account/account-ui";
+import { PhoneField } from "@/components/account/PhoneField";
+import { AvatarUpload } from "@/components/account/AvatarUpload";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import {
   CheckIcon,
@@ -53,12 +55,32 @@ export function ProfileSection() {
     <Panel>
       <SectionHead title={p.title} subtitle={p.subtitle} />
       <form onSubmit={onSubmit} className="space-y-4">
+        <AvatarUpload
+          label={p.photo}
+          hint={p.photoHint}
+          chooseLabel={p.photoChoose}
+          changeLabel={p.photoChange}
+          removeLabel={p.photoRemove}
+          initials={account.initials}
+          name="avatar"
+          notAnImageLabel={p.photoNotImage}
+          tooLargeLabel={p.photoTooLarge}
+          previewAltLabel={p.photoPreviewAlt}
+          selectedLabel={p.photoSelected}
+          removedLabel={p.photoRemoved}
+        />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={p.firstName} defaultValue={account.firstName} />
-          <Field label={p.lastName} defaultValue={account.lastName} />
+          <Field label={p.firstName} name="firstName" defaultValue={account.firstName} />
+          <Field label={p.lastName} name="lastName" defaultValue={account.lastName} />
         </div>
-        <Field label={p.email} type="email" defaultValue={account.email} />
-        <Field label={p.phone} type="tel" defaultValue={account.phone} />
+        <Field label={p.email} type="email" name="email" defaultValue={account.email} />
+        <PhoneField
+          label={p.phone}
+          name="phone"
+          defaultValue={account.phone}
+          searchLabel={p.phoneSearch}
+          noResultsLabel={p.phoneNoResults}
+        />
         <div className="flex items-center gap-3 pt-1">
           <button
             type="submit"

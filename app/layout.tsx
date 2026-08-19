@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Geist_Mono } from "next/font/google";
+import { Raleway, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { jsonLdScript, siteJsonLd } from "@/lib/structured-data";
@@ -15,13 +15,13 @@ import { Footer } from "@/components/footer/Footer";
 import { HideOnAuth } from "@/components/layout/HideOnAuth";
 import { PasswordGate } from "@/components/gate/PasswordGate";
 
-// Manrope is the brand body face (Brand Identity Guidelines, Typeface 10).
-// The display face, Biennale, is licensed and self-hosted separately; the
-// --font-display stack in globals.css falls back to Manrope until it is added.
-const manrope = Manrope({
-  variable: "--font-manrope",
+// Raleway is the site typeface, carrying both body and headings. This
+// supersedes the Brand Identity Guidelines (Biennale for display, Manrope for
+// body) — changed on request.
+const raleway = Raleway({
+  variable: "--font-raleway",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -111,7 +111,7 @@ export default async function RootLayout({
       lang={locale}
       dir={dirFor(locale)}
       suppressHydrationWarning
-      className={`${manrope.variable} ${geistMono.variable} h-full`}
+      className={`${raleway.variable} ${geistMono.variable} h-full`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

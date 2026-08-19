@@ -107,12 +107,11 @@
   --color-primary-soft: var(--primary-soft);
   --color-primary-border: var(--primary-border);
   --color-warn: var(--warn);
-  /* Biennale is the brand display face; it is licensed from Zetafonts and is
-     not bundled. Self-host it and the stack picks it up with no code change —
-     until then headings render in Manrope, differentiated by the guide's
-     tighter display leading and tracking below. */
-  --font-display: "Biennale", var(--font-manrope), system-ui, sans-serif;
-  --font-sans: var(--font-manrope);
+  /* Raleway carries both body and headings; they stay differentiated by the
+     tighter display leading and tracking set further down, not by a second
+     family. */
+  --font-display: var(--font-raleway), system-ui, sans-serif;
+  --font-sans: var(--font-raleway);
   --font-mono: var(--font-geist-mono);
 }
 

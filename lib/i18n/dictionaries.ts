@@ -237,6 +237,18 @@ export interface Dict {
       lastName: string;
       email: string;
       phone: string;
+      phoneSearch: string;
+      phoneNoResults: string;
+      photo: string;
+      photoHint: string;
+      photoChoose: string;
+      photoChange: string;
+      photoRemove: string;
+      photoNotImage: string;
+      photoTooLarge: string;
+      photoPreviewAlt: string;
+      photoSelected: string;
+      photoRemoved: string;
     };
     orders: {
       title: string;
@@ -841,6 +853,18 @@ const en: Dict = {
       lastName: "Last name",
       email: "Email address",
       phone: "Phone number",
+      phoneSearch: "Search countries",
+      phoneNoResults: "No country matches that search.",
+      photo: "Profile photo",
+      photoHint: "Optional. PNG, JPG or WebP, up to 5 MB.",
+      photoChoose: "Add photo",
+      photoChange: "Change photo",
+      photoRemove: "Remove photo",
+      photoNotImage: "That file isn’t an image. Choose a PNG, JPG or WebP instead.",
+      photoTooLarge: "That image is over 5 MB. Choose a smaller one, or resize it and try again.",
+      photoPreviewAlt: "Profile photo preview",
+      photoSelected: "Photo selected",
+      photoRemoved: "Profile photo removed.",
     },
     orders: {
       title: "Order history",
@@ -1491,6 +1515,18 @@ const az: Dict = {
       lastName: "Soyad",
       email: "E-poçt ünvanı",
       phone: "Telefon nömrəsi",
+      phoneSearch: "Ölkə axtarın",
+      phoneNoResults: "Axtarışa uyğun ölkə tapılmadı.",
+      photo: "Profil şəkli",
+      photoHint: "İstəyə bağlı. PNG, JPG və ya WebP, 5 MB-a qədər.",
+      photoChoose: "Şəkil əlavə edin",
+      photoChange: "Şəkli dəyişin",
+      photoRemove: "Şəkli silin",
+      photoNotImage: "Bu fayl şəkil deyil. PNG, JPG və ya WebP seçin.",
+      photoTooLarge: "Şəkil 5 MB-dan böyükdür. Daha kiçiyini seçin və ya ölçüsünü azaldın.",
+      photoPreviewAlt: "Profil şəklinin önizləməsi",
+      photoSelected: "Şəkil seçildi",
+      photoRemoved: "Profil şəkli silindi.",
     },
     orders: {
       title: "Sifariş tarixçəsi",
@@ -2125,6 +2161,18 @@ const ar: Dict = {
       lastName: "اسم العائلة",
       email: "البريد الإلكتروني",
       phone: "رقم الهاتف",
+      phoneSearch: "ابحث عن دولة",
+      phoneNoResults: "لا توجد دولة مطابقة لبحثك.",
+      photo: "صورة الملف الشخصي",
+      photoHint: "اختياري. PNG أو JPG أو WebP، حتى 5 ميغابايت.",
+      photoChoose: "إضافة صورة",
+      photoChange: "تغيير الصورة",
+      photoRemove: "إزالة الصورة",
+      photoNotImage: "هذا الملف ليس صورة. اختر ملف PNG أو JPG أو WebP.",
+      photoTooLarge: "حجم الصورة يتجاوز 5 ميغابايت. اختر صورة أصغر أو قلّل حجمها.",
+      photoPreviewAlt: "معاينة صورة الملف الشخصي",
+      photoSelected: "تم اختيار الصورة",
+      photoRemoved: "تمت إزالة صورة الملف الشخصي.",
     },
     orders: {
       title: "سجل الطلبات",
