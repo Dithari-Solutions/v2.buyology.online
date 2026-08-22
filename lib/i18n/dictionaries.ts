@@ -274,7 +274,17 @@ export interface Dict {
       items: string;
       view: string;
       reorder: string;
+      /** Customer-facing labels for the real backend statuses; legacy values fall back in code. */
       statuses: Record<string, string>;
+      empty: string;
+      loadMore: string;
+      cancelOrder: string;
+      cancelConfirm: string;
+      cancelKeep: string;
+      cancelled: string;
+      track: string;
+      placedOn: string;
+      failed: string;
     };
     addresses: {
       title: string;
@@ -285,6 +295,13 @@ export interface Dict {
       city: string;
       country: string;
       phone: string;
+      empty: string;
+      line2: string;
+      state: string;
+      postalCode: string;
+      labels: { HOME: string; WORK: string; OTHER: string };
+      deleteConfirm: string;
+      noEditNote: string;
     };
     payments: {
       title: string;
@@ -319,6 +336,9 @@ export interface Dict {
       twofa: string;
       twofaDesc: string;
       signOutAll: string;
+      viaEmailIntro: string;
+      sendCode: string;
+      codeSentTo: string;
     };
     danger: {
       title: string;
@@ -957,11 +977,25 @@ const en: Dict = {
       view: "View",
       reorder: "Reorder",
       statuses: {
-        delivered: "Delivered",
-        shipped: "Shipped",
-        processing: "Processing",
-        cancelled: "Cancelled",
+        PENDING_PAYMENT: "Awaiting payment",
+        PAID: "Paid",
+        PACKAGING: "Being packed",
+        READY_FOR_PICKUP: "Ready for pickup",
+        IN_COURIER: "With the courier",
+        IN_TRANSIT: "On its way",
+        DELIVERED: "Delivered",
+        CANCELLED: "Cancelled",
+        FAILED: "Delivery failed",
       },
+      empty: "No orders yet — your purchases will appear here.",
+      loadMore: "Load more",
+      cancelOrder: "Cancel order",
+      cancelConfirm: "Cancel this order? If you already paid, the amount is refunded once the courier is confirmed stopped.",
+      cancelKeep: "Keep order",
+      cancelled: "Order cancelled.",
+      track: "Track parcel",
+      placedOn: "Placed on",
+      failed: "Couldn't cancel this order",
     },
     addresses: {
       title: "Saved addresses",
@@ -972,6 +1006,13 @@ const en: Dict = {
       city: "City",
       country: "Country",
       phone: "Phone",
+      empty: "No saved addresses yet.",
+      line2: "Apartment, floor (optional)",
+      state: "State / Emirate",
+      postalCode: "Postal code (optional)",
+      labels: { HOME: "Home", WORK: "Work", OTHER: "Other" },
+      deleteConfirm: "Delete this address?",
+      noEditNote: "To change an address, delete it and add the corrected one.",
     },
     payments: {
       title: "Payment methods",
@@ -1006,6 +1047,9 @@ const en: Dict = {
       twofa: "Two-factor authentication",
       twofaDesc: "Add an extra layer of security at sign-in.",
       signOutAll: "Sign out of all devices",
+      viaEmailIntro: "We change your password with a code sent to your email — no current password needed.",
+      sendCode: "Email me a code",
+      codeSentTo: "Code sent to",
     },
     danger: {
       title: "Delete account",
@@ -1684,11 +1728,25 @@ const az: Dict = {
       view: "Bax",
       reorder: "Yenidən sifariş",
       statuses: {
-        delivered: "Çatdırıldı",
-        shipped: "Göndərildi",
-        processing: "Hazırlanır",
-        cancelled: "Ləğv edildi",
+        PENDING_PAYMENT: "Ödəniş gözlənilir",
+        PAID: "Ödənilib",
+        PACKAGING: "Qablaşdırılır",
+        READY_FOR_PICKUP: "Təhvil üçün hazırdır",
+        IN_COURIER: "Kuryerdədir",
+        IN_TRANSIT: "Yoldadır",
+        DELIVERED: "Çatdırılıb",
+        CANCELLED: "Ləğv edilib",
+        FAILED: "Çatdırılma alınmadı",
       },
+      empty: "Hələ sifariş yoxdur — alışlarınız burada görünəcək.",
+      loadMore: "Daha çox göstər",
+      cancelOrder: "Sifarişi ləğv et",
+      cancelConfirm: "Bu sifariş ləğv edilsin? Ödəniş etmisinizsə, kuryer dayandırıldığı təsdiqlənən kimi məbləğ geri qaytarılır.",
+      cancelKeep: "Sifarişi saxla",
+      cancelled: "Sifariş ləğv edildi.",
+      track: "Bağlamanı izlə",
+      placedOn: "Sifariş tarixi:",
+      failed: "Sifarişi ləğv etmək mümkün olmadı",
     },
     addresses: {
       title: "Yadda saxlanmış ünvanlar",
@@ -1699,6 +1757,13 @@ const az: Dict = {
       city: "Şəhər",
       country: "Ölkə",
       phone: "Telefon",
+      empty: "Hələ yadda saxlanmış ünvan yoxdur.",
+      line2: "Mənzil, mərtəbə (istəyə bağlı)",
+      state: "Rayon / Əmirlik",
+      postalCode: "Poçt indeksi (istəyə bağlı)",
+      labels: { HOME: "Ev", WORK: "İş", OTHER: "Digər" },
+      deleteConfirm: "Bu ünvan silinsin?",
+      noEditNote: "Ünvanı dəyişmək üçün onu silib düzəlişlə yenidən əlavə edin.",
     },
     payments: {
       title: "Ödəniş üsulları",
@@ -1733,6 +1798,9 @@ const az: Dict = {
       twofa: "İki faktorlu autentifikasiya",
       twofaDesc: "Girişdə əlavə təhlükəsizlik qatı əlavə edin.",
       signOutAll: "Bütün cihazlardan çıx",
+      viaEmailIntro: "Şifrənizi e-poçtunuza göndərilən kodla dəyişirik — cari şifrə tələb olunmur.",
+      sendCode: "Kod göndər",
+      codeSentTo: "Kod göndərildi:",
     },
     danger: {
       title: "Hesabı sil",
@@ -2395,11 +2463,25 @@ const ar: Dict = {
       view: "عرض",
       reorder: "إعادة الطلب",
       statuses: {
-        delivered: "تم التوصيل",
-        shipped: "تم الشحن",
-        processing: "قيد المعالجة",
-        cancelled: "ملغى",
+        PENDING_PAYMENT: "بانتظار الدفع",
+        PAID: "مدفوع",
+        PACKAGING: "قيد التغليف",
+        READY_FOR_PICKUP: "جاهز للاستلام",
+        IN_COURIER: "مع المندوب",
+        IN_TRANSIT: "في الطريق",
+        DELIVERED: "تم التوصيل",
+        CANCELLED: "ملغي",
+        FAILED: "فشل التوصيل",
       },
+      empty: "لا توجد طلبات بعد — ستظهر مشترياتك هنا.",
+      loadMore: "عرض المزيد",
+      cancelOrder: "إلغاء الطلب",
+      cancelConfirm: "هل تريد إلغاء هذا الطلب؟ إذا كنت قد دفعت، يُعاد المبلغ فور تأكيد إيقاف المندوب.",
+      cancelKeep: "الاحتفاظ بالطلب",
+      cancelled: "تم إلغاء الطلب.",
+      track: "تتبّع الشحنة",
+      placedOn: "تاريخ الطلب:",
+      failed: "تعذّر إلغاء هذا الطلب",
     },
     addresses: {
       title: "العناوين المحفوظة",
@@ -2410,6 +2492,13 @@ const ar: Dict = {
       city: "المدينة",
       country: "الدولة",
       phone: "الهاتف",
+      empty: "لا توجد عناوين محفوظة بعد.",
+      line2: "الشقة، الطابق (اختياري)",
+      state: "المنطقة / الإمارة",
+      postalCode: "الرمز البريدي (اختياري)",
+      labels: { HOME: "المنزل", WORK: "العمل", OTHER: "أخرى" },
+      deleteConfirm: "هل تريد حذف هذا العنوان؟",
+      noEditNote: "لتغيير عنوان، احذفه ثم أضِفه من جديد مصحّحًا.",
     },
     payments: {
       title: "طرق الدفع",
@@ -2444,6 +2533,9 @@ const ar: Dict = {
       twofa: "المصادقة الثنائية",
       twofaDesc: "أضف طبقة حماية إضافية عند تسجيل الدخول.",
       signOutAll: "تسجيل الخروج من كل الأجهزة",
+      viaEmailIntro: "نغيّر كلمة مرورك برمز يُرسل إلى بريدك الإلكتروني — لا حاجة لكلمة المرور الحالية.",
+      sendCode: "أرسل لي رمزًا",
+      codeSentTo: "أُرسل الرمز إلى",
     },
     danger: {
       title: "حذف الحساب",

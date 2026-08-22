@@ -171,7 +171,7 @@ export async function authedFetch(path: string, init: RequestInit = {}): Promise
   return res;
 }
 
-async function authedJson<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function authedJson<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await authedFetch(path, init);
   let envelope: ApiEnvelope<T> | null = null;
   try {
