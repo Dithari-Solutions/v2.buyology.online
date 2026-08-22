@@ -9,11 +9,99 @@ import { AuthError } from "@/lib/auth/client";
 import {
   cancelOrder,
   fetchOrder,
+  fetchPaymentTransaction,
   isCancellable,
   type OrderDetail,
+  type OrderItem,
   type OrderStatus,
+  type PaymentInfo,
 } from "@/lib/account-api";
-import { ChevronLeftIcon } from "@/components/icons";
+import { useProductLookup } from "@/lib/use-product-lookup";
+import { ChevronLeftIcon, StarIcon, TruckIcon, WalletIcon } from "@/components/icons";
+
+/**
+ * One purchased line: the order's own snapshot (name, image, price locked at purchase)
+ * upgraded progressively with live catalogue data — category, rating, and a link to the
+ * product's page — resolved by product id, exactly like cart rows.
+ */
+function OrderItemRow({
+  item,
+  money,
+  reviewsLabel,
+}: {
+  item: OrderItem;
+  money: (n: number | null | undefined) => string | null;
+  reviewsLabel: string;
+}) {
+  const { product: detail } = useProductLookup(item.productId ?? null);
+  const name = item.productName ?? detail?.name ?? item.variantSku ?? item.productSku ?? "—";
+  const image = item.productImage ?? (detail?.image?.startsWith("http") ? detail.image : null);
+  const sku = item.variantSku ?? item.productSku ?? detail?.slug ?? null;
+  const filled = detail ? Math.round(detail.rating) : 0;
+
+  const body = (
+    <>
+      {image ? (
+        // Presigned, short-lived URL — plain <img> on purpose (see stories).
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={image}
+          alt=""
+          className="h-20 w-20 shrink-0 rounded-xl border border-border bg-white object-contain p-1.5"
+        />
+      ) : (
+        <span className="h-20 w-20 shrink-0 rounded-xl border border-border bg-surface-2" />
+      )}
+      <div className="min-w-0 flex-1">
+        {detail?.category && (
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-warn dark:text-gold">
+            {detail.category}
+          </p>
+        )}
+        <p className="truncate font-medium text-foreground">{name}</p>
+        {sku && (
+          <p className="text-xs text-muted" dir="ltr">
+            {sku}
+          </p>
+        )}
+        {detail && detail.reviews > 0 && (
+          <span className="mt-0.5 flex items-center gap-1 text-xs text-muted">
+            <span className="flex items-center gap-0.5" aria-hidden="true">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <StarIcon
+                  key={i}
+                  className={`h-3 w-3 ${i < filled ? "text-gold" : "text-border-strong"}`}
+                />
+              ))}
+            </span>
+            {detail.rating.toFixed(1)} · {detail.reviews.toLocaleString()} {reviewsLabel}
+          </span>
+        )}
+        <p className="mt-0.5 text-xs text-muted" dir="ltr">
+          ×{item.quantity} · {money(item.unitPrice)}
+        </p>
+      </div>
+      <span className="self-center text-sm font-semibold text-foreground" dir="ltr">
+        {money(item.totalPrice)}
+      </span>
+    </>
+  );
+
+  return (
+    <li className="py-3 first:pt-0 last:pb-0">
+      {item.productId ? (
+        <Link
+          href={`/product/${item.productId}`}
+          className="flex items-start gap-4 rounded-xl transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {body}
+        </Link>
+      ) : (
+        <div className="flex items-start gap-4">{body}</div>
+      )}
+    </li>
+  );
+}
 
 function statusTone(status: OrderStatus): string {
   if (status === "DELIVERED") return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
@@ -31,6 +119,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const router = useRouter();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [missing, setMissing] = useState(false);
+  const [payment, setPayment] = useState<PaymentInfo | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,9 +130,29 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
       return;
     }
     if (authStatus !== "authed") return;
+    let cancelled = false;
     fetchOrder(orderId)
-      .then(setOrder)
-      .catch(() => setMissing(true));
+      .then((res) => {
+        if (cancelled) return;
+        setOrder(res);
+        // What paid for it — shown when the gateway told us; silently absent otherwise.
+        if (res.paymentTransactionId) {
+          fetchPaymentTransaction(res.paymentTransactionId)
+            .then((tx) => {
+              // A FAILED order points at its declined attempt — that never "paid for" the
+              // order. Refunded states did: the payment happened, then came back.
+              const settled = ["SUCCESS", "REFUNDED", "PARTIALLY_REFUNDED"];
+              if (!cancelled && settled.includes(tx.status ?? "")) setPayment(tx);
+            })
+            .catch(() => {});
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setMissing(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [authStatus, orderId, router]);
 
   async function onCancel() {
@@ -82,6 +191,25 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         <div className="h-64 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none" />
       </div>
     );
+  }
+
+  // Proof URLs are presigned with a short TTL; a tab left open outlives them. The link
+  // pre-opens a tab synchronously (popup blockers), refetches the order for fresh URLs,
+  // then navigates the tab — falling back to the possibly-stale URL if the refetch fails.
+  async function openProof(eventId: string, fallbackUrl: string, e: React.MouseEvent) {
+    e.preventDefault();
+    const tab = window.open("", "_blank");
+    if (tab) tab.opener = null;
+    let url = fallbackUrl;
+    try {
+      const fresh = await fetchOrder(orderId);
+      setOrder(fresh);
+      url = fresh.trackingHistory?.find((x) => x.id === eventId)?.proofImageUrl ?? fallbackUrl;
+    } catch {
+      /* stale URL is still worth a try */
+    }
+    if (tab) tab.location.href = url;
+    else window.open(url, "_blank", "noopener");
   }
 
   const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
@@ -126,37 +254,19 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         </p>
       )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
           {/* Items */}
           <section className="rounded-2xl border border-border bg-surface p-5">
             <h2 className="mb-4 font-semibold text-foreground">{d.items}</h2>
             <ul className="divide-y divide-border">
               {(order.items ?? []).map((item) => (
-                <li key={item.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
-                  {item.productImage ? (
-                    // Presigned, short-lived URL — plain <img> on purpose (see stories).
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={item.productImage}
-                      alt=""
-                      className="h-14 w-14 shrink-0 rounded-xl border border-border bg-white object-contain p-1"
-                    />
-                  ) : (
-                    <span className="h-14 w-14 shrink-0 rounded-xl bg-surface-2" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-foreground">
-                      {item.productName ?? item.variantSku ?? "—"}
-                    </p>
-                    <p className="text-xs text-muted" dir="ltr">
-                      ×{item.quantity} · {money(item.unitPrice)}
-                    </p>
-                  </div>
-                  <span className="text-sm font-semibold text-foreground" dir="ltr">
-                    {money(item.totalPrice)}
-                  </span>
-                </li>
+                <OrderItemRow
+                  key={item.id}
+                  item={item}
+                  money={money}
+                  reviewsLabel={t.cart.reviews}
+                />
               ))}
             </ul>
           </section>
@@ -169,13 +279,37 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 {order.trackingHistory!.map((ev) => (
                   <li key={ev.id} className="flex gap-3 text-sm">
                     <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand" />
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-medium text-foreground">
                         {o.statuses[ev.status] ?? ev.status}
                       </p>
                       {ev.notes && <p className="text-muted">{ev.notes}</p>}
+                      {ev.locationDescription && (
+                        <p className="text-xs text-muted">{ev.locationDescription}</p>
+                      )}
                       {ev.createdAt && (
                         <p className="text-xs text-muted">{dateFmt.format(new Date(ev.createdAt))}</p>
+                      )}
+                      {ev.proofImageUrl && (
+                        // The courier's pickup/delivery photo — presigned, short-lived URL.
+                        <a
+                          href={ev.proofImageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => openProof(ev.id, ev.proofImageUrl!, e)}
+                          className="mt-2 block w-fit rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={ev.proofImageUrl}
+                            alt=""
+                            className="h-28 w-40 rounded-xl border border-border object-cover"
+                            loading="lazy"
+                          />
+                          <span className="mt-1 block text-xs font-medium text-brand-icon">
+                            {d.proofPhoto}
+                          </span>
+                        </a>
                       )}
                     </div>
                   </li>
@@ -267,6 +401,63 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 </p>
               ))}
           </section>
+
+          {/* Payment — shown only when we positively know what paid: a settled gateway
+              transaction, or a fully-credit-settled order (which has no transaction at all).
+              A card order whose transaction can't be read shows nothing rather than a guess. */}
+          {(() => {
+            const creditSettled =
+              (order.creditApplied ?? 0) > 0 && !order.paymentTransactionId;
+            if (!payment && !creditSettled) return null;
+            return (
+              <section className="rounded-2xl border border-border bg-surface p-5 text-sm">
+                <h2 className="mb-3 flex items-center gap-2 font-semibold text-foreground">
+                  <WalletIcon className="h-4 w-4 text-gold" />
+                  {d.payment}
+                </h2>
+                {payment?.methodType === "CARD" ? (
+                  <p className="font-medium text-foreground" dir="ltr">
+                    {payment.cardBrand ?? d.methodCard}
+                    {payment.cardLast4 ? ` •••• ${payment.cardLast4}` : ""}
+                  </p>
+                ) : payment?.methodType === "TABBY" ? (
+                  <p className="font-medium text-foreground">{d.methodTabby}</p>
+                ) : payment?.methodType === "TAMARA" ? (
+                  <p className="font-medium text-foreground">{d.methodTamara}</p>
+                ) : creditSettled || payment?.methodType === "B2B_CREDIT" ? (
+                  <p className="font-medium text-foreground">{d.methodCredit}</p>
+                ) : null}
+                {(order.creditApplied ?? 0) > 0 && !creditSettled && payment != null && (
+                  <p className="mt-1 text-muted">{d.credit}</p>
+                )}
+                {order.paidAt && (
+                  <p className="mt-1 text-xs text-muted">
+                    {dateFmt.format(new Date(order.paidAt))}
+                  </p>
+                )}
+              </section>
+            );
+          })()}
+
+          {/* Courier */}
+          {order.courierName && (
+            <section className="rounded-2xl border border-border bg-surface p-5 text-sm">
+              <h2 className="mb-3 flex items-center gap-2 font-semibold text-foreground">
+                <TruckIcon className="h-4 w-4 text-gold" />
+                {d.courier}
+              </h2>
+              <p className="font-medium text-foreground">{order.courierName}</p>
+              {order.courierPhone && (
+                <a
+                  href={`tel:${order.courierPhone}`}
+                  className="text-brand-icon hover:underline"
+                  dir="ltr"
+                >
+                  {order.courierPhone}
+                </a>
+              )}
+            </section>
+          )}
 
           {/* Cancel */}
           {isCancellable(order.status) && (

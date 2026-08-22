@@ -308,6 +308,13 @@ export interface Dict {
         timeline: string;
         notFound: string;
         back: string;
+        payment: string;
+        methodCard: string;
+        methodTabby: string;
+        methodTamara: string;
+        methodCredit: string;
+        proofPhoto: string;
+        courier: string;
         eta: string;
       };
     };
@@ -1044,6 +1051,13 @@ const en: Dict = {
         total: "Total",
         timeline: "History",
         notFound: "We couldn't find this order.",
+        payment: "Payment",
+        methodCard: "Card",
+        methodTabby: "Tabby",
+        methodTamara: "Tamara",
+        methodCredit: "Business credit",
+        proofPhoto: "Photo proof",
+        courier: "Courier",
         back: "Back to orders",
         eta: "Estimated delivery",
       },
@@ -1816,6 +1830,13 @@ const az: Dict = {
         total: "Cəmi",
         timeline: "Tarixçə",
         notFound: "Bu sifarişi tapa bilmədik.",
+        payment: "Ödəniş",
+        methodCard: "Kart",
+        methodTabby: "Tabby",
+        methodTamara: "Tamara",
+        methodCredit: "Biznes krediti",
+        proofPhoto: "Foto sübut",
+        courier: "Kuryer",
         back: "Sifarişlərə qayıt",
         eta: "Təxmini çatdırılma",
       },
@@ -2572,6 +2593,13 @@ const ar: Dict = {
         total: "الإجمالي",
         timeline: "السجل",
         notFound: "لم نتمكن من العثور على هذا الطلب.",
+        payment: "الدفع",
+        methodCard: "بطاقة",
+        methodTabby: "Tabby",
+        methodTamara: "Tamara",
+        methodCredit: "رصيد الأعمال",
+        proofPhoto: "إثبات بالصورة",
+        courier: "المندوب",
         back: "العودة إلى الطلبات",
         eta: "التوصيل المتوقع",
       },

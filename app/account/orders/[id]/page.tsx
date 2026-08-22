@@ -16,7 +16,7 @@ export default async function OrderDetailPage({
   return (
     <>
       <Header />
-      <main className="mx-auto w-full max-w-[900px] px-4 py-8 sm:px-6 sm:py-10">
+      <main className="mx-auto w-full max-w-[1200px] px-4 py-8 sm:px-6 sm:py-10">
         <OrderDetailView orderId={id} />
       </main>
     </>

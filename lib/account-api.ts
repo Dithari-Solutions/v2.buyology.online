@@ -66,6 +66,7 @@ export function isCancellable(status: OrderStatus): boolean {
 export type OrderItem = {
   id: string;
   productId?: string | null;
+  productSku?: string | null;
   productName?: string | null;
   productImage?: string | null;
   variantSku?: string | null;
@@ -78,6 +79,10 @@ export type TrackingEvent = {
   id: string;
   status: OrderStatus;
   notes?: string | null;
+  /** Presigned URL of the courier/admin photo proof (pickup or delivery). */
+  proofImageUrl?: string | null;
+  locationDescription?: string | null;
+  actorRole?: string | null;
   createdAt?: string | null;
 };
 
@@ -100,9 +105,25 @@ export type OrderDetail = OrderSummary & {
   couponCode?: string | null;
   estimatedDeliveryTime?: string | null;
   cancellationReason?: string | null;
+  paymentTransactionId?: string | null;
+  courierName?: string | null;
+  courierPhone?: string | null;
   items?: OrderItem[] | null;
   trackingHistory?: TrackingEvent[] | null;
 };
+
+/** What paid for an order — the coarse method plus the card's masked tail when Paymob told us. */
+export type PaymentInfo = {
+  methodType?: "CARD" | "TABBY" | "TAMARA" | "B2B_CREDIT" | null;
+  cardLast4?: string | null;
+  cardBrand?: string | null;
+  status?: string | null;
+};
+
+/** Ownership is enforced server-side: the transaction must belong to the caller. */
+export function fetchPaymentTransaction(transactionId: string): Promise<PaymentInfo> {
+  return authedJson<PaymentInfo>(`/api/payments/transactions/${transactionId}`);
+}
 
 export function fetchOrder(orderId: string): Promise<OrderDetail> {
   return authedJson<OrderDetail>(`/api/orders/${orderId}`);
