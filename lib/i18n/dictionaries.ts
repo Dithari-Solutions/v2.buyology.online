@@ -12,6 +12,19 @@ type SlideText = {
 type PromoText = { eyebrow: string; title: string };
 
 export interface Dict {
+  stories: {
+    /** aria-label of the bubble row. */
+    ariaRow: string;
+    close: string;
+    previous: string;
+    next: string;
+    mute: string;
+    unmute: string;
+    /** aria-label of the like button (count is appended visually). */
+    likes: string;
+    /** Shown when a guest taps like — the backend requires a signed-in account. */
+    signInToLike: string;
+  };
   gate: {
     title: string;
     subtitle: string;
@@ -499,6 +512,16 @@ export interface Dict {
 }
 
 const en: Dict = {
+  stories: {
+    ariaRow: "Stories",
+    close: "Close",
+    previous: "Previous story",
+    next: "Next story",
+    mute: "Mute",
+    unmute: "Unmute",
+    likes: "Likes",
+    signInToLike: "Sign in to like stories",
+  },
   gate: {
     title: "Welcome to Buyology",
     subtitle: "Enter the password to continue.",
@@ -1177,6 +1200,16 @@ const en: Dict = {
 };
 
 const az: Dict = {
+  stories: {
+    ariaRow: "Hekayələr",
+    close: "Bağla",
+    previous: "Əvvəlki hekayə",
+    next: "Növbəti hekayə",
+    mute: "Səssiz",
+    unmute: "Səsli",
+    likes: "Bəyənmələr",
+    signInToLike: "Hekayələri bəyənmək üçün daxil olun",
+  },
   gate: {
     title: "Buyology-a xoş gəlmisiniz",
     subtitle: "Davam etmək üçün parolu daxil edin.",
@@ -1870,6 +1903,16 @@ const az: Dict = {
 };
 
 const ar: Dict = {
+  stories: {
+    ariaRow: "القصص",
+    close: "إغلاق",
+    previous: "القصة السابقة",
+    next: "القصة التالية",
+    mute: "كتم الصوت",
+    unmute: "تشغيل الصوت",
+    likes: "الإعجابات",
+    signInToLike: "سجّل الدخول للإعجاب بالقصص",
+  },
   gate: {
     title: "مرحبًا بك في Buyology",
     subtitle: "أدخل كلمة المرور للمتابعة.",
