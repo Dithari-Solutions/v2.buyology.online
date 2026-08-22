@@ -421,3 +421,71 @@ main {
   transform-origin: 40.5px 31px;
   animation: buyo-wave 2.8s ease-in-out infinite;
 }
+
+/* ── Two-thumb price slider (components/products/PriceRange.tsx) ──────────────
+   Both inputs stack on one visual track. The input itself is pointer-inert and
+   invisible; only its thumb takes the pointer, so the pair can overlap without
+   the top one swallowing every drag. Keyboard focus lands on the inputs as
+   normal, so the ring is drawn on the thumb. */
+.buyo-range {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 1.5rem;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.buyo-range::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 1.5rem;
+}
+.buyo-range::-moz-range-track {
+  background: transparent;
+}
+/* The visible thumb is 18px, but the hittable area is 28px (WCAG 2.5.8 wants >=24px and the
+   track itself is pointer-inert): a transparent border pads the hit box while background-clip
+   keeps the fill at 18px; the light ring is an inset shadow so it hugs the visible circle. */
+.buyo-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  height: 1.75rem;
+  width: 1.75rem;
+  margin-top: -0.125rem; /* centers the 28px hit box on the 1.5rem webkit track */
+  border-radius: 9999px;
+  background: var(--primary);
+  background-clip: padding-box;
+  border: 5px solid transparent;
+  box-shadow: inset 0 0 0 2px var(--surface);
+  cursor: grab;
+}
+.buyo-range::-moz-range-thumb {
+  pointer-events: auto;
+  height: 1.75rem;
+  width: 1.75rem;
+  border-radius: 9999px;
+  background: var(--primary);
+  background-clip: padding-box;
+  border: 5px solid transparent;
+  box-shadow: inset 0 0 0 2px var(--surface);
+  cursor: grab;
+}
+.buyo-range:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+.buyo-range:focus-visible {
+  outline: none;
+}
+.buyo-range:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.buyo-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}

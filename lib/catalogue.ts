@@ -202,6 +202,59 @@ export async function fetchProducts(
   };
 }
 
+export type CatalogueQuery = {
+  categoryIds?: string[];
+  /** Inclusive bounds in the display currency (AED). Omit a bound to leave it open. */
+  minPrice?: number;
+  maxPrice?: number;
+  superDealsOnly?: boolean;
+};
+
+/**
+ * Filtered catalogue via GET /api/product/search — the one public endpoint that filters
+ * server-side. Its contract, mapped from the backend:
+ *  - categoryId is a SINGLE exact UUID (no descendant expansion), so multi-select fans out to
+ *    one request per category and merges, deduped by product id;
+ *  - minPrice/maxPrice are inclusive and applied to the resolved DISPLAY price (discounts
+ *    already in, converted to the requested currency) — exactly the number our cards show;
+ *  - there is NO pagination: the response is the complete matched list, which is what makes
+ *    filters and sorts globally correct instead of "over whatever pages happened to load".
+ */
+export async function searchCatalogue(locale: Locale, q: CatalogueQuery): Promise<Product[]> {
+  const base = {
+    minPrice: q.minPrice,
+    maxPrice: q.maxPrice,
+    isSuperDeal: q.superDealsOnly ? true : undefined,
+  };
+  const ids = q.categoryIds?.filter(Boolean) ?? [];
+  const requests =
+    ids.length > 0
+      ? ids.map((categoryId) =>
+          get<ApiProduct[]>("/api/product/search", params(locale, { ...base, categoryId })),
+        )
+      : [get<ApiProduct[]>("/api/product/search", params(locale, base))];
+  // One flaky category request must not blank the whole result: merge what succeeded and
+  // only fail when EVERY request failed (so the caller's error path still fires).
+  const settled = await Promise.allSettled(requests);
+  const batches = settled
+    .filter((s): s is PromiseFulfilledResult<ApiProduct[]> => s.status === "fulfilled")
+    .map((s) => s.value);
+  if (batches.length === 0 && settled.length > 0) {
+    throw (settled[0] as PromiseRejectedResult).reason;
+  }
+  const seen = new Set<string>();
+  const rows: ApiProduct[] = [];
+  for (const batch of batches) {
+    for (const row of batch) {
+      if (row.id && !seen.has(row.id)) {
+        seen.add(row.id);
+        rows.push(row);
+      }
+    }
+  }
+  return withCategoryNames(locale, rows);
+}
+
 export async function fetchProductDetail(locale: Locale, id: string): Promise<ApiProduct> {
   return get<ApiProduct>(`/api/product/${id}`, params(locale));
 }

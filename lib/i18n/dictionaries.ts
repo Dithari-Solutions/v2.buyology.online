@@ -494,8 +494,10 @@ export interface Dict {
     onSale: string;
     bestsellers: string;
     ratingUp: string;
-    anyPrice: string;
-    brackets: { u100: string; mid1: string; mid2: string; high: string };
+    priceMinAria: string;
+    priceMaxAria: string;
+    loadFailed: string;
+    retry: string;
     clearAll: string;
     showResults: string;
     loadMore: string;
@@ -907,11 +909,6 @@ const en: Dict = {
     cols: { shop: "Shop", buyology: "Buyology", support: "Support", company: "Company" },
     links: {
       electronics: "Electronics",
-      audio: "Audio",
-      gaming: "Gaming",
-      computing: "Computing",
-      wearables: "Wearables",
-      home: "Smart Home",
       buyobot: "Buyobot AI",
       repair: "Repair",
       rent: "Rent",
@@ -1239,13 +1236,10 @@ const en: Dict = {
     onSale: "On sale (25%+ off)",
     bestsellers: "Bestsellers only",
     ratingUp: "& up",
-    anyPrice: "Any price",
-    brackets: {
-      u100: "Under $100",
-      mid1: "$100 – $300",
-      mid2: "$300 – $700",
-      high: "$700+",
-    },
+    priceMinAria: "Minimum price",
+    priceMaxAria: "Maximum price",
+    loadFailed: "Couldn't load products",
+    retry: "Try again",
     clearAll: "Clear all",
     showResults: "Show results",
     loadMore: "Load more",
@@ -1679,11 +1673,6 @@ const az: Dict = {
     cols: { shop: "Alış-veriş", buyology: "Buyology", support: "Dəstək", company: "Şirkət" },
     links: {
       electronics: "Elektronika",
-      audio: "Audio",
-      gaming: "Oyun",
-      computing: "Kompüter",
-      wearables: "Geyilə bilənlər",
-      home: "Ağıllı ev",
       buyobot: "Buyobot Sİ",
       repair: "Təmir",
       rent: "İcarə",
@@ -2011,13 +2000,10 @@ const az: Dict = {
     onSale: "Endirimdə (25%+)",
     bestsellers: "Yalnız ən çox satılanlar",
     ratingUp: "və yuxarı",
-    anyPrice: "İstənilən qiymət",
-    brackets: {
-      u100: "$100-dan aşağı",
-      mid1: "$100 – $300",
-      mid2: "$300 – $700",
-      high: "$700+",
-    },
+    priceMinAria: "Minimum qiymət",
+    priceMaxAria: "Maksimum qiymət",
+    loadFailed: "Məhsulları yükləmək mümkün olmadı",
+    retry: "Yenidən cəhd et",
     clearAll: "Hamısını təmizlə",
     showResults: "Nəticələri göstər",
     loadMore: "Daha çox yüklə",
@@ -2435,11 +2421,6 @@ const ar: Dict = {
     cols: { shop: "تسوّق", buyology: "Buyology", support: "الدعم", company: "الشركة" },
     links: {
       electronics: "إلكترونيات",
-      audio: "الصوتيات",
-      gaming: "الألعاب",
-      computing: "الحواسيب",
-      wearables: "الأجهزة القابلة للارتداء",
-      home: "المنزل الذكي",
       buyobot: "Buyobot AI",
       repair: "الإصلاح",
       rent: "التأجير",
@@ -2767,13 +2748,10 @@ const ar: Dict = {
     onSale: "التخفيضات (خصم 25%+)",
     bestsellers: "الأكثر مبيعًا فقط",
     ratingUp: "فأكثر",
-    anyPrice: "أي سعر",
-    brackets: {
-      u100: "أقل من $100",
-      mid1: "$100 – $300",
-      mid2: "$300 – $700",
-      high: "$700+",
-    },
+    priceMinAria: "الحد الأدنى للسعر",
+    priceMaxAria: "الحد الأقصى للسعر",
+    loadFailed: "تعذر تحميل المنتجات",
+    retry: "حاول مرة أخرى",
     clearAll: "مسح الكل",
     showResults: "عرض النتائج",
     loadMore: "تحميل المزيد",

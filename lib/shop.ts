@@ -1,9 +1,11 @@
 import type { Product } from "@/lib/products";
 
 export type Filters = {
+  /** Category IDs (the backend filters by UUID; names are only labels). */
   categories: string[];
-  /** "any" | one of PRICE_BRACKETS keys */
-  price: string;
+  /** Inclusive AED bounds from the slider; null = that side unbounded. */
+  priceMin: number | null;
+  priceMax: number | null;
   /** minimum rating: 0 (any) | 3 | 4 | 4.5 */
   rating: number;
   onSale: boolean;
@@ -12,18 +14,12 @@ export type Filters = {
 
 export const DEFAULT_FILTERS: Filters = {
   categories: [],
-  price: "any",
+  priceMin: null,
+  priceMax: null,
   rating: 0,
   onSale: false,
   bestseller: false,
 };
-
-export const PRICE_BRACKETS = [
-  { key: "u100", min: 0, max: 100 },
-  { key: "mid1", min: 100, max: 300 },
-  { key: "mid2", min: 300, max: 700 },
-  { key: "high", min: 700, max: Infinity },
-] as const;
 
 export const RATING_OPTIONS = [4.5, 4, 3] as const;
 
@@ -44,19 +40,15 @@ export const SORT_KEYS: SortKey[] = [
   "discount",
 ];
 
-function inBracket(price: number, key: string) {
-  if (key === "any") return true;
-  const b = PRICE_BRACKETS.find((x) => x.key === key);
-  return b ? price >= b.min && price < b.max : true;
-}
-
-export function applyFilters(items: Product[], f: Filters): Product[] {
+/**
+ * The predicates the backend cannot apply. Category, price, and super-deal go to
+ * /api/product/search; rating and on-sale have no server equivalent and run here — over the
+ * COMPLETE matched set that endpoint returns, so they are still globally correct.
+ */
+export function applyClientFilters(items: Product[], f: Filters): Product[] {
   return items.filter((p) => {
-    if (f.categories.length && !f.categories.includes(p.category)) return false;
-    if (!inBracket(p.price, f.price)) return false;
     if (p.rating < f.rating) return false;
     if (f.onSale && p.discount < 25) return false;
-    if (f.bestseller && !p.bestseller) return false;
     return true;
   });
 }
@@ -82,9 +74,14 @@ export function sortProducts(items: Product[], sort: SortKey): Product[] {
 export function activeFilterCount(f: Filters): number {
   return (
     f.categories.length +
-    (f.price !== "any" ? 1 : 0) +
+    (f.priceMin != null || f.priceMax != null ? 1 : 0) +
     (f.rating > 0 ? 1 : 0) +
     (f.onSale ? 1 : 0) +
     (f.bestseller ? 1 : 0)
   );
+}
+
+/** True when the current state needs the server-filtered complete list rather than paged browse. */
+export function needsServerSearch(f: Filters, sort: SortKey): boolean {
+  return activeFilterCount(f) > 0 || sort !== "featured";
 }

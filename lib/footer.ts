@@ -11,14 +11,9 @@ export type FooterColumn = { titleKey: string; links: FooterLink[] };
 export const footerColumns: FooterColumn[] = [
   {
     titleKey: "shop",
-    links: [
-      { key: "electronics", href: "/products" },
-      { key: "audio", href: "/products?category=Audio" },
-      { key: "gaming", href: "/products?category=Gaming" },
-      { key: "computing", href: "/products?category=Computing" },
-      { key: "wearables", href: "/products?category=Wearables" },
-      { key: "home", href: "/products?category=Home" },
-    ],
+    // Only the all-products link is static — the category links are the live taxonomy,
+    // rendered by FooterShopLinks so a renamed or added category never leaves a dead link.
+    links: [{ key: "electronics", href: "/products" }],
   },
   {
     titleKey: "buyology",

@@ -1,15 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useI18n } from "@/components/i18n/language-provider";
 import type { Product } from "@/lib/products";
-import { fetchProducts } from "@/lib/catalogue";
+import {
+  fetchCategories,
+  fetchProducts,
+  searchCatalogue,
+  type Category,
+} from "@/lib/catalogue";
+import { formatMoney } from "@/lib/format";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 import {
   activeFilterCount,
-  applyFilters,
+  applyClientFilters,
   DEFAULT_FILTERS,
+  needsServerSearch,
   SORT_KEYS,
   sortProducts,
   type Filters,
@@ -17,47 +24,49 @@ import {
 } from "@/lib/shop";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { ProductCard } from "@/components/home/ProductCard";
-import {
-  BagIcon,
-  CloseIcon,
-  SettingsIcon,
-} from "@/components/icons";
+import { BagIcon, CloseIcon, LifeBuoyIcon, SettingsIcon } from "@/components/icons";
 
 const PAGE = 9;
 
 export function ProductsView({ initialCategory }: { initialCategory?: string }) {
   const { t, locale } = useI18n();
-  // The real catalogue, accumulated page by page. Filtering and sorting stay client-side over
-  // what is loaded — the same UX as before, now over real items; server-side facet search
-  // (/api/product/search) is a later upgrade if the catalogue outgrows this.
+
+  // ── Browse mode: the plain catalogue, accumulated page by page ─────────────
   const [catalog, setCatalog] = useState<Product[] | null>(null);
   const [serverPage, setServerPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  const [browseError, setBrowseError] = useState(false);
+  // A fetch failure must not masquerade as an empty catalogue, and stale responses (locale
+  // switched, or retried) must not land: every browse fetch carries a generation and only the
+  // current one may write state.
+  const catalogGen = useRef(0);
+  const [retryNonce, setRetryNonce] = useState(0);
+
   useEffect(() => {
-    let cancelled = false;
+    const gen = ++catalogGen.current;
     fetchProducts(locale, { page: 0 })
       .then(({ items, hasMore: more }) => {
-        if (cancelled) return;
+        if (gen !== catalogGen.current) return;
         setCatalog(items);
         setServerPage(0);
         setHasMore(more);
+        setBrowseError(false);
       })
       .catch(() => {
-        if (!cancelled) setCatalog([]); // fail soft: an empty grid with the standard empty state
+        if (gen === catalogGen.current) setBrowseError(true);
       });
-    return () => {
-      cancelled = true;
-    };
-  }, [locale]);
+  }, [locale, retryNonce]);
 
   async function loadNextServerPage() {
     if (!hasMore || loadingMore) return;
     setLoadingMore(true);
+    const gen = catalogGen.current;
     try {
       const next = serverPage + 1;
       const { items, hasMore: more } = await fetchProducts(locale, { page: next });
+      if (gen !== catalogGen.current) return; // a locale switch replaced the catalogue meanwhile
       setCatalog((prev) => [...(prev ?? []), ...items]);
       setServerPage(next);
       setHasMore(more);
@@ -68,25 +77,159 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
     }
   }
 
-  const categories = useMemo(
-    () => [...new Set((catalog ?? []).map((p) => p.category).filter(Boolean))],
-    [catalog],
-  );
+  // ── The real category list — ids drive /api/product/search, names label chips ──
+  const [categories, setCategories] = useState<Category[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchCategories(locale)
+      .then((list) => {
+        if (!cancelled) setCategories(list);
+      })
+      .catch(() => {
+        /* sidebar just shows no category section content */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
+  const categoryName = (id: string) =>
+    categories.find((c) => c.id === id)?.name ?? "";
 
-  const [filters, setFilters] = useState<Filters>(() => ({
-    ...DEFAULT_FILTERS,
-    categories: initialCategory ? [initialCategory] : [],
-  }));
+  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [sort, setSort] = useState<SortKey>("featured");
   const [visible, setVisible] = useState(PAGE);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const filtered = useMemo(
-    () => sortProducts(applyFilters(catalog ?? [], filters), sort),
-    [catalog, filters, sort],
+  // /products?category= — new links carry the category ID (locale-invariant); older links and
+  // shared URLs may carry a name or slug, which are BOTH localized per language, so those are
+  // resolved against the active-locale AND the English lists. Resolution happens exactly once:
+  // whatever the outcome, the user owns the chip afterwards (a locale switch must not re-add a
+  // filter they removed).
+  const appliedInitial = useRef(false);
+  useEffect(() => {
+    if (appliedInitial.current || !initialCategory) return;
+    let stale = false;
+    const apply = (id: string | null) => {
+      if (stale || appliedInitial.current) return;
+      appliedInitial.current = true;
+      if (!id) return;
+      setFilters((f) =>
+        f.categories.includes(id) ? f : { ...f, categories: [...f.categories, id] },
+      );
+      setVisible(PAGE);
+    };
+    const wanted = initialCategory.trim().toLowerCase();
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(wanted)) {
+      apply(wanted);
+      return;
+    }
+    Promise.all([
+      fetchCategories(locale).catch(() => [] as Category[]),
+      fetchCategories("en").catch(() => [] as Category[]),
+    ]).then(([localized, english]) => {
+      const pool = [...localized, ...english];
+      const match =
+        pool.find(
+          (c) => c.slug?.toLowerCase() === wanted || c.name.toLowerCase() === wanted,
+        ) ??
+        // "Computing" should still land on "Computing Accessories".
+        pool.find(
+          (c) =>
+            c.slug?.toLowerCase().startsWith(wanted) ||
+            c.name.toLowerCase().startsWith(wanted),
+        );
+      apply(match?.id ?? null);
+    });
+    return () => {
+      stale = true;
+    };
+  }, [initialCategory, locale]);
+
+  // ── Filtered mode: any active filter or non-default sort needs the COMPLETE matched set,
+  // which only /api/product/search returns — client predicates over partially-loaded browse
+  // pages would drop matches that live on pages never fetched. ─────────────────────────────
+  const serverKey = useMemo(
+    () =>
+      needsServerSearch(filters, sort)
+        ? JSON.stringify({
+            c: [...filters.categories].sort(),
+            lo: filters.priceMin,
+            hi: filters.priceMax,
+            sd: filters.bestseller,
+          })
+        : null,
+    [filters, sort],
   );
+  const [results, setResults] = useState<Product[] | null>(null);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState(false);
+
+  useEffect(() => {
+    if (serverKey === null) {
+      setResults(null);
+      setSearching(false);
+      setSearchError(false);
+      return;
+    }
+    let cancelled = false;
+    setSearching(true);
+    // Debounce: slider drags re-run this effect per step; the cleanup cancels the previous
+    // timer so only the resting value hits the network.
+    const timer = setTimeout(() => {
+      const q = JSON.parse(serverKey) as {
+        c: string[];
+        lo: number | null;
+        hi: number | null;
+        sd: boolean;
+      };
+      searchCatalogue(locale, {
+        categoryIds: q.c,
+        minPrice: q.lo ?? undefined,
+        maxPrice: q.hi ?? undefined,
+        superDealsOnly: q.sd,
+      })
+        .then((items) => {
+          if (cancelled) return;
+          setResults(items);
+          setSearchError(false);
+        })
+        .catch(() => {
+          // Keep whatever was on screen; the error card owns the grid until a retry succeeds.
+          if (!cancelled) setSearchError(true);
+        })
+        .finally(() => {
+          if (!cancelled) setSearching(false);
+        });
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [serverKey, locale, retryNonce]);
+
+  // Slider scale: grows to the priciest product seen and never shrinks mid-session, so the
+  // thumbs don't jump under the user's pointer when new pages load.
+  const [priceCeil, setPriceCeil] = useState(500);
+  useEffect(() => {
+    let maxSeen = 0;
+    for (const p of catalog ?? []) maxSeen = Math.max(maxSeen, p.price);
+    for (const p of results ?? []) maxSeen = Math.max(maxSeen, p.price);
+    if (maxSeen > 0)
+      setPriceCeil((prev) => Math.max(prev, Math.ceil(maxSeen / 100) * 100));
+  }, [catalog, results]);
+
+  const filtered = useMemo(() => {
+    const base =
+      serverKey !== null
+        ? applyClientFilters(results ?? [], filters)
+        : (catalog ?? []);
+    return sortProducts(base, sort);
+  }, [serverKey, results, catalog, filters, sort]);
   const shown = filtered.slice(0, visible);
   const activeCount = activeFilterCount(filters);
+  const loadError = serverKey !== null ? searchError : browseError;
+  const initialLoading =
+    serverKey !== null ? results === null : catalog === null;
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -111,22 +254,26 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
 
   // Active filter chips
   const chips: { key: string; label: string; remove: () => void }[] = [];
-  filters.categories.forEach((c) =>
+  filters.categories.forEach((id) =>
     chips.push({
-      key: `c-${c}`,
-      label: c,
+      key: `c-${id}`,
+      label: categoryName(id) || "…",
       remove: () =>
         update({
           ...filters,
-          categories: filters.categories.filter((x) => x !== c),
+          categories: filters.categories.filter((x) => x !== id),
         }),
     }),
   );
-  if (filters.price !== "any")
+  if (filters.priceMin != null || filters.priceMax != null)
     chips.push({
       key: "price",
-      label: t.shop.brackets[filters.price as keyof typeof t.shop.brackets],
-      remove: () => update({ ...filters, price: "any" }),
+      label: `${formatMoney(filters.priceMin ?? 0, "AED")} – ${
+        filters.priceMax != null
+          ? formatMoney(filters.priceMax, "AED")
+          : `${formatMoney(priceCeil, "AED")}+`
+      }`,
+      remove: () => update({ ...filters, priceMin: null, priceMax: null }),
     });
   if (filters.rating > 0)
     chips.push({
@@ -146,6 +293,15 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
       label: t.shop.bestsellers,
       remove: () => update({ ...filters, bestseller: false }),
     });
+
+  const filterPanel = (
+    <ProductFilters
+      categories={categories}
+      priceCeil={priceCeil}
+      filters={filters}
+      onChange={update}
+    />
+  );
 
   return (
     <div>
@@ -208,7 +364,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
               onClick={chip.remove}
               className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand-icon transition-colors hover:bg-primary hover:text-primary-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              {chip.label}
+              <bdi>{chip.label}</bdi>
               <CloseIcon className="h-3 w-3" />
             </button>
           ))}
@@ -225,19 +381,37 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
       <div className="grid gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
         {/* Sidebar */}
         <aside className="hidden lg:sticky lg:top-40 lg:block lg:self-start">
-          <ProductFilters
-            categories={categories}
-            filters={filters}
-            onChange={update}
-          />
+          {filterPanel}
         </aside>
 
         {/* Grid */}
         <div>
-          {catalog === null ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-busy>
+          {loadError && !searching ? (
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface py-20 text-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface-2 text-muted">
+                <LifeBuoyIcon className="h-7 w-7" />
+              </span>
+              <p className="text-lg font-semibold text-foreground">
+                {t.shop.loadFailed}
+              </p>
+              <button
+                type="button"
+                onClick={() => setRetryNonce((n) => n + 1)}
+                className="mt-1 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {t.shop.retry}
+              </button>
+            </div>
+          ) : initialLoading || (searching && shown.length === 0) ? (
+            <div
+              className="grid grid-cols-2 gap-4 sm:grid-cols-3"
+              aria-busy
+            >
               {Array.from({ length: 6 }, (_, i) => (
-                <div key={i} className="h-80 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none" />
+                <div
+                  key={i}
+                  className="h-80 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none"
+                />
               ))}
             </div>
           ) : shown.length === 0 ? (
@@ -259,7 +433,12 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <div
+                className={`grid grid-cols-2 gap-4 transition-opacity sm:grid-cols-3 ${
+                  searching ? "pointer-events-none opacity-50" : ""
+                }`}
+                aria-busy={searching || undefined}
+              >
                 {shown.map((p) => (
                   <ProductCard
                     key={p.id}
@@ -269,14 +448,19 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
                   />
                 ))}
               </div>
-              {(visible < filtered.length || hasMore) && (
+              {(visible < filtered.length || (serverKey === null && hasMore)) && (
                 <div className="mt-8 flex justify-center">
                   <button
                     type="button"
                     onClick={() => {
                       setVisible((v) => v + PAGE);
-                      // Nearing the end of what is loaded → pull the next server page as well.
-                      if (visible + PAGE >= (catalog?.length ?? 0)) void loadNextServerPage();
+                      // Browse mode nears the end of what is loaded → pull the next server
+                      // page. Filtered mode already holds the complete matched set.
+                      if (
+                        serverKey === null &&
+                        visible + PAGE >= (catalog?.length ?? 0)
+                      )
+                        void loadNextServerPage();
                     }}
                     className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
@@ -314,13 +498,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
                   <CloseIcon className="h-5 w-5" />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4">
-                <ProductFilters
-                  categories={categories}
-                  filters={filters}
-                  onChange={update}
-                />
-              </div>
+              <div className="flex-1 overflow-y-auto p-4">{filterPanel}</div>
               <div className="flex gap-2 border-t border-border p-4">
                 <button
                   type="button"

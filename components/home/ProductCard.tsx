@@ -49,7 +49,7 @@ export function ProductCard({
 
       {/* Image — inset rounded container. One shared sample device image for
           every card; swap for a real per-product photo later. */}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-surface-2">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-border bg-surface-2">
         {product.image?.startsWith("http") ? (
           // Real catalogue photo: a presigned, short-lived S3 URL — plain <img>, since next/image
           // would need remotePatterns for hosts that vary per request and caches nothing useful.
@@ -131,7 +131,7 @@ export function ProductCard({
         </p>
 
         {/* Feature chips — the row keeps its height when a product has none */}
-        <div className="mt-3 flex min-h-[26px] flex-wrap gap-1.5 overflow-hidden">
+        <div className="mt-3 flex min-h-[38px] flex-wrap gap-1.5 overflow-hidden pb-3">
           {product.tags.map((tag) => (
             <span
               key={tag}

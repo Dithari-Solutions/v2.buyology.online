@@ -4,6 +4,7 @@ import { getDict } from "@/lib/i18n/server";
 import { site } from "@/lib/site";
 import { footerColumns, socialLinks } from "@/lib/footer";
 import { NewsletterForm } from "@/components/footer/NewsletterForm";
+import { FooterShopLinks } from "@/components/footer/FooterShopLinks";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import { CreditCardIcon, MailIcon } from "@/components/icons";
 
@@ -90,18 +91,22 @@ export async function Footer() {
             <h3 className="text-sm font-semibold text-white">
               {f.cols[col.titleKey]}
             </h3>
-            <ul className="mt-4 space-y-2.5">
-              {col.links.map((l) => (
-                <li key={l.key}>
-                  <Link
-                    href={l.href}
-                    className="rounded text-sm text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-                  >
-                    {f.links[l.key]}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {col.titleKey === "shop" ? (
+              <FooterShopLinks allLabel={f.links.electronics} />
+            ) : (
+              <ul className="mt-4 space-y-2.5">
+                {col.links.map((l) => (
+                  <li key={l.key}>
+                    <Link
+                      href={l.href}
+                      className="rounded text-sm text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                    >
+                      {f.links[l.key]}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </nav>
         ))}
       </div>
