@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import type { ComponentType, ReactNode, SVGProps } from "react";
-import Link from "next/link";
 import { useI18n } from "@/components/i18n/language-provider";
-import { account } from "@/lib/account";
-import { formatInt } from "@/lib/format";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/auth/auth-provider";
+import { AccountGate, useAccountData } from "@/components/account/account-data";
 import {
   CreditCardIcon,
   LockIcon,
@@ -13,7 +13,6 @@ import {
   MapPinIcon,
   PackageIcon,
   SettingsIcon,
-  StarIcon,
   TrashIcon,
   UserIcon,
 } from "@/components/icons";
@@ -46,8 +45,38 @@ const TABS: Tab[] = [
 
 export function AccountView() {
   const { t } = useI18n();
+  return (
+    <AccountGate
+      fallback={
+        // The boot restore is still deciding; a quiet skeleton beats a flash of the wrong state.
+        <div className="grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]" aria-busy>
+          <div className="h-40 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none" />
+          <div className="h-72 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none" />
+        </div>
+      }
+    >
+      <AccountViewInner />
+    </AccountGate>
+  );
+}
+
+function AccountViewInner() {
+  const { t } = useI18n();
+  const { profile } = useAccountData();
+  const { user, signOut } = useAuth();
+  const router = useRouter();
   const [tab, setTab] = useState("profile");
   const active = TABS.find((x) => x.key === tab) ?? TABS[0];
+
+  const firstName = profile?.firstName ?? "";
+  const lastName = profile?.lastName ?? "";
+  const email = profile?.email ?? "";
+  const displayName = `${firstName} ${lastName}`.trim() || email || "—";
+  const initials =
+    `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() ||
+    email.charAt(0).toUpperCase() ||
+    "•";
+  void user;
 
   return (
     <div>
@@ -60,27 +89,12 @@ export function AccountView() {
         <aside className="lg:sticky lg:top-40 lg:self-start">
           <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-deep text-base font-bold text-white">
-              {account.initials}
+              {initials}
             </span>
             <div className="min-w-0">
-              <p className="truncate font-semibold text-foreground">
-                {account.firstName} {account.lastName}
-              </p>
-              <p className="truncate text-xs text-muted">{account.email}</p>
+              <p className="truncate font-semibold text-foreground">{displayName}</p>
+              <p className="truncate text-xs text-muted">{email}</p>
             </div>
-          </div>
-
-          <div className="mt-3 flex items-center justify-between rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3">
-            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-warn dark:text-gold">
-              <StarIcon className="h-4 w-4" />
-              {account.tier} {t.account.tierMember}
-            </span>
-            <span className="text-sm font-bold text-foreground">
-              {formatInt(account.points)}{" "}
-              <span className="text-xs font-normal text-muted">
-                {t.account.points}
-              </span>
-            </span>
           </div>
 
           <nav
@@ -112,13 +126,17 @@ export function AccountView() {
             })}
           </nav>
 
-          <Link
-            href="/login"
+          <button
+            type="button"
+            onClick={async () => {
+              await signOut();
+              router.push("/");
+            }}
             className="mt-3 flex w-full items-center gap-2.5 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-medium text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <LogOutIcon className="h-[18px] w-[18px]" />
             {t.account.signOut}
-          </Link>
+          </button>
         </aside>
 
         {/* Content */}

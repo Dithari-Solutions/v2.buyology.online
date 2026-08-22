@@ -32,6 +32,7 @@ export function AvatarUpload({
   previewAltLabel,
   selectedLabel,
   removedLabel,
+  onFile,
 }: {
   label: string;
   hint: string;
@@ -48,6 +49,12 @@ export function AvatarUpload({
   /** Announced with the file name appended, e.g. "Photo selected: cat.png". */
   selectedLabel: string;
   removedLabel: string;
+  /**
+   * The picked file, for callers that upload it themselves. Needed because this component clears
+   * the input's value after picking (to allow re-picking the same file), so the file is NOT in the
+   * form's FormData at submit time.
+   */
+  onFile?: (file: File | null) => void;
 }) {
   const uid = useId();
   const inputId = `${uid}-avatar`;
@@ -85,6 +92,7 @@ export function AvatarUpload({
     const entry = next ? { file: next, url: URL.createObjectURL(next) } : null;
     pickedRef.current = entry;
     setPicked(entry);
+    onFile?.(next);
   }
 
   /** Re-picking the same file fires no `change` event unless the value is cleared. */

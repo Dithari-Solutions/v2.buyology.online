@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchStories, seenStoryIds, type StorySummary } from "@/lib/story-feed";
 import { StoryViewer } from "@/components/stories/StoryViewer";
 import { useI18n } from "@/components/i18n/language-provider";
+import { useAuth } from "@/components/auth/auth-provider";
 
 /**
  * The story row under the header — real, admin-published stories only (GET /api/story, resolved
@@ -22,11 +23,15 @@ import { useI18n } from "@/components/i18n/language-provider";
  */
 export function Stories() {
   const { t, locale } = useI18n();
+  const { status } = useAuth();
   const [feed, setFeed] = useState<StorySummary[] | null>(null); // null = still loading
   const [seen, setSeen] = useState<Set<string>>(new Set());
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   useEffect(() => {
+    // Wait for the boot session restore: likedByMe is only computed for an authenticated call,
+    // and fetching as a guest first would flash unliked hearts at a signed-in visitor.
+    if (status === "loading") return;
     let cancelled = false;
     // Fetched per mount and per language on purpose: media URLs are presigned with a 2-hour TTL
     // and the backend resolves translations server-side, so neither can be cached client-side.
@@ -43,7 +48,7 @@ export function Stories() {
     return () => {
       cancelled = true;
     };
-  }, [locale]);
+  }, [locale, status]);
 
   const closeViewer = () => {
     setViewerIndex(null);

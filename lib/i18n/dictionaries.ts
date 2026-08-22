@@ -227,6 +227,8 @@ export interface Dict {
     addAll: string;
   };
   account: {
+    /** Shown on tabs whose feature has not migrated from the old site yet. */
+    comingSoon: string;
     title: string;
     memberSince: string;
     points: string;
@@ -900,6 +902,7 @@ const en: Dict = {
     addAll: "Add all to cart",
   },
   account: {
+    comingSoon: "This section is moving to the new site soon. Until then, manage it on buyology.online.",
     title: "My account",
     memberSince: "Member since",
     points: "points",
@@ -1626,6 +1629,7 @@ const az: Dict = {
     addAll: "Hamısını səbətə əlavə et",
   },
   account: {
+    comingSoon: "Bu bölmə tezliklə yeni sayta köçürüləcək. Hələlik buyology.online üzərindən idarə edin.",
     title: "Hesabım",
     memberSince: "Üzvlük tarixi",
     points: "xal",
@@ -2336,6 +2340,7 @@ const ar: Dict = {
     addAll: "أضف الكل إلى السلة",
   },
   account: {
+    comingSoon: "سينتقل هذا القسم إلى الموقع الجديد قريبًا. حتى ذلك الحين، يمكنك إدارته عبر buyology.online.",
     title: "حسابي",
     memberSince: "عضو منذ",
     points: "نقطة",

@@ -1,4 +1,6 @@
 import { backendUrl, type ApiEnvelope } from "@/lib/backend";
+import { authedFetch } from "@/lib/auth/client";
+import { getAccessToken } from "@/lib/auth/token";
 import type { Locale } from "@/lib/i18n/config";
 
 /**
@@ -37,11 +39,17 @@ export type StorySummary = {
 
 const LANGUAGE: Record<Locale, "EN" | "AZ" | "AR"> = { en: "EN", az: "AZ", ar: "AR" };
 
-/** Active stories for the locale, newest arrangement first. Throws on network/HTTP failure. */
+/**
+ * Active stories for the locale, newest arrangement first. Throws on network/HTTP failure.
+ * Sends the Bearer token when a session exists — the endpoint is public, but likedByMe is only
+ * computed for an authenticated caller.
+ */
 export async function fetchStories(locale: Locale): Promise<StorySummary[]> {
+  const token = getAccessToken();
   const res = await fetch(backendUrl(`/api/story?language=${LANGUAGE[locale]}`), {
     // Presigned URLs differ per call and expire; caching a response caches dead links.
     cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
   if (!res.ok) throw new Error(`stories ${res.status}`);
   const body = (await res.json()) as ApiEnvelope<StorySummary[]>;
@@ -52,6 +60,19 @@ export async function fetchStories(locale: Locale): Promise<StorySummary[]> {
  * Tells the backend a story was opened. Anonymous-safe (deduped server-side by user or hashed IP);
  * fire-and-forget — a failed view count must never affect the viewer.
  */
+export type StoryLikeResult = { liked: boolean; likeCount: number };
+
+/** Like/unlike — authentication required; the backend 401s a guest. */
+export async function setStoryLiked(storyId: string, liked: boolean): Promise<StoryLikeResult> {
+  const res = await authedFetch(`/api/story/${storyId}/like`, {
+    method: liked ? "POST" : "DELETE",
+  });
+  if (!res.ok) throw new Error(`like ${res.status}`);
+  const body = (await res.json()) as ApiEnvelope<StoryLikeResult>;
+  if (!body.data) throw new Error("like: empty");
+  return body.data;
+}
+
 export function recordStoryView(storyId: string): void {
   fetch(backendUrl(`/api/story/${storyId}/view`), { method: "POST" }).catch(() => {});
 }

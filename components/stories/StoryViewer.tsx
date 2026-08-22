@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { lockBodyScroll } from "@/lib/scroll-lock";
-import { markStorySeen, recordStoryView, type StorySummary } from "@/lib/story-feed";
+import { markStorySeen, recordStoryView, setStoryLiked, type StorySummary } from "@/lib/story-feed";
+import { useAuth } from "@/components/auth/auth-provider";
+import Link from "next/link";
 import { CloseIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon } from "@/components/icons";
 
 const IMAGE_DURATION_MS = 6000;
@@ -33,12 +35,15 @@ export function StoryViewer({
   onClose: () => void;
 }) {
   const { t, dir } = useI18n();
+  const { status } = useAuth();
   const [storyIndex, setStoryIndex] = useState(startIndex);
   const [mediaIndex, setMediaIndex] = useState(0);
   const [progress, setProgress] = useState(0); // 0..1 within the current media item
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(true);
   const [signInHint, setSignInHint] = useState(false);
+  // Local like overrides so a like sticks while navigating between stories in this session.
+  const [likes, setLikes] = useState<Record<string, { liked: boolean; count: number }>>({});
   const videoRef = useRef<HTMLVideoElement>(null);
   const viewedRef = useRef<Set<string>>(new Set());
 
@@ -161,10 +166,32 @@ export function StoryViewer({
     (forward ? goNext : goPrev)();
   };
 
-  const likeLabel = useMemo(
-    () => `${story?.likeCount ?? 0}`,
-    [story],
-  );
+  const likeState = useMemo(() => {
+    if (!story) return { liked: false, count: 0 };
+    return likes[story.id] ?? { liked: story.likedByMe, count: story.likeCount };
+  }, [story, likes]);
+
+  async function toggleLike() {
+    if (!story) return;
+    if (status !== "authed") {
+      // Honest gate: the backend requires a signed-in account to like.
+      setSignInHint(true);
+      setTimeout(() => setSignInHint(false), 3500);
+      return;
+    }
+    const next = !likeState.liked;
+    // Optimistic — revert on failure.
+    setLikes((m) => ({
+      ...m,
+      [story.id]: { liked: next, count: likeState.count + (next ? 1 : -1) },
+    }));
+    try {
+      const result = await setStoryLiked(story.id, next);
+      setLikes((m) => ({ ...m, [story.id]: { liked: result.liked, count: result.likeCount } }));
+    } catch {
+      setLikes((m) => ({ ...m, [story.id]: likeState }));
+    }
+  }
 
   if (!story || !media) return null;
 
@@ -296,9 +323,12 @@ export function StoryViewer({
           <div className="pointer-events-auto flex items-end justify-between gap-3 px-4 pb-4">
             <div className="min-w-0">
               {signInHint && (
-                <p className="mb-2 w-fit rounded-full bg-white/15 px-3 py-1 text-xs text-white backdrop-blur-sm">
+                <Link
+                  href="/login?next=/"
+                  className="mb-2 block w-fit rounded-full bg-white/15 px-3 py-1 text-xs text-white underline-offset-2 backdrop-blur-sm hover:underline"
+                >
                   {t.stories.signInToLike}
-                </p>
+                </Link>
               )}
             </div>
             <div className="flex items-center gap-3">
@@ -314,17 +344,17 @@ export function StoryViewer({
               )}
               <button
                 type="button"
-                onClick={() => {
-                  // v2 has no signed-in JWT yet; the backend requires one to like. Honest UI:
-                  // show the count, explain the gate. Wire the real call once auth is migrated.
-                  setSignInHint(true);
-                  setTimeout(() => setSignInHint(false), 2500);
-                }}
+                onClick={toggleLike}
                 aria-label={t.stories.likes}
-                className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-white/25"
+                aria-pressed={likeState.liked}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  likeState.liked
+                    ? "bg-white text-brand"
+                    : "bg-white/15 text-white hover:bg-white/25"
+                }`}
               >
-                <HeartIcon className="h-4 w-4" />
-                {likeLabel}
+                <HeartIcon className={`h-4 w-4 ${likeState.liked ? "fill-current" : ""}`} />
+                {likeState.count}
               </button>
             </div>
           </div>

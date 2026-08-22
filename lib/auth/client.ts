@@ -140,28 +140,94 @@ export async function resetPassword(payload: {
   await post("/auth/reset-password", payload);
 }
 
-// ── Profile (names collected at signup) ─────────────────────────────────────
+// ── Authenticated calls ──────────────────────────────────────────────────────
+
+/**
+ * Fetch with the Bearer token, retrying ONCE through a refresh when the session has lapsed.
+ *
+ * The retry matters because of a backend quirk: an expired access token does not produce a JSON
+ * 401 — the JWT filter silently continues unauthenticated and Spring answers 403 with an empty
+ * body. Both statuses therefore mean "try a refresh", and only a failed refresh means the session
+ * is really over.
+ */
+export async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const call = (token: string | null) =>
+    fetch(backendUrl(path), {
+      ...init,
+      credentials: "include",
+      headers: {
+        "X-Client-Type": "web",
+        ...(init.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(init.headers ?? {}),
+      },
+    });
+
+  let res = await call(getAccessToken());
+  if (res.status === 401 || res.status === 403) {
+    const claims = await refreshSession();
+    if (claims) res = await call(getAccessToken());
+  }
+  return res;
+}
+
+async function authedJson<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const res = await authedFetch(path, init);
+  let envelope: ApiEnvelope<T> | null = null;
+  try {
+    envelope = (await res.json()) as ApiEnvelope<T>;
+  } catch {
+    /* empty body */
+  }
+  if (!res.ok) throw new AuthError(res.status, envelope?.message ?? `HTTP ${res.status}`);
+  return envelope?.data as T;
+}
+
+// ── Profile ──────────────────────────────────────────────────────────────────
+
+export type Profile = {
+  userId: string;
+  email?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  phoneNumber?: string | null;
+  phoneVerified?: boolean;
+  dateOfBirth?: string | null;
+  avatarUrl?: string | null;
+  selectedCountryCode?: string | null;
+  preferredCurrency?: string | null;
+};
+
+export function fetchProfile(uid: string): Promise<Profile> {
+  return authedJson<Profile>(`/api/users/${uid}/profile`);
+}
+
+export function updateProfile(
+  uid: string,
+  changes: { firstName?: string; lastName?: string; phoneNumber?: string; dateOfBirth?: string },
+): Promise<Profile> {
+  return authedJson<Profile>(`/api/users/${uid}/profile`, {
+    method: "PATCH",
+    body: JSON.stringify(changes),
+  });
+}
+
+export function uploadAvatar(uid: string, file: File): Promise<Profile> {
+  const form = new FormData();
+  form.append("avatar", file);   // the backend reads @RequestPart("avatar")
+  return authedJson<Profile>(`/api/users/${uid}/profile/avatar`, {
+    method: "PATCH",
+    body: form,
+  });
+}
 
 /**
  * Best-effort: the signup endpoint takes only email+password, so the names the form collects are
  * saved right after verification. A failure here must never fail the signup — the account exists.
  */
 export async function saveProfileNames(uid: string, firstName: string, lastName: string): Promise<void> {
-  const token = getAccessToken();
-  if (!token) return;
   try {
-    let res: Response;
-    res = await fetch(backendUrl(`/api/users/${uid}/profile`), {
-      method: "PATCH",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Client-Type": "web",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ firstName, lastName }),
-    });
-    void res;
+    await updateProfile(uid, { firstName, lastName });
   } catch {
     /* best-effort */
   }
