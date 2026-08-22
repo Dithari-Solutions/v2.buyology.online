@@ -242,6 +242,9 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           {o.placedOn} {dateFmt.format(new Date(order.createdAt))}
         </span>
       </div>
+      <p className="mt-1 text-xs text-muted" dir="ltr">
+        {order.id}
+      </p>
 
       {order.cancellationReason && (
         <p className="mt-3 rounded-xl border border-border bg-surface-2 px-4 py-3 text-sm text-muted">
@@ -357,8 +360,17 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
 
           {/* Delivery / pickup */}
           <section className="rounded-2xl border border-border bg-surface p-5 text-sm">
-            <h2 className="mb-3 font-semibold text-foreground">
+            <h2 className="mb-3 flex flex-wrap items-center gap-2 font-semibold text-foreground">
               {isPickup ? d.pickup : d.delivery}
+              {order.deliveryMethod && !isPickup && (
+                <span className="rounded-full bg-brand-soft px-2.5 py-0.5 text-[11px] font-semibold text-brand-icon">
+                  {order.deliveryMethod === "EXPRESS"
+                    ? d.methodExpress
+                    : order.deliveryMethod === "INTERNATIONAL"
+                      ? d.methodInternational
+                      : d.methodRegular}
+                </span>
+              )}
             </h2>
             {isPickup ? (
               <>
@@ -373,11 +385,43 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 </p>
                 {order.recipientPhone && <p className="text-muted" dir="ltr">{order.recipientPhone}</p>}
                 <p className="mt-2 text-muted">
-                  {[order.addressLine1, order.addressLine2, order.city, order.state, order.country]
+                  {[
+                    order.addressLine1,
+                    order.addressLine2,
+                    order.city,
+                    order.state,
+                    order.postalCode,
+                    order.country,
+                  ]
                     .filter(Boolean)
                     .join(", ")}
                 </p>
               </>
+            )}
+            {(order.customerEmail || order.customerPhone) && (
+              <>
+                <p className="mt-3 text-xs uppercase tracking-wide text-muted">{d.contact}</p>
+                {order.customerEmail && (
+                  <p className="mt-1 text-muted" dir="ltr">{order.customerEmail}</p>
+                )}
+                {order.customerPhone && (
+                  <p className="text-muted" dir="ltr">{order.customerPhone}</p>
+                )}
+              </>
+            )}
+            {(order.shippedAt || order.deliveredAt) && (
+              <div className="mt-3 space-y-1 border-t border-border pt-3 text-xs text-muted">
+                {order.shippedAt && (
+                  <p>
+                    {d.shippedOn} {dateFmt.format(new Date(order.shippedAt))}
+                  </p>
+                )}
+                {order.deliveredAt && (
+                  <p>
+                    {d.deliveredOn} {dateFmt.format(new Date(order.deliveredAt))}
+                  </p>
+                )}
+              </div>
             )}
             {order.estimatedDeliveryTime && (
               <p className="mt-3 text-xs text-muted">

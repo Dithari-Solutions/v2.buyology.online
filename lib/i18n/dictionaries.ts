@@ -315,6 +315,12 @@ export interface Dict {
         methodCredit: string;
         proofPhoto: string;
         courier: string;
+        methodExpress: string;
+        methodRegular: string;
+        methodInternational: string;
+        contact: string;
+        shippedOn: string;
+        deliveredOn: string;
         eta: string;
       };
     };
@@ -1058,6 +1064,12 @@ const en: Dict = {
         methodCredit: "Business credit",
         proofPhoto: "Photo proof",
         courier: "Courier",
+        methodExpress: "Express delivery",
+        methodRegular: "Standard delivery",
+        methodInternational: "International shipping",
+        contact: "Contact",
+        shippedOn: "Shipped on",
+        deliveredOn: "Delivered on",
         back: "Back to orders",
         eta: "Estimated delivery",
       },
@@ -1837,6 +1849,12 @@ const az: Dict = {
         methodCredit: "Biznes krediti",
         proofPhoto: "Foto sübut",
         courier: "Kuryer",
+        methodExpress: "Ekspres çatdırılma",
+        methodRegular: "Standart çatdırılma",
+        methodInternational: "Beynəlxalq çatdırılma",
+        contact: "Əlaqə",
+        shippedOn: "Göndərilib:",
+        deliveredOn: "Çatdırılıb:",
         back: "Sifarişlərə qayıt",
         eta: "Təxmini çatdırılma",
       },
@@ -2600,6 +2618,12 @@ const ar: Dict = {
         methodCredit: "رصيد الأعمال",
         proofPhoto: "إثبات بالصورة",
         courier: "المندوب",
+        methodExpress: "توصيل سريع",
+        methodRegular: "توصيل عادي",
+        methodInternational: "شحن دولي",
+        contact: "جهة الاتصال",
+        shippedOn: "تم الشحن في",
+        deliveredOn: "تم التوصيل في",
         back: "العودة إلى الطلبات",
         eta: "التوصيل المتوقع",
       },

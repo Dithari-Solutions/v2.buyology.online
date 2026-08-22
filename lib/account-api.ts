@@ -21,7 +21,7 @@ export type OrderStatus =
 export type OrderSummary = {
   id: string;
   status: OrderStatus;
-  deliveryMethod?: "EXPRESS" | "REGULAR" | "PICKUP" | null;
+  deliveryMethod?: "EXPRESS" | "REGULAR" | "INTERNATIONAL" | "PICKUP" | null;
   totalAmount: number;
   currency?: string | null;
   trackingCode?: string | null;
@@ -87,7 +87,10 @@ export type TrackingEvent = {
 };
 
 export type OrderDetail = OrderSummary & {
-  deliveryMethod?: "EXPRESS" | "REGULAR" | "PICKUP" | null;
+  customerEmail?: string | null;
+  customerPhone?: string | null;
+  shippedAt?: string | null;
+  cancelledAt?: string | null;
   recipientFirstName?: string | null;
   recipientLastName?: string | null;
   recipientPhone?: string | null;

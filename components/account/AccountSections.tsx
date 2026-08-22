@@ -344,7 +344,7 @@ export function OrdersSection() {
 export function AddressesSection() {
   const { t } = useI18n();
   const ad = t.account.addresses;
-  const { uid } = useAccountData();
+  const { uid, profile } = useAccountData();
   const [rows, setRows] = useState<Address[] | null>(null);
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -407,10 +407,12 @@ export function AddressesSection() {
     setBusy(true);
     setError(null);
     try {
+      // Recipient identity rides along from the account profile — the form only asks
+      // for what the profile cannot know: where.
       await saveAddress(uid, {
-        firstName: String(fd.get("firstName") ?? "").trim(),
-        lastName: String(fd.get("lastName") ?? "").trim(),
-        phoneNumber: String(fd.get("phone") ?? "").trim() || undefined,
+        firstName: (profile?.firstName ?? "").trim(),
+        lastName: (profile?.lastName ?? "").trim(),
+        phoneNumber: (profile?.phoneNumber ?? "").trim() || undefined,
         label,
         customLabel: label === "OTHER"
             ? String(fd.get("customLabel") ?? "").trim() || undefined
@@ -556,10 +558,7 @@ export function AddressesSection() {
                 </button>
                 {locationNote && <span className="text-xs text-muted">{locationNote}</span>}
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={t.auth.firstName} name="firstName" required />
-                <Field label={t.auth.lastName} name="lastName" required />
-              </div>
+
               <Field key={`l1-${prefill.line1 ?? ""}`} label={ad.street} name="line1" defaultValue={prefill.line1} required />
               <Field label={ad.line2} name="line2" />
               <div className="grid gap-4 sm:grid-cols-2">
@@ -570,7 +569,6 @@ export function AddressesSection() {
                 <Field key={`co-${prefill.country ?? "UAE"}`} label={ad.country} name="country" defaultValue={prefill.country ?? "UAE"} required />
                 <Field key={`p-${prefill.postalCode ?? ""}`} label={ad.postalCode} name="postalCode" defaultValue={prefill.postalCode} />
               </div>
-              <Field label={ad.phone} name="phone" type="tel" />
               <div className="flex flex-wrap items-center gap-4">
                 <label className="block">
                   <span className="mb-1.5 block text-sm font-medium text-foreground">{ad.name}</span>
