@@ -3,7 +3,9 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useCart } from "@/components/cart/cart-provider";
+import { useCart, type CartLine } from "@/components/cart/cart-provider";
+import { useProductLookup } from "@/lib/use-product-lookup";
+import { formatMoney } from "@/lib/format";
 import { useI18n } from "@/components/i18n/language-provider";
 import { BnplOptions } from "@/components/cart/BnplOptions";
 import { lockBodyScroll } from "@/lib/scroll-lock";
@@ -18,8 +20,7 @@ const SHARED_IMG = "/mock/product-hero.jpg";
  */
 export function CartDrawer() {
   const { t } = useI18n();
-  const { items, count, subtotal, isOpen, close, removeItem, setQty } =
-    useCart();
+  const { items, count, subtotal, currency, isOpen, close } = useCart();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -115,60 +116,7 @@ export function CartDrawer() {
             {/* Items */}
             <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
               {items.map((line) => (
-                <li
-                  key={line.id}
-                  className="flex gap-3 rounded-xl p-2 transition-colors hover:bg-surface-2"
-                >
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-surface-2">
-                    <Image
-                      src={SHARED_IMG}
-                      alt=""
-                      fill
-                      sizes="64px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <p className="truncate text-sm font-medium text-foreground">
-                      {line.name}
-                    </p>
-                    <p className="text-xs text-muted">{line.category}</p>
-                    <div className="mt-auto flex items-center justify-between gap-2 pt-1.5">
-                      <div className="inline-flex items-center rounded-full border border-border">
-                        <button
-                          type="button"
-                          onClick={() => setQty(line.id, line.qty - 1)}
-                          aria-label={t.cart.decrease}
-                          className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          <span aria-hidden="true">−</span>
-                        </button>
-                        <span className="min-w-5 text-center text-sm font-medium tabular-nums text-foreground">
-                          {line.qty}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setQty(line.id, line.qty + 1)}
-                          aria-label={t.cart.increase}
-                          className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          <span aria-hidden="true">+</span>
-                        </button>
-                      </div>
-                      <span className="text-sm font-semibold text-foreground">
-                        ${(line.price * line.qty).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(line.id)}
-                    aria-label={`${t.cart.remove}: ${line.name}`}
-                    className="self-start rounded-md p-1 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <CloseIcon className="h-4 w-4" />
-                  </button>
-                </li>
+                <DrawerLine key={line.id} line={line} />
               ))}
             </ul>
 
@@ -176,8 +124,8 @@ export function CartDrawer() {
             <div className="border-t border-border p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm text-muted">{t.cart.subtotal}</span>
-                <span className="text-lg font-bold text-foreground">
-                  ${subtotal.toLocaleString()}
+                <span className="text-lg font-bold text-foreground" dir="ltr">
+                  {formatMoney(subtotal, currency)}
                 </span>
               </div>
               <div className="mb-3">
@@ -202,5 +150,76 @@ export function CartDrawer() {
         )}
       </div>
     </div>
+  );
+}
+
+/** One drawer line: real catalogue photo and name resolved by product id. */
+function DrawerLine({ line }: { line: CartLine }) {
+  const { t } = useI18n();
+  const { removeItem, setQty } = useCart();
+  const detail = useProductLookup(line.productId);
+  const name = detail?.name ?? line.name;
+  return (
+    <li
+      className={`flex gap-3 rounded-xl p-2 transition-colors hover:bg-surface-2 ${
+        line.selected && line.selectable ? "" : "opacity-50"
+      }`}
+    >
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-border bg-surface-2">
+        {detail?.image?.startsWith("http") ? (
+          // Presigned catalogue photo — plain <img>; contained so the whole product shows.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={detail.image}
+            alt=""
+            className="absolute inset-0 h-full w-full bg-white object-contain p-1"
+            loading="lazy"
+          />
+        ) : (
+          <Image src={SHARED_IMG} alt="" fill sizes="64px" className="object-cover" />
+        )}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <p className="truncate text-sm font-medium text-foreground">{name}</p>
+        <p className="text-xs text-muted">{detail?.category || line.category}</p>
+        {line.specs && line.specs.length > 0 && (
+          <p className="truncate text-[11px] text-muted">{line.specs.join(" · ")}</p>
+        )}
+        <div className="mt-auto flex items-center justify-between gap-2 pt-1.5">
+          <div className="inline-flex items-center rounded-full border border-border">
+            <button
+              type="button"
+              onClick={() => setQty(line.id, line.qty - 1)}
+              aria-label={`${t.cart.decrease}: ${name}`}
+              className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span aria-hidden="true">−</span>
+            </button>
+            <span className="min-w-5 text-center text-sm font-medium tabular-nums text-foreground">
+              {line.qty}
+            </span>
+            <button
+              type="button"
+              onClick={() => setQty(line.id, line.qty + 1)}
+              aria-label={`${t.cart.increase}: ${name}`}
+              className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span aria-hidden="true">+</span>
+            </button>
+          </div>
+          <span className="text-sm font-semibold text-foreground" dir="ltr">
+            {formatMoney(line.price * line.qty, line.currency)}
+          </span>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => removeItem(line.id)}
+        aria-label={`${t.cart.remove}: ${name}`}
+        className="self-start rounded-md p-1 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <CloseIcon className="h-4 w-4" />
+      </button>
+    </li>
   );
 }

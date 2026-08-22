@@ -90,10 +90,13 @@ export function ProductDetail() {
       .join(" · ");
     addItem(
       {
-        id: isBase ? id : `${id}::${optionIds.join(".")}`,
+        id,
         name: suffix ? `${name} · ${suffix}` : name,
         price: unit,
         category,
+        storeId: product.storeId,
+        currency: product.currency,
+        specOptionIds: optionIds as string[],
       },
       { openDrawer, qty },
     );

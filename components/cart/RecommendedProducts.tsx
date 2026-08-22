@@ -31,6 +31,8 @@ function RecCard({ product }: { product: Product }) {
         name: product.name,
         price: product.price,
         category: product.category,
+        storeId: product.storeId,
+        currency: product.currency,
       },
       { openDrawer: false },
     );
@@ -110,7 +112,7 @@ export function RecommendedProducts() {
   const { items } = useCart();
   const { locale } = useI18n();
   const [recs, setRecs] = useState<Product[]>([]);
-  const cartIds = items.map((i) => i.id.split("::")[0]);
+  const cartIds = items.map((i) => i.productId);
   const idsKey = [...new Set(cartIds)].sort().join(",");
 
   useEffect(() => {

@@ -29,6 +29,20 @@ export function WishlistView() {
     };
   }, [items, locale]);
 
+  // Ids exist but none has resolved yet — that is loading, not an empty wishlist.
+  if (items.length > 0 && products.length === 0) {
+    return (
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" aria-busy>
+        {Array.from({ length: Math.min(items.length, 4) }, (_, i) => (
+          <div
+            key={i}
+            className="h-80 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none"
+          />
+        ))}
+      </div>
+    );
+  }
+
   if (products.length === 0) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-20 text-center">
@@ -52,7 +66,7 @@ export function WishlistView() {
   function addAll() {
     products.forEach((p) =>
       addItem(
-        { id: p.id, name: p.name, price: p.price, category: p.category },
+        { id: p.id, name: p.name, price: p.price, category: p.category, storeId: p.storeId, currency: p.currency },
         { openDrawer: false },
       ),
     );

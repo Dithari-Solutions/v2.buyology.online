@@ -3,16 +3,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCart, type CartLine } from "@/components/cart/cart-provider";
-import { useWishlist } from "@/components/wishlist/wishlist-provider";
 import { useI18n } from "@/components/i18n/language-provider";
 import { BnplOptions } from "@/components/cart/BnplOptions";
 import { RecommendedProducts } from "@/components/cart/RecommendedProducts";
 import { useProductLookup } from "@/lib/use-product-lookup";
+import { formatMoney } from "@/lib/format";
 import {
   BagIcon,
   ChevronLeftIcon,
+  ClockIcon,
   CloseIcon,
-  HeartIcon,
   RentIcon,
   ShieldCheckIcon,
   StarIcon,
@@ -20,21 +20,30 @@ import {
 } from "@/components/icons";
 
 const IMG = "/mock/product-hero.jpg";
+const checkboxCls =
+  "h-[18px] w-[18px] shrink-0 rounded border-border accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
-/** One rich cart line: image, rating, description, specs, qty + save-for-later. */
-function CartRow({ line }: { line: CartLine }) {
+/** One rich cart line: tick-to-buy, image, rating, qty, save-for-later. */
+function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
   const { t } = useI18n();
-  const { removeItem, setQty } = useCart();
-  const { has, toggle } = useWishlist();
-  // Line ids may carry a "::variant" suffix; product detail keys off the base id.
-  const baseId = line.id.split("::")[0];
-  const detail = useProductLookup(baseId);
-  const saved = has(baseId);
+  const { removeItem, setQty, setSelected, saveForLater, moveToCart } = useCart();
+  const detail = useProductLookup(line.productId);
+  const name = detail?.name ?? line.name;
   const filled = detail ? Math.round(detail.rating) : 0;
 
   return (
     <li className="flex flex-col gap-4 p-4 sm:flex-row">
-      <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-xl bg-surface-2 sm:h-28 sm:w-28">
+      {!savedRow && (
+        <input
+          type="checkbox"
+          checked={line.selected && line.selectable}
+          disabled={!line.selectable}
+          onChange={(e) => setSelected(line.id, e.target.checked)}
+          aria-label={`${t.cart.selectItem}: ${name}`}
+          className={`${checkboxCls} self-start disabled:cursor-not-allowed disabled:opacity-40 sm:mt-11`}
+        />
+      )}
+      <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-xl border border-border bg-surface-2 sm:h-28 sm:w-28">
         {detail?.image?.startsWith("http") ? (
           // Presigned catalogue photo — plain <img> (short-lived URL).
           // eslint-disable-next-line @next/next/no-img-element
@@ -48,11 +57,14 @@ function CartRow({ line }: { line: CartLine }) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-warn dark:text-gold">
-              {line.category}
+              {detail?.category || line.category}
             </p>
             <h2 className="mt-0.5 truncate font-semibold text-foreground">
-              {line.name}
+              {name}
             </h2>
+            {line.specs && line.specs.length > 0 && (
+              <p className="mt-0.5 text-xs text-muted">{line.specs.join(" · ")}</p>
+            )}
             {detail && (
               <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
                 <span className="flex items-center gap-0.5" aria-hidden="true">
@@ -75,7 +87,7 @@ function CartRow({ line }: { line: CartLine }) {
           <button
             type="button"
             onClick={() => removeItem(line.id)}
-            aria-label={`${t.cart.remove}: ${line.name}`}
+            aria-label={`${t.cart.remove}: ${name}`}
             className="rounded-md p-1 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <CloseIcon className="h-4 w-4" />
@@ -98,10 +110,12 @@ function CartRow({ line }: { line: CartLine }) {
                 {tag}
               </span>
             ))}
-            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-              {t.cart.inStock}
-            </span>
+            {detail.inStock !== false && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                {t.cart.inStock}
+              </span>
+            )}
           </div>
         )}
 
@@ -111,7 +125,7 @@ function CartRow({ line }: { line: CartLine }) {
               <button
                 type="button"
                 onClick={() => setQty(line.id, line.qty - 1)}
-                aria-label={t.cart.decrease}
+                aria-label={`${t.cart.decrease}: ${name}`}
                 className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span aria-hidden="true">−</span>
@@ -122,34 +136,44 @@ function CartRow({ line }: { line: CartLine }) {
               <button
                 type="button"
                 onClick={() => setQty(line.id, line.qty + 1)}
-                aria-label={t.cart.increase}
+                aria-label={`${t.cart.increase}: ${name}`}
                 className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span aria-hidden="true">+</span>
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => toggle(baseId)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                saved
-                  ? "text-brand"
-                  : "text-muted hover:text-foreground"
-              }`}
-            >
-              <HeartIcon
-                className={`h-4 w-4 ${saved ? "fill-brand text-brand" : ""}`}
-              />
-              {saved ? t.cart.saved : t.cart.addToWishlist}
-            </button>
+            {savedRow ? (
+              <button
+                type="button"
+                onClick={() => moveToCart(line.id)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand-icon transition-colors hover:bg-primary hover:text-primary-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <BagIcon className="h-4 w-4" />
+                {t.cart.moveToCart}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => saveForLater(line.id)}
+                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <ClockIcon className="h-4 w-4" />
+                {t.cart.addToWishlist}
+              </button>
+            )}
           </div>
           <div className="text-end">
-            <span className="font-semibold text-foreground">
-              ${(line.price * line.qty).toLocaleString()}
+            <span className="font-semibold text-foreground" dir="ltr">
+              {formatMoney(line.price * line.qty, line.currency)}
             </span>
+            {line.originalPrice != null && line.originalPrice > line.price && (
+              <p className="text-[11px] text-muted line-through" dir="ltr">
+                {formatMoney(line.originalPrice * line.qty, line.currency)}
+              </p>
+            )}
             {line.qty > 1 && (
               <p className="text-[11px] text-muted" dir="ltr">
-                {line.qty} × ${line.price.toLocaleString()}
+                {line.qty} × {formatMoney(line.price, line.currency)}
               </p>
             )}
           </div>
@@ -162,7 +186,19 @@ function CartRow({ line }: { line: CartLine }) {
 /** Full cart page contents (items + order summary). Reads the cart store. */
 export function CartView() {
   const { t } = useI18n();
-  const { items, count, subtotal } = useCart();
+  const {
+    items,
+    savedItems,
+    count,
+    subtotal,
+    selectedCount,
+    currency,
+    fees,
+    setAllSelected,
+    syncing,
+    ready,
+    syncError,
+  } = useCart();
 
   const trust = [
     { icon: TruckIcon, f: t.features.delivery },
@@ -170,7 +206,23 @@ export function CartView() {
     { icon: RentIcon, f: t.features.returns },
   ] as const;
 
-  if (items.length === 0) {
+  if (!ready && items.length === 0 && savedItems.length === 0) {
+    return (
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]" aria-busy>
+        <div className="space-y-3">
+          {Array.from({ length: 3 }, (_, i) => (
+            <div
+              key={i}
+              className="h-36 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none"
+            />
+          ))}
+        </div>
+        <div className="h-80 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none" />
+      </div>
+    );
+  }
+
+  if (items.length === 0 && savedItems.length === 0) {
     return (
       <>
         <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center">
@@ -193,6 +245,14 @@ export function CartView() {
     );
   }
 
+  // The backend prices ONLY selected lines; delivery figures are server-computed and null
+  // while unknown (guest mode, FX failure). "Free" is only claimed when the server says so.
+  const shippingKnown = fees != null && fees.deliveryFee != null;
+  const shippingFree =
+    fees?.qualifiesForFreeShipping === true || (shippingKnown && fees.deliveryFee === 0);
+  const shippingFee = shippingKnown && !shippingFree ? fees.deliveryFee! : 0;
+  const total = subtotal + shippingFee;
+
   return (
     <>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -205,11 +265,74 @@ export function CartView() {
             {count} {t.header.itemsSuffix}
           </p>
 
-          <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface">
-            {items.map((line) => (
-              <CartRow key={line.id} line={line} />
-            ))}
-          </ul>
+          {syncError && (
+            <p className="mb-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm text-warn dark:text-gold" role="status">
+              {t.cart.syncErrorNote}
+            </p>
+          )}
+          {items.length > 0 && (
+            <>
+              <div className="mb-3 flex items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3">
+                <label className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={selectedCount === items.length && items.length > 0}
+                    ref={(el) => {
+                      if (el) el.indeterminate = selectedCount > 0 && selectedCount < items.length;
+                    }}
+                    onChange={(e) => setAllSelected(e.target.checked)}
+                    className={checkboxCls}
+                  />
+                  {t.cart.selectAll}
+                </label>
+                <span className="text-sm text-muted">
+                  {selectedCount}/{items.length} {t.cart.selectedSuffix}
+                </span>
+              </div>
+
+              <ul
+                className={`divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${
+                  syncing ? "opacity-70" : ""
+                }`}
+                aria-busy={syncing || undefined}
+              >
+                {items.map((line) => (
+                  <CartRow key={line.id} line={line} />
+                ))}
+              </ul>
+            </>
+          )}
+
+          {items.length === 0 && savedItems.length > 0 && (
+            <div className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-surface py-10 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-brand-icon">
+                <BagIcon className="h-6 w-6" />
+              </span>
+              <p className="font-semibold text-foreground">{t.cart.empty}</p>
+              <p className="text-sm text-muted">{t.cart.emptyHint}</p>
+            </div>
+          )}
+
+          {/* Saved for later — unticked on the server: not priced, not shipped, survives checkout */}
+          {savedItems.length > 0 && (
+            <section className="mt-6">
+              <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
+                <ClockIcon className="h-5 w-5 text-gold" />
+                {t.cart.savedForLater}
+                <span className="text-sm font-normal text-muted">({savedItems.length})</span>
+              </h2>
+              <ul
+                className={`divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${
+                  syncing ? "opacity-70" : ""
+                }`}
+                aria-busy={syncing || undefined}
+              >
+                {savedItems.map((line) => (
+                  <CartRow key={line.id} line={line} savedRow />
+                ))}
+              </ul>
+            </section>
+          )}
 
           {/* Trust / benefits row */}
           <ul className="mt-4 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-3">
@@ -244,7 +367,7 @@ export function CartView() {
             {t.cart.orderSummary}
           </h2>
 
-          {/* Promo code (mock) */}
+          {/* Promo code (validated at order time — wired in the checkout step) */}
           <form
             onSubmit={(e) => e.preventDefault()}
             className="mb-4 flex gap-2"
@@ -265,35 +388,52 @@ export function CartView() {
 
           <dl className="space-y-2.5 text-sm">
             <div className="flex items-center justify-between">
-              <dt className="text-muted">{t.cart.subtotal}</dt>
-              <dd className="font-medium text-foreground">
-                ${subtotal.toLocaleString()}
+              <dt className="text-muted">
+                {t.cart.subtotal}
+                {items.length > 0 && (
+                  <span className="text-xs"> · {selectedCount}/{items.length}</span>
+                )}
+              </dt>
+              <dd className="font-medium text-foreground" dir="ltr">
+                {formatMoney(subtotal, currency)}
               </dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="text-muted">{t.cart.shipping}</dt>
-              <dd className="font-semibold text-warn dark:text-gold">
-                {t.cart.free}
-              </dd>
+              {shippingFree ? (
+                <dd className="font-semibold text-warn dark:text-gold">
+                  {t.cart.free}
+                </dd>
+              ) : shippingKnown ? (
+                <dd className="font-medium text-foreground" dir="ltr">
+                  {formatMoney(shippingFee, currency)}
+                </dd>
+              ) : (
+                <dd className="text-muted">{t.cart.shippingAtCheckout}</dd>
+              )}
             </div>
           </dl>
           <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
             <span className="font-semibold text-foreground">{t.cart.total}</span>
-            <span className="text-xl font-bold tracking-tight text-foreground">
-              ${subtotal.toLocaleString()}
+            <span className="text-xl font-bold tracking-tight text-foreground" dir="ltr">
+              {formatMoney(total, currency)}
             </span>
           </div>
 
           <div className="mt-4">
-            <BnplOptions total={subtotal} />
+            <BnplOptions total={total} />
           </div>
 
           <button
             type="button"
-            className="mt-4 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            disabled={selectedCount === 0}
+            className="mt-4 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t.cart.checkout}
           </button>
+          {selectedCount === 0 && items.length > 0 && (
+            <p className="mt-2 text-center text-xs text-muted">{t.cart.noneSelected}</p>
+          )}
           <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted">
             <ShieldCheckIcon className="h-4 w-4 text-gold" />
             {t.cart.secure}

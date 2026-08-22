@@ -26,6 +26,8 @@ export function AddToCartButton({ product }: { product: Product }) {
         name: product.name,
         price: product.price,
         category: product.category,
+        storeId: product.storeId,
+        currency: product.currency,
       },
       { openDrawer: false },
     );

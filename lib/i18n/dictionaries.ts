@@ -108,6 +108,14 @@ export interface Dict {
     apply: string;
     addToWishlist: string;
     saved: string;
+    savedForLater: string;
+    moveToCart: string;
+    selectAll: string;
+    selectedSuffix: string;
+    noneSelected: string;
+    selectItem: string;
+    shippingAtCheckout: string;
+    syncErrorNote: string;
     reviews: string;
     inStock: string;
   };
@@ -681,6 +689,14 @@ const en: Dict = {
     promoPlaceholder: "Enter code",
     apply: "Apply",
     addToWishlist: "Save for later",
+    savedForLater: "Saved for later",
+    moveToCart: "Move to cart",
+    selectAll: "Select all",
+    selectedSuffix: "selected",
+    noneSelected: "Select at least one item to check out",
+    selectItem: "Select",
+    shippingAtCheckout: "Calculated at checkout",
+    syncErrorNote: "Something went wrong syncing your cart — it has been reloaded.",
     saved: "Saved",
     reviews: "reviews",
     inStock: "In stock",
@@ -1430,6 +1446,14 @@ const az: Dict = {
     promoPlaceholder: "Kodu daxil edin",
     apply: "Tətbiq et",
     addToWishlist: "Sonraya saxla",
+    savedForLater: "Sonraya saxlanılanlar",
+    moveToCart: "Səbətə köçür",
+    selectAll: "Hamısını seç",
+    selectedSuffix: "seçilib",
+    noneSelected: "Ödənişə keçmək üçün ən azı bir məhsul seçin",
+    selectItem: "Seç",
+    shippingAtCheckout: "Ödəniş zamanı hesablanır",
+    syncErrorNote: "Səbətinizi sinxronlaşdırarkən xəta baş verdi — yenidən yükləndi.",
     saved: "Saxlanıldı",
     reviews: "rəy",
     inStock: "Stokda var",
@@ -2194,6 +2218,14 @@ const ar: Dict = {
     promoPlaceholder: "أدخل الرمز",
     apply: "تطبيق",
     addToWishlist: "احفظ لوقت لاحق",
+    savedForLater: "محفوظ لوقت لاحق",
+    moveToCart: "انقل إلى السلة",
+    selectAll: "تحديد الكل",
+    selectedSuffix: "محدد",
+    noneSelected: "حدد منتجًا واحدًا على الأقل لإتمام الشراء",
+    selectItem: "تحديد",
+    shippingAtCheckout: "يُحسب عند إتمام الشراء",
+    syncErrorNote: "حدث خطأ أثناء مزامنة سلتك — تم إعادة تحميلها.",
     saved: "محفوظ",
     reviews: "تقييم",
     inStock: "متوفّر",
