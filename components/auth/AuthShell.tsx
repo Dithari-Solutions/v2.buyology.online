@@ -1,28 +1,43 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useI18n } from "@/components/i18n/language-provider";
 import { Logo } from "@/components/header/Logo";
 import { REVIEW_COUNT, REVIEW_SCORE } from "@/lib/metrics";
-import {
-  BotIcon,
-  CheckIcon,
-  ChevronLeftIcon,
-  StarIcon,
-  TruckIcon,
-} from "@/components/icons";
+import { CheckIcon, ChevronLeftIcon, StarIcon } from "@/components/icons";
 
 const compactReviews = new Intl.NumberFormat("en-US", {
   notation: "compact",
   maximumFractionDigits: 0,
 }).format(REVIEW_COUNT);
 
-/** Split-screen auth layout with a rich, animated Buyology brand panel. */
+const ROTATE_MS = 3500;
+
+/**
+ * Split-screen auth layout.
+ *
+ * The brand panel is deliberately calm: one statement, one rotating perk, one line of real proof.
+ * Its previous incarnation floated three miniature fake-UI "glass cards" over a dot grid — five
+ * competing systems reading as template clutter. Everything shown now is real content the site
+ * already ships (the translated perks, the review metrics); nothing is a mock screenshot.
+ *
+ * The rotating perk uses story-style progress segments — the same visual language as the story
+ * feature on the home page. If a designer supplies a hero asset (3D render, illustration), it
+ * slots into the free middle space; the panel is complete without one.
+ */
 export function AuthShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   const perks = [t.auth.perks.delivery, t.auth.perks.ai, t.auth.perks.warranty];
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    const id = setInterval(() => setActive((i) => (i + 1) % perks.length), ROTATE_MS);
+    return () => clearInterval(id);
+  }, [perks.length]);
 
   return (
     <div className="grid min-h-[100dvh] lg:grid-cols-[1.05fr_1fr]">
@@ -34,19 +49,10 @@ export function AuthShell({ children }: { children: ReactNode }) {
             "linear-gradient(155deg, #665991 0%, #402f75 50%, #2b1f52 100%)",
         }}
       >
-        {/* Ambient decor */}
+        {/* Two calm auroras — the only decoration. */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute -end-24 -top-24 h-96 w-96 rounded-full bg-gold/25 blur-[90px]" />
-          <div className="absolute -bottom-28 -start-24 h-[26rem] w-[26rem] rounded-full bg-brand-400/45 blur-[100px]" />
-          <div className="absolute end-1/4 top-1/2 h-72 w-72 rounded-full bg-gold-400/20 blur-[90px]" />
-          <div
-            className="absolute inset-0 opacity-[0.14]"
-            style={{
-              backgroundImage:
-                "radial-gradient(rgba(255,255,255,0.7) 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
-            }}
-          />
+          <div className="absolute -end-24 -top-24 h-96 w-96 rounded-full bg-gold/20 blur-[100px]" />
+          <div className="absolute -bottom-32 -start-28 h-[28rem] w-[28rem] rounded-full bg-brand-400/40 blur-[110px]" />
         </div>
 
         {/* Logo */}
@@ -64,62 +70,56 @@ export function AuthShell({ children }: { children: ReactNode }) {
           />
         </Link>
 
-        {/* Floating glass cards */}
-        <div className="relative z-10 my-6 flex-1">
-          <div aria-hidden="true" className="absolute inset-0 hidden lg:block">
-            <div className="buyo-float absolute end-0 top-2 w-60 rounded-2xl border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-md">
-              <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-fg">
-                  <BotIcon className="h-4 w-4" />
+        {/* Statement */}
+        <div className="relative z-10 my-auto max-w-md py-10">
+          <h2 className="bg-gradient-to-br from-white to-white/70 bg-clip-text text-[2.75rem] font-semibold leading-[1.08] text-transparent [text-wrap:balance]">
+            {t.auth.welcomeTitle}
+          </h2>
+          <p className="mt-5 max-w-sm text-lg leading-relaxed text-white/70">
+            {t.auth.welcomeSub}
+          </p>
+
+          {/* One rotating perk, story-style progress. */}
+          <div className="mt-12 max-w-sm">
+            <div className="flex gap-1.5" dir="ltr" aria-hidden="true">
+              {perks.map((_, i) => (
+                <span key={i} className="h-0.5 flex-1 overflow-hidden rounded-full bg-white/20">
+                  <span
+                    className={`block h-full rounded-full bg-gold transition-[width] duration-500 ${
+                      i < active ? "w-full" : i === active ? "w-full" : "w-0"
+                    }`}
+                    style={i === active ? { transitionDuration: `${ROTATE_MS}ms` } : undefined}
+                  />
                 </span>
-                <span className="text-sm font-semibold">Buyobot</span>
-              </div>
-              <p className="mt-2 text-xs leading-relaxed text-white/80">
-                {t.auth.floatChat}
-              </p>
+              ))}
             </div>
-
-            <div
-              className="buyo-float-slow absolute start-2 top-[42%] rounded-full border border-white/15 bg-white/10 px-4 py-2.5 shadow-xl backdrop-blur-md"
-              style={{ animationDelay: "1.2s" }}
-            >
-              <span className="flex items-center gap-1.5 text-sm font-semibold" dir="ltr">
-                <StarIcon className="h-4 w-4 text-gold" />
-                {REVIEW_SCORE.toFixed(1)} · {compactReviews} {t.cart.reviews}
-              </span>
-            </div>
-
-            <div
-              className="buyo-float absolute bottom-2 end-8 flex items-center gap-2.5 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 shadow-xl backdrop-blur-md"
-              style={{ animationDelay: "2.4s" }}
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15">
-                <TruckIcon className="h-4 w-4 text-gold" />
-              </span>
-              <div>
-                <p className="text-xs font-semibold">{t.auth.perks.delivery}</p>
-                <p className="text-[10px] text-white/60">{t.metrics.heading}</p>
-              </div>
+            <div className="relative mt-4 h-8">
+              {perks.map((perk, i) => (
+                <p
+                  key={perk}
+                  aria-hidden={i !== active}
+                  className={`absolute inset-0 flex items-center gap-2.5 text-lg font-medium transition-opacity duration-500 ${
+                    i === active ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold/90 text-brand">
+                    <CheckIcon className="h-3.5 w-3.5" />
+                  </span>
+                  {perk}
+                </p>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Headline + perks */}
-        <div className="relative z-10 max-w-md">
-          <h2 className="bg-gradient-to-br from-white to-white/70 bg-clip-text text-[2.5rem] font-semibold leading-[1.08] text-transparent">
-            {t.auth.welcomeTitle}
-          </h2>
-          <p className="mt-4 max-w-sm text-white/70">{t.auth.welcomeSub}</p>
-          <ul className="mt-7 flex flex-wrap gap-x-5 gap-y-2">
-            {perks.map((pk) => (
-              <li key={pk} className="flex items-center gap-2 text-sm text-white/85">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-fg">
-                  <CheckIcon className="h-3 w-3" />
-                </span>
-                {pk}
-              </li>
-            ))}
-          </ul>
+        {/* Real proof, one quiet line. */}
+        <div className="relative z-10 flex items-center gap-2 text-sm text-white/75" dir="ltr">
+          <StarIcon className="h-4 w-4 text-gold" />
+          <span className="font-semibold text-white">{REVIEW_SCORE.toFixed(1)}</span>
+          <span aria-hidden="true">·</span>
+          <span>
+            {compactReviews} {t.cart.reviews}
+          </span>
         </div>
       </div>
 

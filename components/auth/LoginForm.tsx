@@ -4,35 +4,59 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n/language-provider";
-import {
-  AuthDivider,
-  AuthField,
-  AuthPassword,
-  AuthSocial,
-} from "@/components/auth/auth-ui";
-import { QrCode } from "@/components/auth/QrCode";
-import {
-  AppleIcon,
-  GoogleIcon,
-  LockIcon,
-  QrCodeIcon,
-} from "@/components/icons";
+import { useAuth } from "@/components/auth/auth-provider";
+import { AuthError } from "@/lib/auth/client";
+import { AuthField, AuthPassword, AuthSocial } from "@/components/auth/auth-ui";
 
+/**
+ * Email + password sign-in against the real backend.
+ *
+ * The QR tab is gone deliberately: it was pure theatre (the code encoded nothing and no device
+ * flow exists). It returns when the mobile app's device-login ships — as a working feature.
+ *
+ * Errors are mapped from HTTP status codes, never from message text: 404 means the email is
+ * unknown (the backend states this openly for customers), 401 wrong password, 403 suspended,
+ * 429 the 15-minute lockout.
+ */
 export function LoginForm() {
   const { t } = useI18n();
   const router = useRouter();
-  const [mode, setMode] = useState<"email" | "qr">("email");
+  const { signIn } = useAuth();
   const a = t.auth;
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    router.push("/account");
+  /** Where to land after auth: ?next=/some/path when present, else home. */
+  function destination(): string {
+    const next = new URLSearchParams(window.location.search).get("next");
+    return next && next.startsWith("/") ? next : "/";
   }
 
-  const tabCls = (on: boolean) =>
-    `flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-      on ? "bg-surface text-foreground shadow-sm" : "text-muted hover:text-foreground"
-    }`;
+  function messageFor(err: unknown): string {
+    if (!(err instanceof AuthError)) return a.errors.generic;
+    switch (err.status) {
+      case 404: return a.errors.notRegistered;
+      case 401: return a.errors.invalidCredentials;
+      case 403: return a.errors.suspended;
+      case 429: return a.errors.tooManyAttempts;
+      case 0:   return a.errors.network;
+      default:  return a.errors.generic;
+    }
+  }
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    setBusy(true);
+    setError(null);
+    try {
+      await signIn(String(fd.get("email") ?? ""), String(fd.get("password") ?? ""));
+      router.push(destination());
+    } catch (err) {
+      setError(messageFor(err));
+      setBusy(false);
+    }
+  }
 
   return (
     <div>
@@ -41,134 +65,48 @@ export function LoginForm() {
       </h1>
       <p className="mt-1.5 text-sm text-muted">{a.login.subtitle}</p>
 
-      {/* Method tabs */}
-      <div
-        role="tablist"
-        aria-label={a.login.title}
-        className="mt-6 grid grid-cols-2 gap-1 rounded-full border border-border bg-surface-2 p-1"
-      >
-        <button
-          type="button"
-          role="tab"
-          id="tab-email"
-          aria-selected={mode === "email"}
-          aria-controls="auth-panel"
-          onClick={() => setMode("email")}
-          className={tabCls(mode === "email")}
-        >
-          <LockIcon className="h-4 w-4" />
-          {a.passwordTab}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          id="tab-qr"
-          aria-selected={mode === "qr"}
-          aria-controls="auth-panel"
-          onClick={() => setMode("qr")}
-          className={tabCls(mode === "qr")}
-        >
-          <QrCodeIcon className="h-4 w-4" />
-          {a.qrTab}
-        </button>
-      </div>
+      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+        <AuthField
+          label={a.email}
+          type="email"
+          name="email"
+          autoComplete="email"
+          required
+        />
+        <AuthPassword label={a.password} autoComplete="current-password" />
 
-      <div
-        id="auth-panel"
-        role="tabpanel"
-        aria-labelledby={mode === "email" ? "tab-email" : "tab-qr"}
-      >
-        {mode === "email" ? (
-          <>
-            <form onSubmit={onSubmit} className="mt-6 space-y-4">
-              <AuthField
-                label={a.email}
-                type="email"
-                name="email"
-                autoComplete="email"
-                required
-              />
-              <AuthPassword label={a.password} autoComplete="current-password" />
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <label className="flex items-center gap-2 text-sm text-muted">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-border accent-brand"
+            />
+            {a.login.remember}
+          </label>
+          <Link
+            href="/forgot-password"
+            className="text-sm font-medium text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {a.login.forgot}
+          </Link>
+        </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <label className="flex items-center gap-2 text-sm text-muted">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-border accent-brand"
-                  />
-                  {a.login.remember}
-                </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm font-medium text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  {a.login.forgot}
-                </Link>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                {a.login.submit}
-              </button>
-            </form>
-
-            <AuthDivider />
-            <AuthSocial />
-          </>
-        ) : (
-          <div className="mt-6 flex flex-col items-center">
-            <div className="rounded-2xl border border-border bg-white p-3 shadow-sm">
-              <QrCode size={172} />
-            </div>
-
-            <p className="mt-4 text-center font-semibold text-foreground">
-              {a.qr.title}
-            </p>
-
-            <ol className="mt-4 w-full space-y-3">
-              {[a.qr.step1, a.qr.step2, a.qr.step3].map((step, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-3 text-sm text-muted"
-                >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-bold text-brand-icon">
-                    {i + 1}
-                  </span>
-                  {step}
-                </li>
-              ))}
-            </ol>
-
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-surface-2 px-4 py-2 text-xs font-medium text-muted">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-brand" />
-              </span>
-              {a.qr.waiting}
-            </div>
-
-            <div className="mt-5 flex items-center justify-center gap-3 text-xs text-muted">
-              <span>{a.qr.getApp}</span>
-              <a
-                href="#"
-                aria-label="App Store"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <AppleIcon className="h-4 w-4" />
-              </a>
-              <a
-                href="#"
-                aria-label="Google Play"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <GoogleIcon className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
+        {error && (
+          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+            {error}
+          </p>
         )}
-      </div>
+
+        <button
+          type="submit"
+          disabled={busy}
+          className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {busy ? a.loading : a.login.submit}
+        </button>
+      </form>
+
+      <AuthSocial onDone={() => router.push(destination())} />
 
       <p className="mt-6 text-center text-sm text-muted">
         {a.login.noAccount}{" "}

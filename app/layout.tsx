@@ -8,6 +8,7 @@ import { getLocale } from "@/lib/i18n/server";
 import { dictionaries } from "@/lib/i18n/dictionaries";
 import { LanguageProvider } from "@/components/i18n/language-provider";
 import { CartProvider } from "@/components/cart/cart-provider";
+import { AuthProvider } from "@/components/auth/auth-provider";
 import { WishlistProvider } from "@/components/wishlist/wishlist-provider";
 import { FlyProvider } from "@/components/fx/FlyProvider";
 import { CartDrawer } from "@/components/cart/CartDrawer";
@@ -123,6 +124,7 @@ export default async function RootLayout({
       </head>
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <LanguageProvider locale={locale} dict={dictionaries[locale]}>
+          <AuthProvider>
           <CartProvider>
             <WishlistProvider>
               <FlyProvider>
@@ -135,6 +137,7 @@ export default async function RootLayout({
               </FlyProvider>
             </WishlistProvider>
           </CartProvider>
+          </AuthProvider>
           <PasswordGate />
         </LanguageProvider>
       </body>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/components/i18n/language-provider";
 import { AuthField, AuthPassword } from "@/components/auth/auth-ui";
+import { AuthError, forgotPassword, resetPassword } from "@/lib/auth/client";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { CheckIcon, ChevronLeftIcon } from "@/components/icons";
 
@@ -30,17 +31,48 @@ export function ForgotPasswordForm() {
     return () => clearInterval(id);
   }, [step]);
 
-  function sendCode(e: React.FormEvent) {
-    e.preventDefault();
-    setOtp("");
-    setResendIn(30);
-    setStep("otp");
+  const [busy, setBusy] = useState(false);
+
+  function errorFor(err: unknown): string {
+    if (!(err instanceof AuthError)) return t.auth.errors.generic;
+    switch (err.status) {
+      case 404: return t.auth.errors.notRegistered;
+      case 401: return t.auth.otp.wrong;
+      case 410: return t.auth.otp.expired;
+      case 429: return t.auth.errors.tooManyAttempts;
+      case 400: return err.message || t.auth.errors.generic;
+      case 0:   return t.auth.errors.network;
+      default:  return t.auth.errors.generic;
+    }
   }
+
+  async function sendCode(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await forgotPassword(email);
+      setOtp("");
+      setResendIn(60); // the backend's resend cooldown
+      setStep("otp");
+    } catch (err) {
+      setError(errorFor(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function verify(e: React.FormEvent) {
     e.preventDefault();
-    if (otp.length === 6) setStep("reset");
+    // The OTP is proven at the reset call itself — the backend has no separate check endpoint for
+    // password reset, so a wrong code surfaces on the next step and sends the user back here.
+    if (otp.length === 6) {
+      setError("");
+      setStep("reset");
+    }
   }
-  function reset(e: React.FormEvent<HTMLFormElement>) {
+
+  async function reset(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const next = String(fd.get("new") || "");
@@ -53,8 +85,22 @@ export function ForgotPasswordForm() {
       setError(t.account.security.mismatch);
       return;
     }
+    setBusy(true);
     setError("");
-    setStep("done");
+    try {
+      await resetPassword({ email, otpCode: otp, newPassword: next, repeatPassword: confirm });
+      setStep("done");
+    } catch (err) {
+      const message = errorFor(err);
+      setError(message);
+      // A wrong or expired code is fixed at the OTP step, not here.
+      if (err instanceof AuthError && (err.status === 401 || err.status === 410)) {
+        setOtp("");
+        setStep("otp");
+      }
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (step === "done") {
@@ -153,9 +199,15 @@ export function ForgotPasswordForm() {
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  setResendIn(30);
-                  setOtp("");
+                onClick={async () => {
+                  try {
+                    await forgotPassword(email);
+                    setOtp("");   // the typed code is stale once a new one is sent
+                    setResendIn(60);
+                    setError("");
+                  } catch (err) {
+                    setError(errorFor(err));
+                  }
                 }}
                 className="font-semibold text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >

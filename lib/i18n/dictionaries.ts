@@ -388,6 +388,30 @@ export interface Dict {
         industries: Record<string, string>;
       };
     };
+    /** Server failures mapped by HTTP status — never by matching English message text. */
+    errors: {
+      invalidCredentials: string;
+      notRegistered: string;
+      suspended: string;
+      tooManyAttempts: string;
+      emailExists: string;
+      network: string;
+      appleFailed: string;
+      generic: string;
+    };
+    loading: string;
+    otp: {
+      title: string;
+      sentTo: string;
+      verify: string;
+      resend: string;
+      resendIn: string;
+      wrong: string;
+      expired: string;
+      restart: string;
+      back: string;
+    };
+    businessSoon: string;
     forgot: {
       emailTitle: string;
       emailSub: string;
@@ -1064,6 +1088,29 @@ const en: Dict = {
         },
       },
     },
+    errors: {
+      invalidCredentials: "Incorrect email or password.",
+      notRegistered: "No account found with this email — create one below.",
+      suspended: "Your account has been suspended. Please contact support.",
+      tooManyAttempts: "Too many attempts. Please try again in a few minutes.",
+      emailExists: "An account with this email already exists — sign in instead.",
+      network: "Can't reach the server. Check your connection and try again.",
+      appleFailed: "Apple sign-in didn't complete. Please try again.",
+      generic: "Something went wrong. Please try again.",
+    },
+    loading: "Please wait…",
+    otp: {
+      title: "Check your inbox",
+      sentTo: "We sent a 6-digit code to",
+      verify: "Verify & create account",
+      resend: "Resend code",
+      resendIn: "Resend in",
+      wrong: "That code isn't right — try again.",
+      expired: "That code has expired. Send a fresh one below.",
+      restart: "That session expired — please sign up again.",
+      back: "Change email",
+    },
+    businessSoon: "Business accounts are moving to the new site soon. Until then, please apply on buyology.online.",
     forgot: {
       emailTitle: "Forgot your password?",
       emailSub: "Enter your email and we'll send you a 6-digit code.",
@@ -1767,6 +1814,29 @@ const az: Dict = {
         },
       },
     },
+    errors: {
+      invalidCredentials: "E-poçt və ya şifrə yanlışdır.",
+      notRegistered: "Bu e-poçt ilə hesab tapılmadı — aşağıda yenisini yaradın.",
+      suspended: "Hesabınız dayandırılıb. Dəstək xidməti ilə əlaqə saxlayın.",
+      tooManyAttempts: "Həddindən çox cəhd. Bir neçə dəqiqədən sonra yenidən yoxlayın.",
+      emailExists: "Bu e-poçt ilə hesab artıq mövcuddur — daxil olun.",
+      network: "Serverə çatmaq mümkün deyil. Bağlantını yoxlayıb yenidən cəhd edin.",
+      appleFailed: "Apple ilə giriş tamamlanmadı. Yenidən cəhd edin.",
+      generic: "Xəta baş verdi. Yenidən cəhd edin.",
+    },
+    loading: "Gözləyin…",
+    otp: {
+      title: "E-poçtunuzu yoxlayın",
+      sentTo: "6 rəqəmli kodu bu ünvana göndərdik:",
+      verify: "Təsdiqlə və hesab yarat",
+      resend: "Kodu yenidən göndər",
+      resendIn: "Yenidən göndər:",
+      wrong: "Kod düzgün deyil — yenidən cəhd edin.",
+      expired: "Kodun vaxtı bitib. Aşağıdan yenisini göndərin.",
+      restart: "Sessiyanın vaxtı bitdi — yenidən qeydiyyatdan keçin.",
+      back: "E-poçtu dəyiş",
+    },
+    businessSoon: "Biznes hesabları tezliklə yeni sayta köçürüləcək. Hələlik buyology.online üzərindən müraciət edin.",
     forgot: {
       emailTitle: "Parolu unutmusunuz?",
       emailSub: "E-poçtunuzu daxil edin, sizə 6 rəqəmli kod göndərək.",
@@ -2454,6 +2524,29 @@ const ar: Dict = {
         },
       },
     },
+    errors: {
+      invalidCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+      notRegistered: "لا يوجد حساب بهذا البريد — أنشئ حسابًا أدناه.",
+      suspended: "تم إيقاف حسابك. يرجى التواصل مع الدعم.",
+      tooManyAttempts: "محاولات كثيرة جدًا. حاول مرة أخرى بعد دقائق.",
+      emailExists: "يوجد حساب بهذا البريد بالفعل — سجّل الدخول بدلًا من ذلك.",
+      network: "تعذّر الوصول إلى الخادم. تحقق من اتصالك وحاول مجددًا.",
+      appleFailed: "لم يكتمل تسجيل الدخول عبر Apple. حاول مرة أخرى.",
+      generic: "حدث خطأ ما. حاول مرة أخرى.",
+    },
+    loading: "يرجى الانتظار…",
+    otp: {
+      title: "تحقق من بريدك الوارد",
+      sentTo: "أرسلنا رمزًا من 6 أرقام إلى",
+      verify: "تحقّق وأنشئ الحساب",
+      resend: "إعادة إرسال الرمز",
+      resendIn: "إعادة الإرسال خلال",
+      wrong: "الرمز غير صحيح — حاول مرة أخرى.",
+      expired: "انتهت صلاحية الرمز. أرسل رمزًا جديدًا أدناه.",
+      restart: "انتهت الجلسة — يرجى التسجيل من جديد.",
+      back: "تغيير البريد الإلكتروني",
+    },
+    businessSoon: "حسابات الأعمال ستنتقل إلى الموقع الجديد قريبًا. حتى ذلك الحين، قدّم الطلب عبر buyology.online.",
     forgot: {
       emailTitle: "نسيت كلمة المرور؟",
       emailSub: "أدخل بريدك الإلكتروني وسنرسل لك رمزًا من 6 أرقام.",

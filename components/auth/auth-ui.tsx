@@ -3,7 +3,9 @@
 import { useState } from "react";
 import type { InputHTMLAttributes } from "react";
 import { useI18n } from "@/components/i18n/language-provider";
-import { AppleIcon, EyeIcon, EyeOffIcon, GoogleIcon } from "@/components/icons";
+import { AppleIcon, EyeIcon, EyeOffIcon } from "@/components/icons";
+import { useAuth } from "@/components/auth/auth-provider";
+import { AuthError } from "@/lib/auth/client";
 
 export function AuthField({
   label,
@@ -90,20 +92,53 @@ export function AuthDivider() {
   );
 }
 
-export function AuthSocial() {
+/**
+ * Apple only, by decision — Google and the rest are gone. Renders its own divider so that when
+ * Apple is unconfigured (no NEXT_PUBLIC_APPLE_CLIENT_ID) the whole social block disappears
+ * cleanly instead of leaving a divider above nothing.
+ */
+export function AuthSocial({ onDone }: { onDone?: () => void }) {
   const { t } = useI18n();
-  const cls =
-    "inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  const { appleSignIn, appleAvailable } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  if (!appleAvailable) return null;
+
+  async function onApple() {
+    setBusy(true);
+    setFailed(false);
+    try {
+      await appleSignIn();
+      onDone?.();
+    } catch (err) {
+      // A closed popup is a decision, not an error worth flashing red at the user.
+      const cancelled = !(err instanceof AuthError) && !(err instanceof TypeError)
+        && String((err as { error?: string })?.error ?? "").includes("popup_closed");
+      if (!cancelled) setFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <button type="button" aria-label={`${t.auth.continueWith} Google`} className={cls}>
-        <GoogleIcon className="h-5 w-5" />
-        Google
-      </button>
-      <button type="button" aria-label={`${t.auth.continueWith} Apple`} className={cls}>
+    <div>
+      <AuthDivider />
+      <button
+        type="button"
+        onClick={onApple}
+        disabled={busy}
+        aria-label={`${t.auth.continueWith} Apple`}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+      >
         <AppleIcon className="h-5 w-5" />
-        Apple
+        {busy ? t.auth.loading : `${t.auth.continueWith} Apple`}
       </button>
+      {failed && (
+        <p role="alert" className="mt-2 text-center text-sm text-red-600 dark:text-red-400">
+          {t.auth.errors.appleFailed}
+        </p>
+      )}
     </div>
   );
 }
