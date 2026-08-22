@@ -140,7 +140,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                     <img
                       src={item.productImage}
                       alt=""
-                      className="h-14 w-14 shrink-0 rounded-xl border border-border object-cover"
+                      className="h-14 w-14 shrink-0 rounded-xl border border-border bg-white object-contain p-1"
                     />
                   ) : (
                     <span className="h-14 w-14 shrink-0 rounded-xl bg-surface-2" />

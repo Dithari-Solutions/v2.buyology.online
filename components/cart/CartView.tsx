@@ -38,7 +38,7 @@ function CartRow({ line }: { line: CartLine }) {
         {detail?.image?.startsWith("http") ? (
           // Presigned catalogue photo — plain <img> (short-lived URL).
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={detail.image} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+          <img src={detail.image} alt="" className="absolute inset-0 h-full w-full bg-white object-contain p-2" loading="lazy" />
         ) : (
           <Image src={IMG} alt="" fill sizes="(min-width:640px) 112px, 100vw" className="object-cover" />
         )}

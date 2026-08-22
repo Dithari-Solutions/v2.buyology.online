@@ -79,7 +79,7 @@ function AssistantCard({
           src={card.imageUrl}
           alt=""
           loading="lazy"
-          className="h-12 w-12 shrink-0 rounded-lg border border-border object-cover"
+          className="h-12 w-12 shrink-0 rounded-lg border border-border bg-white object-contain p-0.5"
         />
       ) : (
         <span

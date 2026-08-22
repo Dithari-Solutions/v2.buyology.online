@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/lib/products";
 import { fetchPopularFor, fetchSuperDeals } from "@/lib/catalogue";
+import { formatMoney } from "@/lib/format";
 import { useCart } from "@/components/cart/cart-provider";
 import { useFly } from "@/components/fx/FlyProvider";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -42,13 +43,25 @@ function RecCard({ product }: { product: Product }) {
   return (
     <div className="group relative flex flex-col rounded-2xl border border-border bg-surface p-3 shadow-[var(--shadow-elevation)] transition-transform duration-300 hover:-translate-y-0.5">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-surface-2">
-        <Image
-          src={IMG}
-          alt=""
-          fill
-          sizes="220px"
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-        />
+        {product.image?.startsWith("http") ? (
+          // Presigned catalogue photo — plain <img>; contained on white so the whole product shows.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={product.image}
+            alt=""
+            className="absolute inset-0 h-full w-full bg-white object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]"
+            loading="lazy"
+            draggable={false}
+          />
+        ) : (
+          <Image
+            src={IMG}
+            alt=""
+            fill
+            sizes="220px"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+          />
+        )}
         <span className="absolute start-2 top-2 inline-flex items-center gap-1 rounded-full bg-brand/90 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
           <SparklesIcon className="h-3 w-3 text-gold" />
           {t.ai.pick}
@@ -59,13 +72,13 @@ function RecCard({ product }: { product: Product }) {
       </p>
       <Link
         href={product.href}
-        className="mt-0.5 line-clamp-1 text-sm font-semibold text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="mt-0.5 line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {product.name}
       </Link>
-      <div className="mt-2 flex items-center justify-between gap-2">
+      <div className="mt-auto flex items-center justify-between gap-2 pt-2">
         <span className="text-base font-bold text-foreground">
-          ${product.price.toLocaleString()}
+          {formatMoney(product.price, product.currency)}
         </span>
         <button
           type="button"

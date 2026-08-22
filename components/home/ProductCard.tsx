@@ -53,11 +53,14 @@ export function ProductCard({
         {product.image?.startsWith("http") ? (
           // Real catalogue photo: a presigned, short-lived S3 URL — plain <img>, since next/image
           // would need remotePatterns for hosts that vary per request and caches nothing useful.
+          // object-CONTAIN on a white tile, never object-cover: a product shot exists to show the
+          // whole product, and cover crops it into a zoomed corner. White stays white in dark mode
+          // too — a photo's own background does not theme.
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={product.image}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+            className="absolute inset-0 h-full w-full bg-white object-contain p-3 transition-transform duration-500 group-hover:scale-[1.03]"
             loading="lazy"
             draggable={false}
           />
@@ -114,18 +117,21 @@ export function ProductCard({
 
       {/* Body */}
       <div className="flex flex-1 flex-col px-1 pt-3.5">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-warn dark:text-gold">
-          {product.category}
+        {/* Every block below reserves its height even when its content is short or absent, so the
+            price row and the button sit at identical positions on every card in a row — a card
+            with no specs must not be shorter than its neighbours. */}
+        <p className="min-h-4 text-[11px] font-semibold uppercase tracking-wider text-warn dark:text-gold">
+          {product.category || "\u00a0"}
         </p>
-        <h3 className="mt-1 text-base font-semibold leading-snug text-foreground">
+        <h3 className="mt-1 line-clamp-2 min-h-[2.8rem] text-base font-semibold leading-snug text-foreground">
           {product.name}
         </h3>
-        <p className="mt-1 line-clamp-2 text-sm text-muted">
+        <p className="mt-1 line-clamp-2 min-h-10 text-sm text-muted">
           {product.description}
         </p>
 
-        {/* Feature chips */}
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        {/* Feature chips — the row keeps its height when a product has none */}
+        <div className="mt-3 flex min-h-[26px] flex-wrap gap-1.5 overflow-hidden">
           {product.tags.map((tag) => (
             <span
               key={tag}
@@ -137,7 +143,7 @@ export function ProductCard({
         </div>
 
         {/* Price + rating */}
-        <div className="mt-4 flex items-end justify-between gap-3 border-t border-border pt-3">
+        <div className="mt-auto flex items-end justify-between gap-3 border-t border-border pt-3">
           <div className="flex items-baseline gap-2" dir="ltr">
             {product.oldPrice > product.price && (
               <span className="text-xs text-muted line-through">

@@ -125,7 +125,7 @@ export function ProductDetail() {
             <img
               src={activeUrl}
               alt={product.name}
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full bg-white object-contain p-6"
               draggable={false}
             />
           ) : (
@@ -167,7 +167,7 @@ export function ProductDetail() {
                 <img
                   src={m.thumbnailUrl ?? m.url!}
                   alt=""
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full bg-white object-contain p-1"
                   loading="lazy"
                   draggable={false}
                 />

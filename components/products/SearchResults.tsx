@@ -63,7 +63,7 @@ export function SearchResults({ q, category }: { q?: string; category?: string }
   return (
     <ul className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3">
       {items.map((p) => (
-        <li key={p.id}>
+        <li key={p.id} className="h-full">
           <ProductCard
             product={p}
             bestsellerLabel={t.deals.bestseller}
