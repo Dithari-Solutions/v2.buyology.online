@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useCart, type CartLine } from "@/components/cart/cart-provider";
 import { useI18n } from "@/components/i18n/language-provider";
 import { BnplOptions } from "@/components/cart/BnplOptions";
@@ -19,7 +18,6 @@ import {
   TruckIcon,
 } from "@/components/icons";
 
-const IMG = "/mock/product-hero.jpg";
 const checkboxCls =
   "h-[18px] w-[18px] shrink-0 rounded border-border accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
@@ -27,7 +25,7 @@ const checkboxCls =
 function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
   const { t } = useI18n();
   const { removeItem, setQty, setSelected, saveForLater, moveToCart } = useCart();
-  const detail = useProductLookup(line.productId);
+  const { product: detail, loading } = useProductLookup(line.productId);
   const name = detail?.name ?? line.name;
   const filled = detail ? Math.round(detail.rating) : 0;
 
@@ -44,12 +42,17 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
         />
       )}
       <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-xl border border-border bg-surface-2 sm:h-28 sm:w-28">
-        {detail?.image?.startsWith("http") ? (
+        {loading ? (
+          <div className="absolute inset-0 animate-pulse bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
+        ) : detail?.image?.startsWith("http") ? (
           // Presigned catalogue photo — plain <img> (short-lived URL).
           // eslint-disable-next-line @next/next/no-img-element
           <img src={detail.image} alt="" className="absolute inset-0 h-full w-full bg-white object-contain p-2" loading="lazy" />
         ) : (
-          <Image src={IMG} alt="" fill sizes="(min-width:640px) 112px, 100vw" className="object-cover" />
+          // No photo in the catalogue — a quiet placeholder, never a fake product image.
+          <span className="absolute inset-0 flex items-center justify-center text-muted" aria-hidden="true">
+            <BagIcon className="h-8 w-8 opacity-40" />
+          </span>
         )}
       </div>
 
@@ -59,9 +62,13 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
             <p className="text-[11px] font-semibold uppercase tracking-wider text-warn dark:text-gold">
               {detail?.category || line.category}
             </p>
-            <h2 className="mt-0.5 truncate font-semibold text-foreground">
-              {name}
-            </h2>
+            {loading && !detail ? (
+              <span className="mt-1 block h-5 w-2/3 animate-pulse rounded bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
+            ) : (
+              <h2 className="mt-0.5 truncate font-semibold text-foreground">
+                {name}
+              </h2>
+            )}
             {line.specs && line.specs.length > 0 && (
               <p className="mt-0.5 text-xs text-muted">{line.specs.join(" · ")}</p>
             )}
@@ -421,7 +428,7 @@ export function CartView() {
           </div>
 
           <div className="mt-4">
-            <BnplOptions total={total} />
+            <BnplOptions total={total} currency={currency} />
           </div>
 
           <button

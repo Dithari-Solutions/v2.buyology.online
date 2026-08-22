@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useCart, type CartLine } from "@/components/cart/cart-provider";
 import { useProductLookup } from "@/lib/use-product-lookup";
 import { formatMoney } from "@/lib/format";
@@ -10,8 +9,6 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { BnplOptions } from "@/components/cart/BnplOptions";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 import { BagIcon, CloseIcon } from "@/components/icons";
-
-const SHARED_IMG = "/mock/product-hero.jpg";
 
 /**
  * Cart drawer — a slide-over pinned to the right showing the cart contents,
@@ -129,7 +126,7 @@ export function CartDrawer() {
                 </span>
               </div>
               <div className="mb-3">
-                <BnplOptions total={subtotal} compact />
+                <BnplOptions total={subtotal} currency={currency} compact />
               </div>
               <Link
                 href="/cart"
@@ -157,7 +154,7 @@ export function CartDrawer() {
 function DrawerLine({ line }: { line: CartLine }) {
   const { t } = useI18n();
   const { removeItem, setQty } = useCart();
-  const detail = useProductLookup(line.productId);
+  const { product: detail, loading } = useProductLookup(line.productId);
   const name = detail?.name ?? line.name;
   return (
     <li
@@ -166,7 +163,9 @@ function DrawerLine({ line }: { line: CartLine }) {
       }`}
     >
       <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-border bg-surface-2">
-        {detail?.image?.startsWith("http") ? (
+        {loading ? (
+          <div className="absolute inset-0 animate-pulse bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
+        ) : detail?.image?.startsWith("http") ? (
           // Presigned catalogue photo — plain <img>; contained so the whole product shows.
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -176,12 +175,24 @@ function DrawerLine({ line }: { line: CartLine }) {
             loading="lazy"
           />
         ) : (
-          <Image src={SHARED_IMG} alt="" fill sizes="64px" className="object-cover" />
+          // No photo in the catalogue — a quiet placeholder, never a fake product image.
+          <span className="absolute inset-0 flex items-center justify-center text-muted" aria-hidden="true">
+            <BagIcon className="h-6 w-6 opacity-40" />
+          </span>
         )}
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <p className="truncate text-sm font-medium text-foreground">{name}</p>
-        <p className="text-xs text-muted">{detail?.category || line.category}</p>
+        {loading && !detail ? (
+          <>
+            <span className="h-4 w-3/4 animate-pulse rounded bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
+            <span className="mt-1 h-3 w-1/3 animate-pulse rounded bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
+          </>
+        ) : (
+          <>
+            <p className="truncate text-sm font-medium text-foreground">{name}</p>
+            <p className="text-xs text-muted">{detail?.category || line.category}</p>
+          </>
+        )}
         {line.specs && line.specs.length > 0 && (
           <p className="truncate text-[11px] text-muted">{line.specs.join(" · ")}</p>
         )}

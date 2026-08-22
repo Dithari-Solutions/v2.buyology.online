@@ -2,16 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import type { Product } from "@/lib/products";
 import { fetchPopularFor, fetchSuperDeals } from "@/lib/catalogue";
 import { formatMoney } from "@/lib/format";
 import { useCart } from "@/components/cart/cart-provider";
 import { useFly } from "@/components/fx/FlyProvider";
 import { useI18n } from "@/components/i18n/language-provider";
-import { BotIcon, CheckIcon, SparklesIcon } from "@/components/icons";
+import { BagIcon, BotIcon, CheckIcon, SparklesIcon } from "@/components/icons";
 
-const IMG = "/mock/product-hero.jpg";
 
 function RecCard({ product }: { product: Product }) {
   const { t } = useI18n();
@@ -56,13 +54,10 @@ function RecCard({ product }: { product: Product }) {
             draggable={false}
           />
         ) : (
-          <Image
-            src={IMG}
-            alt=""
-            fill
-            sizes="220px"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-          />
+          // No photo in the catalogue — a quiet placeholder, never a fake product image.
+          <span className="absolute inset-0 flex items-center justify-center text-muted" aria-hidden="true">
+            <BagIcon className="h-10 w-10 opacity-40" />
+          </span>
         )}
         <span className="absolute start-2 top-2 inline-flex items-center gap-1 rounded-full bg-brand/90 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
           <SparklesIcon className="h-3 w-3 text-gold" />

@@ -696,13 +696,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const count = items.reduce((n, l) => n + l.qty, 0);
     const selectedLines = items.filter((l) => l.selected && l.selectable);
     const subtotal = selectedLines.reduce((n, l) => n + l.price * l.qty, 0);
+    // Guests have no server cart to stamp a currency — the lines themselves know theirs
+    // (real catalogue items carry AED; mock demo items carry none and keep the "$" look).
+    const displayCurrency =
+      currency ?? all.find((l) => l.currency)?.currency ?? undefined;
     return {
       items,
       savedItems,
       count,
       subtotal,
       selectedCount: selectedLines.length,
-      currency,
+      currency: displayCurrency,
       fees: authed ? fees : null,
       isOpen,
       syncing,
