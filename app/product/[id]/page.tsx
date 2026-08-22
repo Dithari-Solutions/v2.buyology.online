@@ -2,20 +2,35 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header/Header";
-import { getProduct, products } from "@/lib/products";
+import { fetchProductDetail, fetchCategories, toProduct } from "@/lib/catalogue";
+import { getLocale } from "@/lib/i18n/server";
 import { site } from "@/lib/site";
 import { getDict } from "@/lib/i18n/server";
 import { jsonLdScript, productSchema } from "@/lib/structured-data";
 import { ProductDetail } from "@/components/product/ProductDetail";
 import { ProductSpecs } from "@/components/product/ProductSpecs";
-import { AiReviewSummary } from "@/components/product/AiReviewSummary";
 import { ProductReviews } from "@/components/product/ProductReviews";
-import { ProductQA } from "@/components/product/ProductQA";
+import { ProductProvider } from "@/components/product/product-context";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
 import { ChevronLeftIcon } from "@/components/icons";
 
-export function generateStaticParams() {
-  return products.map((p) => ({ id: p.id }));
+// Product ids are live catalogue UUIDs — rendered on demand, never enumerated at build time.
+export const dynamic = "force-dynamic";
+
+async function loadProduct(id: string) {
+  const locale = await getLocale();
+  try {
+    const api = await fetchProductDetail(locale, id);
+    let categoryName: string | undefined;
+    try {
+      categoryName = (await fetchCategories(locale)).find((c) => c.id === api.categoryId)?.name;
+    } catch {
+      /* blank breadcrumb label */
+    }
+    return { api, product: toProduct(api, categoryName) };
+  } catch {
+    return null;
+  }
 }
 
 export async function generateMetadata({
@@ -24,8 +39,9 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const product = getProduct(id);
-  if (!product) return { title: "Product not found" };
+  const loaded = await loadProduct(id);
+  if (!loaded) return { title: "Product not found" };
+  const { product } = loaded;
   return {
     title: product.name,
     description: product.description,
@@ -45,8 +61,9 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = getProduct(id);
-  if (!product) notFound();
+  const loaded = await loadProduct(id);
+  if (!loaded) notFound();
+  const { product, api } = loaded;
 
   const t = await getDict();
 
@@ -78,15 +95,15 @@ export default async function ProductPage({
           <span className="truncate text-foreground">{product.name}</span>
         </nav>
 
-        <ProductDetail productId={product.id} />
+        <ProductProvider product={product} api={api}>
+          <ProductDetail />
 
-        <div className="mt-14 space-y-14">
-          <AiReviewSummary />
-          <ProductSpecs productId={product.id} />
-          <ProductReviews productId={product.id} />
-          <ProductQA />
-          <RelatedProducts currentId={product.id} />
-        </div>
+          <div className="mt-14 space-y-14">
+            <ProductSpecs />
+            <ProductReviews />
+            <RelatedProducts currentId={product.id} />
+          </div>
+        </ProductProvider>
       </main>
     </>
   );

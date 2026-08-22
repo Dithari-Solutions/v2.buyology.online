@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { getProduct } from "@/lib/products";
 import { useCart } from "@/components/cart/cart-provider";
 import { useWishlist } from "@/components/wishlist/wishlist-provider";
 import { useFly } from "@/components/fx/FlyProvider";
 import { useI18n } from "@/components/i18n/language-provider";
 import { BnplOptions } from "@/components/cart/BnplOptions";
-import { colorOptions, bundleOptions } from "@/lib/product-detail";
-import { formatInt } from "@/lib/format";
+import { useProduct } from "@/components/product/product-context";
+import { formatInt, formatMoney } from "@/lib/format";
 import {
   BagIcon,
   CheckIcon,
@@ -21,19 +20,40 @@ import {
   TruckIcon,
 } from "@/components/icons";
 
-const IMG = "/mock/product-hero.jpg";
+const FALLBACK_IMG = "/mock/product-hero.jpg";
 
-export function ProductDetail({ productId }: { productId: string }) {
+/**
+ * The buy box + gallery, on the real catalogue record shared by the PDP provider.
+ *
+ * Colour swatches come from the product's own colors array and the configuration chips from its
+ * spec options (with their real surcharges). Both adjust the LOCAL cart line only — the cart is
+ * still v2's client-side cart until the checkout migration, at which point the selection must be
+ * carried into the server cart payload instead.
+ */
+export function ProductDetail() {
   const { t } = useI18n();
+  const { product, api } = useProduct();
   const { addItem } = useCart();
   const { has, toggle } = useWishlist();
   const { fly } = useFly();
   const router = useRouter();
 
-  const product = getProduct(productId);
+  const gallery = useMemo(() => {
+    const media = [...(api.media ?? [])]
+      .filter((m) => m.url)
+      .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+    return media.length > 0 ? media : null;
+  }, [api.media]);
 
-  const [color, setColor] = useState(colorOptions[0].id);
-  const [bundle, setBundle] = useState(bundleOptions[0].id);
+  /** Specs that offer a real choice; single-option specs are information, not configuration. */
+  const configurableSpecs = useMemo(
+    () => (api.specs ?? []).filter((s) => (s.options?.length ?? 0) > 1),
+    [api.specs],
+  );
+
+  const colors = api.colors ?? [];
+  const [color, setColor] = useState(0);
+  const [choice, setChoice] = useState<Record<string, number>>({});
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
@@ -46,24 +66,35 @@ export function ProductDetail({ productId }: { productId: string }) {
     [],
   );
 
-  if (!product) return null;
-
-  const { id, name, category } = product;
+  const { id, name, category, currency } = product;
   const saved = has(id);
   const filled = Math.round(product.rating);
-  const selectedBundle = bundleOptions.find((b) => b.id === bundle);
-  const extra = selectedBundle?.extra ?? 0;
+
+  const selectedOptions = configurableSpecs.map((spec) => {
+    const idx = choice[spec.id] ?? 0;
+    return { spec, option: spec.options![idx] };
+  });
+  const extra = selectedOptions.reduce((acc, s) => acc + (s.option?.additionalPrice ?? 0), 0);
   const unit = product.price + extra;
+  const outOfStock = product.inStock === false;
 
   function add(openDrawer: boolean) {
-    // The bundle changes the unit price, so it must be part of the line
-    // identity — otherwise the cart would merge different configurations and
-    // keep a stale price. The cart resolves product detail from the base id.
-    const isBase = bundle === "standard";
-    const lineId = isBase ? id : `${id}::${bundle}`;
-    const lineName = isBase ? name : `${name} · ${selectedBundle?.label}`;
+    // The configuration changes the unit price, so it is part of the line identity — otherwise
+    // the cart would merge different configurations and keep a stale price. The cart resolves
+    // rich detail from the base id (before "::").
+    const optionIds = selectedOptions.map((s) => s.option?.id).filter(Boolean);
+    const isBase = extra === 0 && optionIds.length === 0;
+    const suffix = selectedOptions
+      .map((s) => [s.option?.value, s.option?.unit].filter(Boolean).join(" "))
+      .filter(Boolean)
+      .join(" · ");
     addItem(
-      { id: lineId, name: lineName, price: unit, category },
+      {
+        id: isBase ? id : `${id}::${optionIds.join(".")}`,
+        name: suffix ? `${name} · ${suffix}` : name,
+        price: unit,
+        category,
+      },
       { openDrawer, qty },
     );
   }
@@ -81,45 +112,69 @@ export function ProductDetail({ productId }: { productId: string }) {
     router.push("/cart");
   }
 
+  const activeUrl = gallery?.[Math.min(activeImg, (gallery?.length ?? 1) - 1)]?.url ?? null;
+
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
       {/* Gallery */}
       <div className="flex flex-col gap-3">
         <div className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-surface-2">
-          <Image
-            src={IMG}
-            alt={product.name}
-            fill
-            priority
-            quality={90}
-            sizes="(min-width:1024px) 40vw, 100vw"
-            className="object-cover"
-          />
+          {activeUrl ? (
+            // Presigned, short-lived URL — plain <img> on purpose.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={activeUrl}
+              alt={product.name}
+              className="absolute inset-0 h-full w-full object-cover"
+              draggable={false}
+            />
+          ) : (
+            <Image
+              src={FALLBACK_IMG}
+              alt={product.name}
+              fill
+              priority
+              quality={90}
+              sizes="(min-width:1024px) 40vw, 100vw"
+              className="object-cover"
+            />
+          )}
           {product.bestseller && (
             <span className="absolute start-4 top-4 inline-flex items-center rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-warn shadow-sm backdrop-blur-sm dark:bg-black/75 dark:text-gold">
               {t.deals.bestseller}
             </span>
           )}
-          <span className="absolute end-4 top-4 inline-flex items-center rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-fg shadow-sm">
-            -{product.discount}%
-          </span>
+          {product.discount > 0 && (
+            <span className="absolute end-4 top-4 inline-flex items-center rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-fg shadow-sm">
+              -{product.discount}%
+            </span>
+          )}
         </div>
-        <div className="flex gap-3">
-          {[0, 1, 2, 3].map((i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setActiveImg(i)}
-              aria-label={`${product.name} — ${i + 1}`}
-              aria-pressed={activeImg === i}
-              className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                activeImg === i ? "border-brand" : "border-border hover:border-border-strong"
-              }`}
-            >
-              <Image src={IMG} alt="" fill sizes="80px" className="object-cover" />
-            </button>
-          ))}
-        </div>
+        {gallery && gallery.length > 1 && (
+          <div className="flex gap-3 overflow-x-auto">
+            {gallery.map((m, i) => (
+              <button
+                key={m.url}
+                type="button"
+                onClick={() => setActiveImg(i)}
+                aria-label={`${product.name} — ${i + 1}`}
+                aria-pressed={activeImg === i}
+                className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  activeImg === i ? "border-brand" : "border-border hover:border-border-strong"
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={m.thumbnailUrl ?? m.url!}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
+                  loading="lazy"
+                  draggable={false}
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Buy box */}
@@ -150,85 +205,88 @@ export function ProductDetail({ productId }: { productId: string }) {
         </a>
 
         {/* Price */}
-        <div className="mt-4 flex items-baseline gap-3">
+        <div className="mt-4 flex items-baseline gap-3" dir="ltr">
           <span className="text-3xl font-bold tracking-tight text-foreground">
-            ${formatInt(unit)}
+            {formatMoney(unit, currency)}
           </span>
-          <span className="text-lg text-muted line-through">
-            ${formatInt(product.oldPrice + extra)}
-          </span>
-          <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-bold text-brand-icon">
-            -{product.discount}%
-          </span>
+          {product.oldPrice > product.price && (
+            <>
+              <span className="text-lg text-muted line-through">
+                {formatMoney(product.oldPrice + extra, currency)}
+              </span>
+              <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-bold text-brand-icon">
+                -{product.discount}%
+              </span>
+            </>
+          )}
         </div>
 
-        <p className="mt-4 text-muted">{product.description}</p>
+        {product.description && <p className="mt-4 text-muted">{product.description}</p>}
 
         {/* Highlights */}
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {product.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-md bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand-icon"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Color */}
-        <div className="mt-6">
-          <p className="text-sm font-semibold text-foreground">
-            {t.pdp.color}:{" "}
-            <span className="font-normal text-muted">
-              {colorOptions.find((c) => c.id === color)?.label}
-            </span>
-          </p>
-          <div className="mt-2 flex gap-2.5">
-            {colorOptions.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => setColor(c.id)}
-                aria-label={c.label}
-                aria-pressed={color === c.id}
-                className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                  color === c.id ? "border-brand" : "border-border"
-                }`}
+        {product.tags.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {product.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-md bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand-icon"
               >
-                <span
-                  className="h-6 w-6 rounded-full"
-                  style={{ backgroundColor: c.hex }}
-                />
-              </button>
+                {tag}
+              </span>
             ))}
           </div>
-        </div>
+        )}
 
-        {/* Configuration */}
-        <div className="mt-5">
-          <p className="text-sm font-semibold text-foreground">
-            {t.pdp.configuration}
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {bundleOptions.map((bnd) => (
-              <button
-                key={bnd.id}
-                type="button"
-                onClick={() => setBundle(bnd.id)}
-                aria-pressed={bundle === bnd.id}
-                className={`rounded-xl border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                  bundle === bnd.id
-                    ? "border-brand bg-brand-soft text-brand-icon"
-                    : "border-border text-foreground hover:border-border-strong"
-                }`}
-              >
-                {bnd.label}
-                {bnd.extra ? ` +$${bnd.extra}` : ""}
-              </button>
-            ))}
+        {/* Colour — the catalogue's own swatches; absent product, absent section. */}
+        {colors.length > 0 && (
+          <div className="mt-6">
+            <p className="text-sm font-semibold text-foreground">{t.pdp.color}</p>
+            <div className="mt-2 flex gap-2.5">
+              {colors.map((hex, i) => (
+                <button
+                  key={hex + i}
+                  type="button"
+                  onClick={() => setColor(i)}
+                  aria-label={hex}
+                  aria-pressed={color === i}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                    color === i ? "border-brand" : "border-border"
+                  }`}
+                >
+                  <span className="h-6 w-6 rounded-full" style={{ backgroundColor: hex }} />
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Configuration — real spec options, with their real surcharges. */}
+        {configurableSpecs.map((spec) => (
+          <div key={spec.id} className="mt-5">
+            <p className="text-sm font-semibold text-foreground">{spec.name ?? spec.code}</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {spec.options!.map((opt, i) => {
+                const on = (choice[spec.id] ?? 0) === i;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setChoice((c) => ({ ...c, [spec.id]: i }))}
+                    aria-pressed={on}
+                    className={`rounded-xl border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      on
+                        ? "border-brand bg-brand-soft text-brand-icon"
+                        : "border-border text-foreground hover:border-border-strong"
+                    }`}
+                  >
+                    {[opt.value, opt.unit].filter(Boolean).join(" ")}
+                    {opt.additionalPrice ? ` +${formatMoney(opt.additionalPrice, currency)}` : ""}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
 
         {/* Qty + CTAs */}
         <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -257,7 +315,8 @@ export function ProductDetail({ productId }: { productId: string }) {
           <button
             type="button"
             onClick={onAdd}
-            className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            disabled={outOfStock}
+            className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
           >
             {added ? (
               <>
@@ -292,7 +351,8 @@ export function ProductDetail({ productId }: { productId: string }) {
         <button
           type="button"
           onClick={onBuyNow}
-          className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-full border border-brand text-sm font-semibold text-brand transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          disabled={outOfStock}
+          className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-full border border-brand text-sm font-semibold text-brand transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t.pdp.buyNow}
         </button>
@@ -302,13 +362,29 @@ export function ProductDetail({ productId }: { productId: string }) {
           <BnplOptions total={unit * qty} />
         </div>
 
-        {/* Trust */}
+        {/* Trust — real where the catalogue speaks, generic otherwise. */}
         <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {[
-            { icon: TruckIcon, label: t.pdp.freeDelivery, sub: t.pdp.deliveryNote },
+            {
+              icon: TruckIcon,
+              label:
+                api.freeDelivery
+                  ? t.pdp.freeDelivery
+                  : api.deliveryFee != null
+                    ? `${t.pdp.freeDelivery.split("—")[0] ?? t.pdp.freeDelivery}`
+                    : t.pdp.freeDelivery,
+              sub: t.pdp.deliveryNote,
+            },
             { icon: ShieldCheckIcon, label: t.pdp.warranty, sub: t.pdp.secure },
             { icon: RentIcon, label: t.pdp.returns, sub: "" },
-            { icon: CheckIcon, label: t.pdp.inStock, sub: "" },
+            {
+              icon: CheckIcon,
+              label: outOfStock ? (t.account.orders.statuses.FAILED ?? t.pdp.inStock) : t.pdp.inStock,
+              sub:
+                !outOfStock && product.stock != null && product.stock > 0 && product.stock < 5
+                  ? `${product.stock}`
+                  : "",
+            },
           ].map(({ icon: Icon, label, sub }) => (
             <li key={label} className="flex items-center gap-2.5">
               <Icon className="h-5 w-5 shrink-0 text-gold" />

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/lib/products";
+import { formatMoney } from "@/lib/format";
 import { HeartIcon, StarIcon } from "@/components/icons";
 import { AddToCartButton } from "@/components/home/AddToCartButton";
 import { useWishlist } from "@/components/wishlist/wishlist-provider";
@@ -49,25 +50,38 @@ export function ProductCard({
       {/* Image — inset rounded container. One shared sample device image for
           every card; swap for a real per-product photo later. */}
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-surface-2">
-        <Image
-          src="/mock/product-hero.jpg"
-          alt=""
-          fill
-          quality={90}
-          sizes="300px"
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-        />
+        {product.image?.startsWith("http") ? (
+          // Real catalogue photo: a presigned, short-lived S3 URL — plain <img>, since next/image
+          // would need remotePatterns for hosts that vary per request and caches nothing useful.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={product.image}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+            loading="lazy"
+            draggable={false}
+          />
+        ) : (
+          <Image
+            src="/mock/product-hero.jpg"
+            alt=""
+            fill
+            quality={90}
+            sizes="300px"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+          />
+        )}
 
         {/* Badge (start) */}
         {product.bestseller ? (
           <span className="absolute start-3 top-3 z-[1] inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-warn shadow-sm backdrop-blur-sm dark:bg-black/75 dark:text-gold">
             {bestsellerLabel}
           </span>
-        ) : (
+        ) : product.discount > 0 ? (
           <span className="absolute start-3 top-3 z-[1] inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold text-primary-fg shadow-sm">
             -{product.discount}%
           </span>
-        )}
+        ) : null}
 
         {/* Product link (transparent overlay) */}
         <Link
@@ -124,12 +138,14 @@ export function ProductCard({
 
         {/* Price + rating */}
         <div className="mt-4 flex items-end justify-between gap-3 border-t border-border pt-3">
-          <div className="flex items-baseline gap-2">
-            <span className="text-xs text-muted line-through">
-              ${product.oldPrice.toLocaleString()}
-            </span>
+          <div className="flex items-baseline gap-2" dir="ltr">
+            {product.oldPrice > product.price && (
+              <span className="text-xs text-muted line-through">
+                {formatMoney(product.oldPrice, product.currency)}
+              </span>
+            )}
             <span className="text-xl font-bold tracking-tight text-foreground">
-              ${product.price.toLocaleString()}
+              {formatMoney(product.price, product.currency)}
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">

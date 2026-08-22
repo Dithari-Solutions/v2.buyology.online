@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { flashDeals, type Product } from "@/lib/products";
+import type { Product } from "@/lib/products";
+import { fetchPopularFor, fetchSuperDeals } from "@/lib/catalogue";
 import { useCart } from "@/components/cart/cart-provider";
 import { useFly } from "@/components/fx/FlyProvider";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -94,8 +95,34 @@ function RecCard({ product }: { product: Product }) {
 export function RecommendedProducts() {
   const { t } = useI18n();
   const { items } = useCart();
-  const inCart = new Set(items.map((i) => i.id.split("::")[0]));
-  const recs = flashDeals.filter((p) => !inCart.has(p.id)).slice(0, 4);
+  const { locale } = useI18n();
+  const [recs, setRecs] = useState<Product[]>([]);
+  const cartIds = items.map((i) => i.id.split("::")[0]);
+  const idsKey = [...new Set(cartIds)].sort().join(",");
+
+  useEffect(() => {
+    let cancelled = false;
+    const ids = idsKey ? idsKey.split(",") : [];
+    // Real picks for THIS cart; the deals rail fills in when the cart gives nothing to go on.
+    (ids.length > 0 ? fetchPopularFor(locale, ids) : fetchSuperDeals(locale))
+      .then(async (rows) => {
+        const filtered = rows.filter((p) => !ids.includes(p.id));
+        if (filtered.length === 0 && ids.length > 0) {
+          const deals = await fetchSuperDeals(locale);
+          return deals.filter((p) => !ids.includes(p.id));
+        }
+        return filtered;
+      })
+      .then((rows) => {
+        if (!cancelled) setRecs(rows.slice(0, 4));
+      })
+      .catch(() => {
+        /* no recommendations — the section stays hidden */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale, idsKey]);
 
   if (recs.length === 0) return null;
 

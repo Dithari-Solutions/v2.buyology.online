@@ -25,6 +25,9 @@ const USE_PROXY = process.env.NEXT_PUBLIC_BACKEND_PROXY === "true";
  * Under the dev proxy the path is nested beneath /api/backend and unwrapped server-side.
  */
 export function backendUrl(path: string): string {
+  // Server-side rendering always goes direct: the dev proxy is a same-origin RELATIVE path that
+  // only means something in a browser, and server-to-server needs no CORS help anyway.
+  if (typeof window === "undefined") return `${DIRECT_BASE}${path}`;
   return USE_PROXY ? `/api/backend${path}` : `${DIRECT_BASE}${path}`;
 }
 

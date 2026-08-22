@@ -7,7 +7,7 @@ import { useWishlist } from "@/components/wishlist/wishlist-provider";
 import { useI18n } from "@/components/i18n/language-provider";
 import { BnplOptions } from "@/components/cart/BnplOptions";
 import { RecommendedProducts } from "@/components/cart/RecommendedProducts";
-import { getProduct } from "@/lib/products";
+import { useProductLookup } from "@/lib/use-product-lookup";
 import {
   BagIcon,
   ChevronLeftIcon,
@@ -28,14 +28,20 @@ function CartRow({ line }: { line: CartLine }) {
   const { has, toggle } = useWishlist();
   // Line ids may carry a "::variant" suffix; product detail keys off the base id.
   const baseId = line.id.split("::")[0];
-  const detail = getProduct(baseId);
+  const detail = useProductLookup(baseId);
   const saved = has(baseId);
   const filled = detail ? Math.round(detail.rating) : 0;
 
   return (
     <li className="flex flex-col gap-4 p-4 sm:flex-row">
       <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-xl bg-surface-2 sm:h-28 sm:w-28">
-        <Image src={IMG} alt="" fill sizes="(min-width:640px) 112px, 100vw" className="object-cover" />
+        {detail?.image?.startsWith("http") ? (
+          // Presigned catalogue photo — plain <img> (short-lived URL).
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={detail.image} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+        ) : (
+          <Image src={IMG} alt="" fill sizes="(min-width:640px) 112px, 100vw" className="object-cover" />
+        )}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/header/Header";
+import { SearchResults } from "@/components/products/SearchResults";
 
 type SearchParams = Promise<{
   q?: string;
@@ -22,16 +23,6 @@ export async function generateMetadata({
     robots: q ? { index: false, follow: true } : undefined,
   };
 }
-
-// Deterministic mock results so the demo is coherent without a backend.
-const MOCK = [
-  "Aurora Field Earbuds",
-  "Helix Fold Console",
-  "Nimbus 16 Laptop",
-  "Pulse Ring Wearable",
-  "Orbit Home Hub",
-  "Vantage OLED Monitor",
-];
 
 export default async function SearchPage({
   searchParams,
@@ -58,30 +49,7 @@ export default async function SearchPage({
             "Search Buyology"
           )}
         </h1>
-        <p className="mt-2 text-sm text-muted">
-          Mock results — this is a UI-only demo. Try the microphone in the
-          header to search by voice.
-        </p>
-
-        <ul className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3">
-          {MOCK.map((name, i) => (
-            <li
-              key={name}
-              className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-elevation)]"
-            >
-              <div
-                className="aspect-[4/3] bg-gradient-to-br from-brand to-brand-deep"
-                aria-hidden="true"
-              />
-              <div className="p-4">
-                <h2 className="text-sm font-semibold text-foreground">{name}</h2>
-                <p className="mt-1.5 text-sm font-semibold text-warn dark:text-gold">
-                  ${(199 + i * 130).toLocaleString()}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <SearchResults q={q} category={category} />
       </main>
     </>
   );

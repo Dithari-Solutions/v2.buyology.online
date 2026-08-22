@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useI18n } from "@/components/i18n/language-provider";
-import { products } from "@/lib/products";
+import type { Product } from "@/lib/products";
+import { fetchProducts } from "@/lib/catalogue";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 import {
   activeFilterCount,
@@ -25,26 +26,64 @@ import {
 const PAGE = 9;
 
 export function ProductsView({ initialCategory }: { initialCategory?: string }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  // The real catalogue, accumulated page by page. Filtering and sorting stay client-side over
+  // what is loaded — the same UX as before, now over real items; server-side facet search
+  // (/api/product/search) is a later upgrade if the catalogue outgrows this.
+  const [catalog, setCatalog] = useState<Product[] | null>(null);
+  const [serverPage, setServerPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchProducts(locale, { page: 0 })
+      .then(({ items, hasMore: more }) => {
+        if (cancelled) return;
+        setCatalog(items);
+        setServerPage(0);
+        setHasMore(more);
+      })
+      .catch(() => {
+        if (!cancelled) setCatalog([]); // fail soft: an empty grid with the standard empty state
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
+
+  async function loadNextServerPage() {
+    if (!hasMore || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const next = serverPage + 1;
+      const { items, hasMore: more } = await fetchProducts(locale, { page: next });
+      setCatalog((prev) => [...(prev ?? []), ...items]);
+      setServerPage(next);
+      setHasMore(more);
+    } catch {
+      /* keep what we have */
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
   const categories = useMemo(
-    () => [...new Set(products.map((p) => p.category))],
-    [],
+    () => [...new Set((catalog ?? []).map((p) => p.category).filter(Boolean))],
+    [catalog],
   );
 
   const [filters, setFilters] = useState<Filters>(() => ({
     ...DEFAULT_FILTERS,
-    categories:
-      initialCategory && categories.includes(initialCategory)
-        ? [initialCategory]
-        : [],
+    categories: initialCategory ? [initialCategory] : [],
   }));
   const [sort, setSort] = useState<SortKey>("featured");
   const [visible, setVisible] = useState(PAGE);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const filtered = useMemo(
-    () => sortProducts(applyFilters(products, filters), sort),
-    [filters, sort],
+    () => sortProducts(applyFilters(catalog ?? [], filters), sort),
+    [catalog, filters, sort],
   );
   const shown = filtered.slice(0, visible);
   const activeCount = activeFilterCount(filters);
@@ -195,7 +234,13 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
 
         {/* Grid */}
         <div>
-          {shown.length === 0 ? (
+          {catalog === null ? (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-busy>
+              {Array.from({ length: 6 }, (_, i) => (
+                <div key={i} className="h-80 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none" />
+              ))}
+            </div>
+          ) : shown.length === 0 ? (
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface py-20 text-center">
               <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface-2 text-muted">
                 <BagIcon className="h-7 w-7" />
@@ -224,11 +269,15 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
                   />
                 ))}
               </div>
-              {visible < filtered.length && (
+              {(visible < filtered.length || hasMore) && (
                 <div className="mt-8 flex justify-center">
                   <button
                     type="button"
-                    onClick={() => setVisible((v) => v + PAGE)}
+                    onClick={() => {
+                      setVisible((v) => v + PAGE);
+                      // Nearing the end of what is loaded → pull the next server page as well.
+                      if (visible + PAGE >= (catalog?.length ?? 0)) void loadNextServerPage();
+                    }}
                     className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {t.shop.loadMore}

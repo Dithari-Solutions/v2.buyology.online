@@ -1,0 +1,277 @@
+import { backendUrl, type ApiEnvelope } from "@/lib/backend";
+import type { Locale } from "@/lib/i18n/config";
+import type { Product } from "@/lib/products";
+
+/**
+ * The real catalogue, adapted onto the exact Product shape every v2 renderer already consumes —
+ * so the cards, cart and wishlist keep compiling while the data underneath becomes real.
+ *
+ * Contract notes that shape this module:
+ * - Every image URL is a presigned S3 link with a ~2-hour signature: render with plain <img>,
+ *   fetch fresh per view, never persist.
+ * - List responses are bare arrays with NO total count — page until a short page.
+ * - The market is fixed to the UAE for now (countryCode=UAE, prices in AED): v2 has no country
+ *   selector yet, and without countryCode the backend prices from the global-cheapest store,
+ *   which is not what a UAE customer pays.
+ * - Multi-value filter params must serialize as repeated keys (brandIds=a&brandIds=b) — Spring
+ *   binding ignores the bracket form.
+ * - /api/product/search binds free text as `q`; /api/product/search-elastic binds it as `query`.
+ *   The wrong name silently returns everything.
+ */
+
+const MARKET_COUNTRY = "UAE";
+const MARKET_CURRENCY = "AED";
+const LANGUAGE: Record<Locale, "EN" | "AZ" | "AR"> = { en: "EN", az: "AZ", ar: "AR" };
+
+// ── Backend shapes (the fields v2 renders) ───────────────────────────────────
+
+type ApiMedia = {
+  url?: string | null;
+  thumbnailUrl?: string | null;
+  isPrimary?: boolean | null;
+  orderIndex?: number | null;
+  mediaType?: string | null;
+};
+
+type ApiSpecOption = { id: string; value?: string | null; unit?: string | null; additionalPrice?: number | null };
+type ApiSpec = { id: string; code?: string | null; name?: string | null; options?: ApiSpecOption[] | null };
+
+export type ApiProduct = {
+  id: string;
+  slug?: string | null;
+  title?: string | null;
+  description?: string | null;
+  sku?: string | null;
+  categoryId?: string | null;
+  brandName?: string | null;
+  storeId?: string | null;
+  storePrice?: number | null;
+  effectivePrice?: number | null;
+  originalPrice?: number | null;
+  currency?: string | null;
+  availabilityStatus?: string | null;
+  availableInSelectedCountry?: boolean | null;
+  stockQuantity?: number | null;
+  isSuperDeal?: boolean | null;
+  isLimitedStock?: boolean | null;
+  expressDelivery?: boolean | null;
+  expressDeliveryFee?: number | null;
+  freeDelivery?: boolean | null;
+  deliveryFee?: number | null;
+  averageRating?: number | null;
+  totalReviews?: number | null;
+  media?: ApiMedia[] | null;
+  specs?: ApiSpec[] | null;
+  colors?: string[] | null;
+};
+
+export type Category = {
+  id: string;
+  parentId?: string | null;
+  name: string;
+  slug: string;
+};
+
+export type Review = {
+  id: string;
+  rating: number;
+  title?: string | null;
+  comment?: string | null;
+  reviewerName?: string | null;
+  createdAt?: string | null;
+};
+
+// ── Fetch plumbing ───────────────────────────────────────────────────────────
+
+function params(locale: Locale, extra: Record<string, unknown> = {}): URLSearchParams {
+  const p = new URLSearchParams();
+  p.set("lang", LANGUAGE[locale]);
+  p.set("countryCode", MARKET_COUNTRY);
+  p.set("currency", MARKET_CURRENCY);
+  for (const [k, v] of Object.entries(extra)) {
+    if (v === undefined || v === null || v === "") continue;
+    if (Array.isArray(v)) v.forEach((item) => p.append(k, String(item))); // repeated keys, not brackets
+    else p.set(k, String(v));
+  }
+  return p;
+}
+
+async function get<T>(path: string, search: URLSearchParams): Promise<T> {
+  const res = await fetch(backendUrl(`${path}?${search}`), { cache: "no-store" });
+  if (!res.ok) throw new Error(`${path} ${res.status}`);
+  const body = (await res.json()) as ApiEnvelope<T>;
+  if (body.data == null) throw new Error(`${path}: empty`);
+  return body.data;
+}
+
+// ── Categories (cached per locale for the session — names label the cards) ──
+
+const categoryCache = new Map<Locale, Promise<Category[]>>();
+
+export function fetchCategories(locale: Locale): Promise<Category[]> {
+  let cached = categoryCache.get(locale);
+  if (!cached) {
+    cached = get<Category[]>("/api/category", params(locale)).catch((err) => {
+      categoryCache.delete(locale); // a failed fetch must not poison the session
+      throw err;
+    });
+    categoryCache.set(locale, cached);
+  }
+  return cached;
+}
+
+// ── The adapter ──────────────────────────────────────────────────────────────
+
+/** Spec chips for the card, the way the catalogue names them: "16 GB", "1 TB", "M4". */
+function specChips(specs: ApiSpec[] | null | undefined): string[] {
+  if (!specs) return [];
+  const wanted = ["ram", "storage", "processor"];
+  const chips: string[] = [];
+  for (const code of wanted) {
+    const spec = specs.find((x) => x.code?.toLowerCase() === code);
+    const first = spec?.options?.[0];
+    if (first?.value) chips.push([first.value, first.unit].filter(Boolean).join(" "));
+  }
+  return chips;
+}
+
+function primaryImage(media: ApiMedia[] | null | undefined): string | null {
+  if (!media || media.length === 0) return null;
+  const sorted = [...media].sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+  return (sorted.find((m) => m.isPrimary)?.url ?? sorted[0]?.url) ?? null;
+}
+
+/** Backend product → the Product view-type every renderer consumes. */
+export function toProduct(api: ApiProduct, categoryName?: string): Product {
+  const price = api.storePrice ?? api.effectivePrice ?? 0;
+  const oldPrice = api.originalPrice ?? price;
+  const discount = oldPrice > price && oldPrice > 0 ? Math.round(((oldPrice - price) / oldPrice) * 100) : 0;
+  return {
+    id: api.id,
+    name: api.title ?? api.sku ?? "—",
+    category: categoryName ?? "",
+    description: api.description ?? "",
+    tags: specChips(api.specs),
+    href: `/product/${api.id}`,
+    image: primaryImage(api.media) ?? "",
+    alt: api.title ?? "",
+    icon: undefined,
+    price,
+    oldPrice,
+    discount,
+    rating: api.averageRating ?? 0,
+    reviews: api.totalReviews ?? 0,
+    bestseller: api.isSuperDeal ?? false,
+    currency: api.currency ?? MARKET_CURRENCY,
+    storeId: api.storeId ?? undefined,
+    stock: api.stockQuantity ?? undefined,
+    inStock: api.availabilityStatus !== "OUT_OF_STOCK",
+    slug: api.slug ?? undefined,
+  };
+}
+
+async function withCategoryNames(locale: Locale, rows: ApiProduct[]): Promise<Product[]> {
+  // Sellable items only: availableInSelectedCountry=false means "browse only" — a card the
+  // customer cannot buy does not belong in a shopping grid.
+  const sellable = rows.filter((r) => r.availableInSelectedCountry !== false);
+  let byId = new Map<string, string>();
+  try {
+    byId = new Map((await fetchCategories(locale)).map((c) => [c.id, c.name]));
+  } catch {
+    /* category names degrade to blank labels; the grid still works */
+  }
+  return sellable.map((r) => toProduct(r, r.categoryId ? byId.get(r.categoryId) : undefined));
+}
+
+// ── Catalogue calls ──────────────────────────────────────────────────────────
+
+export const PAGE_SIZE = 24;
+
+export async function fetchProducts(
+  locale: Locale,
+  opts: { page?: number; sort?: "POPULAR" | "NEWEST" | "PRICE_ASC" | "PRICE_DESC" } = {},
+): Promise<{ items: Product[]; hasMore: boolean }> {
+  const rows = await get<ApiProduct[]>(
+    "/api/product",
+    params(locale, { page: opts.page ?? 0, size: PAGE_SIZE, sort: opts.sort }),
+  );
+  return {
+    items: await withCategoryNames(locale, rows),
+    // No total count exists anywhere in the contract; a full page means "probably more".
+    hasMore: rows.length === PAGE_SIZE,
+  };
+}
+
+export async function fetchProductDetail(locale: Locale, id: string): Promise<ApiProduct> {
+  return get<ApiProduct>(`/api/product/${id}`, params(locale));
+}
+
+export async function fetchRelated(locale: Locale, id: string): Promise<Product[]> {
+  const rows = await get<ApiProduct[]>(`/api/product/${id}/related`, params(locale));
+  return withCategoryNames(locale, rows);
+}
+
+export async function searchProducts(locale: Locale, query: string): Promise<Product[]> {
+  // Elastic route binds the text as `query` (the filtered route binds `q`); it falls back to a
+  // DB LIKE search server-side when Elasticsearch is down.
+  const rows = await get<ApiProduct[]>("/api/product/search-elastic", params(locale, { query }));
+  return withCategoryNames(locale, rows);
+}
+
+export async function fetchByCategory(locale: Locale, categoryId: string): Promise<Product[]> {
+  const rows = await get<ApiProduct[]>(`/api/product/category/${categoryId}`, params(locale));
+  return withCategoryNames(locale, rows);
+}
+
+export async function fetchPopularFor(locale: Locale, productIds: string[]): Promise<Product[]> {
+  const rows = await get<ApiProduct[]>("/api/product/popular-for-you", params(locale, { productIds }));
+  return withCategoryNames(locale, rows);
+}
+
+export async function fetchSuperDeals(locale: Locale): Promise<Product[]> {
+  const rows = await get<ApiProduct[]>("/api/product/super-deals", params(locale));
+  return withCategoryNames(locale, rows);
+}
+
+// ── Single-product lookup with a session cache (cart/wishlist enrichment) ───
+
+const lookupCache = new Map<string, Promise<Product | null>>();
+
+/**
+ * Resolve one product by id, cached for the session. The cart and wishlist store only narrow
+ * snapshots and re-resolve rich detail per row — uncached, a 10-row cart would fire 10 detail
+ * requests per render mount.
+ */
+export function lookupProduct(locale: Locale, id: string): Promise<Product | null> {
+  const key = `${locale}:${id}`;
+  let hit = lookupCache.get(key);
+  if (!hit) {
+    hit = fetchProductDetail(locale, id)
+      .then(async (api) => {
+        let name: string | undefined;
+        try {
+          const cats = await fetchCategories(locale);
+          name = cats.find((c) => c.id === api.categoryId)?.name;
+        } catch {
+          /* blank label */
+        }
+        return toProduct(api, name);
+      })
+      .catch(() => {
+        lookupCache.delete(key); // do not cache failures — the product may simply be loading
+        return null;
+      });
+    lookupCache.set(key, hit);
+  }
+  return hit;
+}
+
+// ── Reviews ──────────────────────────────────────────────────────────────────
+
+export async function fetchReviews(locale: Locale, productId: string, page = 0): Promise<Review[]> {
+  const p = new URLSearchParams({ page: String(page), size: "10" });
+  const res = await fetch(backendUrl(`/api/reviews/product/${productId}?${p}`), { cache: "no-store" });
+  if (!res.ok) return [];
+  const body = (await res.json()) as ApiEnvelope<Review[]>;
+  return body.data ?? [];
+}

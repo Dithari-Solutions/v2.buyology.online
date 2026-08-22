@@ -1,12 +1,31 @@
 "use client";
 
-import { flashDeals } from "@/lib/products";
+import { useEffect, useState } from "react";
+import type { Product } from "@/lib/products";
+import { fetchRelated } from "@/lib/catalogue";
 import { useI18n } from "@/components/i18n/language-provider";
 import { ProductCard } from "@/components/home/ProductCard";
 
+/** Real same-category picks from the catalogue (max 4). Nothing to show → no section. */
 export function RelatedProducts({ currentId }: { currentId: string }) {
-  const { t } = useI18n();
-  const items = flashDeals.filter((p) => p.id !== currentId).slice(0, 4);
+  const { t, locale } = useI18n();
+  const [items, setItems] = useState<Product[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchRelated(locale, currentId)
+      .then((rows) => {
+        if (!cancelled) setItems(rows.slice(0, 4));
+      })
+      .catch(() => {
+        /* no related — the section simply does not render */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale, currentId]);
+
+  if (items.length === 0) return null;
 
   return (
     <section aria-labelledby="related-heading">

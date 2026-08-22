@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { getProduct } from "@/lib/products";
+import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/components/i18n/language-provider";
-import { reviews, reviewDistribution } from "@/lib/product-detail";
+import { useProduct } from "@/components/product/product-context";
+import { fetchReviews, type Review } from "@/lib/catalogue";
 import { formatInt } from "@/lib/format";
-import { CheckIcon, StarIcon, ThumbUpIcon } from "@/components/icons";
+import { StarIcon } from "@/components/icons";
 
 function Stars({ rating, className = "h-4 w-4" }: { rating: number; className?: string }) {
   const filled = Math.round(rating);
@@ -21,80 +21,60 @@ function Stars({ rating, className = "h-4 w-4" }: { rating: number; className?: 
   );
 }
 
-function ReviewCard({
-  review,
-}: {
-  review: (typeof reviews)[number];
-}) {
-  const { t } = useI18n();
-  const [voted, setVoted] = useState(false);
-
-  return (
-    <article className="border-t border-border py-6 first:border-t-0 first:pt-0">
-      <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-bold text-brand-icon">
-          {review.initials}
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="font-semibold text-foreground">{review.author}</span>
-            {review.verified && (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                <CheckIcon className="h-3.5 w-3.5" />
-                {t.pdp.reviews.verified}
-              </span>
-            )}
-            <span className="text-xs text-muted">· {review.date}</span>
-          </div>
-          <div className="mt-1.5 flex items-center gap-2">
-            <Stars rating={review.rating} className="h-3.5 w-3.5" />
-          </div>
-          <h3 className="mt-2 font-semibold text-foreground">{review.title}</h3>
-          <p className="mt-1 text-sm text-muted">{review.body}</p>
-
-          <button
-            type="button"
-            onClick={() => setVoted((v) => !v)}
-            aria-pressed={voted}
-            className={`mt-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-              voted
-                ? "border-brand bg-brand-soft text-brand-icon"
-                : "border-border text-muted hover:text-foreground"
-            }`}
-          >
-            <ThumbUpIcon className="h-3.5 w-3.5" />
-            {t.pdp.reviews.helpful} ({review.helpful + (voted ? 1 : 0)})
-          </button>
-        </div>
-      </div>
-    </article>
-  );
+function initialsOf(name: string | null | undefined): string {
+  const words = (name ?? "").trim().split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).map((w) => w.charAt(0).toUpperCase()).join("") || "•";
 }
 
-export function ProductReviews({ productId }: { productId: string }) {
-  const { t } = useI18n();
-  const product = getProduct(productId);
-  if (!product) return null;
+/**
+ * Real, approved customer reviews. The overview keeps the average + count from the product's own
+ * pre-aggregated stats; the star-distribution histogram is gone — the backend does not expose one,
+ * and inventing percentages under real reviews would be fabrication. The rating bars come back the
+ * day the API aggregates them.
+ */
+export function ProductReviews() {
+  const { t, locale } = useI18n();
+  const { product } = useProduct();
+  const [rows, setRows] = useState<Review[] | null>(null);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchReviews(locale, product.id, 0).then((list) => {
+      if (cancelled) return;
+      setRows(list);
+      setHasMore(list.length === 10);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale, product.id]);
+
+  async function loadMore() {
+    const next = page + 1;
+    const list = await fetchReviews(locale, product.id, next);
+    setRows((prev) => [...(prev ?? []), ...list]);
+    setPage(next);
+    setHasMore(list.length === 10);
+  }
+
+  const dateFmt = useMemo(
+    () => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }),
+    [locale],
+  );
 
   return (
     <section aria-labelledby="reviews-heading" id="reviews" className="scroll-mt-40">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2
-          id="reviews-heading"
-          className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
-        >
-          {t.pdp.reviews.title}
-        </h2>
-        <button
-          type="button"
-          className="rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {t.pdp.reviews.write}
-        </button>
-      </div>
+      <h2
+        id="reviews-heading"
+        className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
+      >
+        {t.pdp.reviews.title}
+      </h2>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
-        {/* Overview */}
+        {/* Overview — the product's own aggregated stats. */}
         <div className="h-fit rounded-2xl border border-border bg-surface p-5">
           <div className="flex items-end gap-2">
             <span className="text-4xl font-bold tracking-tight text-foreground tabular-nums">
@@ -106,36 +86,65 @@ export function ProductReviews({ productId }: { productId: string }) {
             <Stars rating={product.rating} />
           </div>
           <p className="mt-2 text-sm text-muted">
-            {t.pdp.reviews.basedOn} {formatInt(product.reviews)}{" "}
-            {t.cart.reviews}
+            {t.pdp.reviews.basedOn} {formatInt(product.reviews)} {t.cart.reviews}
           </p>
-
-          <div className="mt-4 space-y-1.5">
-            {reviewDistribution.map((pct, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <span className="flex w-6 items-center gap-0.5 text-xs font-medium tabular-nums text-muted">
-                  {5 - i}
-                  <StarIcon className="h-3 w-3 text-gold" />
-                </span>
-                <span className="h-2 flex-1 overflow-hidden rounded-full bg-surface-2">
-                  <span
-                    className="block h-full rounded-full bg-gold"
-                    style={{ width: `${pct}%` }}
-                  />
-                </span>
-                <span className="w-9 text-end text-xs text-muted tabular-nums">
-                  {pct}%
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* List */}
         <div>
-          {reviews.map((r) => (
-            <ReviewCard key={r.id} review={r} />
-          ))}
+          {rows === null ? (
+            <div className="space-y-4" aria-busy>
+              {[0, 1].map((i) => (
+                <div key={i} className="h-28 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none" />
+              ))}
+            </div>
+          ) : rows.length === 0 ? (
+            <p className="rounded-2xl border border-border bg-surface px-5 py-8 text-center text-sm text-muted">
+              {t.pdp.reviews.basedOn} 0 {t.cart.reviews}
+            </p>
+          ) : (
+            <>
+              {rows.map((review) => (
+                <article key={review.id} className="border-t border-border py-6 first:border-t-0 first:pt-0">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-bold text-brand-icon">
+                      {initialsOf(review.reviewerName)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="font-semibold text-foreground">
+                          {review.reviewerName ?? "—"}
+                        </span>
+                        {review.createdAt && (
+                          <span className="text-xs text-muted">
+                            · {dateFmt.format(new Date(review.createdAt))}
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-1.5">
+                        <Stars rating={review.rating} className="h-3.5 w-3.5" />
+                      </div>
+                      {review.title && (
+                        <h3 className="mt-2 font-semibold text-foreground">{review.title}</h3>
+                      )}
+                      {review.comment && (
+                        <p className="mt-1 text-sm text-muted">{review.comment}</p>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              ))}
+              {hasMore && (
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  className="mt-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2"
+                >
+                  {t.shop.loadMore}
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
     </section>

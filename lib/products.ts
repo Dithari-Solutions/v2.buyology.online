@@ -19,8 +19,8 @@ export type Product = {
   href: string;
   image: string;
   alt: string;
-  /** Category motif shown faintly over the placeholder image. */
-  icon: IconType;
+  /** Category motif shown faintly over the placeholder image. Absent on real products. */
+  icon?: IconType;
   price: number;
   oldPrice: number;
   discount: number;
@@ -28,6 +28,16 @@ export type Product = {
   /** Number of customer reviews behind the rating. */
   reviews: number;
   bestseller?: boolean;
+  /**
+   * Real-catalogue extras. Absent on the mock flash-deals items (which keep the historic
+   * $-styled display); present on everything served by lib/catalogue.
+   */
+  currency?: string;
+  /** The store the price came from — required by the cart payload once checkout migrates. */
+  storeId?: string;
+  stock?: number;
+  inStock?: boolean;
+  slug?: string;
 };
 
 /**

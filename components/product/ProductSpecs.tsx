@@ -1,23 +1,32 @@
 "use client";
 
-import { getProduct } from "@/lib/products";
 import { useI18n } from "@/components/i18n/language-provider";
-import { getSpecValues } from "@/lib/product-detail";
+import { useProduct } from "@/components/product/product-context";
 
-export function ProductSpecs({ productId }: { productId: string }) {
+/**
+ * The specification table, from the catalogue's own spec records. A product with no specs shows
+ * the identity rows (brand, category, rating) rather than an empty box.
+ */
+export function ProductSpecs() {
   const { t } = useI18n();
-  const product = getProduct(productId);
-  if (!product) return null;
-  const v = getSpecValues(product);
+  const { product, api } = useProduct();
 
-  const rows: { label: string; value: string }[] = [
-    { label: t.pdp.spec.brand, value: v.brand },
-    { label: t.pdp.spec.model, value: v.model },
-    { label: t.pdp.spec.category, value: v.category },
-    { label: t.pdp.spec.rating, value: v.rating },
-    { label: t.pdp.spec.warranty, value: v.warranty },
-    { label: t.pdp.spec.box, value: v.box },
-  ];
+  const rows: { label: string; value: string }[] = [];
+  if (api.brandName) rows.push({ label: t.pdp.spec.brand, value: api.brandName });
+  if (api.sku) rows.push({ label: t.pdp.spec.model, value: api.sku });
+  if (product.category) rows.push({ label: t.pdp.spec.category, value: product.category });
+  rows.push({
+    label: t.pdp.spec.rating,
+    value: `${product.rating.toFixed(1)} / 5 (${product.reviews})`,
+  });
+  for (const spec of api.specs ?? []) {
+    const values = (spec.options ?? [])
+      .map((o) => [o.value, o.unit].filter(Boolean).join(" "))
+      .filter(Boolean);
+    if (values.length > 0) {
+      rows.push({ label: spec.name ?? spec.code ?? "—", value: values.join(" / ") });
+    }
+  }
 
   return (
     <section aria-labelledby="specs-heading">
@@ -30,7 +39,7 @@ export function ProductSpecs({ productId }: { productId: string }) {
       <dl className="mt-5 overflow-hidden rounded-2xl border border-border">
         {rows.map((row, i) => (
           <div
-            key={row.label}
+            key={row.label + i}
             className={`flex flex-col gap-1 px-5 py-3.5 sm:flex-row sm:gap-4 ${
               i % 2 === 0 ? "bg-surface" : "bg-surface-2"
             }`}

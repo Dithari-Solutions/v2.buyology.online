@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { getProduct } from "@/lib/products";
+import { useEffect, useState } from "react";
+import type { Product } from "@/lib/products";
+import { lookupProduct } from "@/lib/catalogue";
 import { useWishlist } from "@/components/wishlist/wishlist-provider";
 import { useCart } from "@/components/cart/cart-provider";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -14,10 +16,18 @@ export function WishlistView() {
   const { items } = useWishlist();
   const { addItem, open } = useCart();
 
-  const products = items.flatMap((id) => {
-    const p = getProduct(id);
-    return p ? [p] : [];
-  });
+  const { locale } = useI18n();
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all(items.map((id) => lookupProduct(locale, id))).then((rows) => {
+      if (!cancelled) setProducts(rows.filter((p): p is Product => p !== null));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [items, locale]);
 
   if (products.length === 0) {
     return (
