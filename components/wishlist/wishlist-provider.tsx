@@ -17,6 +17,8 @@ type WishlistValue = {
   /** Product ids, newest first. */
   items: string[];
   count: number;
+  /** False until the list (local or server) has actually loaded — skeleton, not "empty". */
+  ready: boolean;
   has: (id: string) => boolean;
   toggle: (id: string) => void;
   add: (id: string) => void;
@@ -52,6 +54,8 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const authed = status === "authed" && !!credId;
 
   const [items, setItems] = useState<string[]>(EMPTY_WISHLIST);
+  const [hydrated, setHydrated] = useState(false);
+  const [serverReady, setServerReady] = useState(false);
   const itemsRef = useRef<string[]>([]);
   itemsRef.current = items;
   /** Optimistic ops whose API call hasn't settled — they outrank any fetched snapshot. */
@@ -62,6 +66,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   // write on it stops the StrictMode wipe without a flag that could freeze shut.
   useEffect(() => {
     setItems((prev) => (prev === EMPTY_WISHLIST ? readLocal() : prev));
+    setHydrated(true);
   }, []);
   const authedRef = useRef(false);
   authedRef.current = authed;
@@ -89,6 +94,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     }
     if (replayedForRef.current === credId) return;
     replayedForRef.current = credId;
+    setServerReady(false);
     const gen = ++genRef.current;
     (async () => {
       const local = readLocal();
@@ -119,6 +125,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       try {
         const favs = await getFavorites(credId);
         if (gen !== genRef.current) return;
+        setServerReady(true);
         const sorted = [...favs].sort((a, b) =>
           (b.savedAt ?? "").localeCompare(a.savedAt ?? ""),
         );
@@ -132,6 +139,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         setItems(merged);
       } catch {
         /* keep whatever is shown; hearts still work optimistically */
+        if (gen === genRef.current) setServerReady(true);
       }
     })();
   }, [authed, credId, status]);
@@ -204,13 +212,14 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     () => ({
       items,
       count: items.length,
+      ready: authed ? serverReady : status === "guest" ? hydrated : false,
       has: (id: string) => items.includes(id),
       toggle,
       add,
       remove,
       clear,
     }),
-    [items, toggle, add, remove, clear],
+    [items, authed, status, hydrated, serverReady, toggle, add, remove, clear],
   );
 
   return (

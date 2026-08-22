@@ -186,8 +186,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const { status, user } = useAuth();
   const credId = user?.credentialId ?? null;
   const authed = status === "authed" && !!credId;
-  const authedRef = useRef(authed);
-  authedRef.current = authed;
 
   const [localLines, setLocalLines] = useState<StoredLine[]>(EMPTY_CART);
   const [serverLines, setServerLines] = useState<StoredLine[]>([]);
@@ -208,12 +206,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Only the pristine pre-hydration render carries the EMPTY_CART identity; any state update
   // (hydration or a user mutation batched with it) produces a new array. Gating the write on
   // that identity stops the StrictMode wipe without a flag that could freeze shut.
-  const hydratedRef = useRef(false);
+  const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
     savedSetRef.current = readSavedSet();
     setLocalLines((prev) => (prev === EMPTY_CART ? readLocal() : prev));
-    hydratedRef.current = true;
-    if (!authedRef.current) setReady(true);
+    setHydrated(true);
   }, []);
   useEffect(() => {
     if (localLines === EMPTY_CART) return;
@@ -329,7 +326,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCurrency(undefined);
         setSyncError(false);
         replayedForRef.current = null;
-        if (hydratedRef.current) setReady(true);
       }
       return;
     }
@@ -710,7 +706,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       fees: authed ? fees : null,
       isOpen,
       syncing,
-      ready,
+      // While the session is still restoring ("loading") nothing is known yet — an empty
+      // store then must render as a skeleton, never as "your cart is empty".
+      ready: status === "authed" ? ready : status === "guest" ? hydrated : false,
       syncError,
       addItem,
       removeItem,
@@ -723,7 +721,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       close,
     };
   }, [
-    authed, serverLines, localLines, currency, fees, isOpen, syncing, ready, syncError,
+    authed, status, hydrated, serverLines, localLines, currency, fees, isOpen, syncing, ready, syncError,
     addItem, removeItem, setQty, setSelected, setAllSelected, saveForLater, moveToCart, open, close,
   ]);
 

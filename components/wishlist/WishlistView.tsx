@@ -13,7 +13,7 @@ import { BagIcon, HeartIcon } from "@/components/icons";
 /** Wishlist page contents. Reads the wishlist store; each card's heart removes. */
 export function WishlistView() {
   const { t } = useI18n();
-  const { items } = useWishlist();
+  const { items, ready } = useWishlist();
   const { addItem, open } = useCart();
 
   const { locale } = useI18n();
@@ -29,11 +29,12 @@ export function WishlistView() {
     };
   }, [items, locale]);
 
-  // Ids exist but none has resolved yet — that is loading, not an empty wishlist.
-  if (items.length > 0 && products.length === 0) {
+  // Not knowing yet — the list still loading, or ids present but unresolved — is
+  // loading, not an empty wishlist.
+  if (!ready || (items.length > 0 && products.length === 0)) {
     return (
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" aria-busy>
-        {Array.from({ length: Math.min(items.length, 4) }, (_, i) => (
+        {Array.from({ length: Math.min(Math.max(items.length, 4), 8) }, (_, i) => (
           <div
             key={i}
             className="h-80 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none"
