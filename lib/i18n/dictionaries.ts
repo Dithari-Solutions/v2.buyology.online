@@ -285,6 +285,23 @@ export interface Dict {
       track: string;
       placedOn: string;
       failed: string;
+      detail: {
+        heading: string;
+        items: string;
+        delivery: string;
+        pickup: string;
+        recipient: string;
+        summary: string;
+        subtotal: string;
+        discount: string;
+        shipping: string;
+        credit: string;
+        total: string;
+        timeline: string;
+        notFound: string;
+        back: string;
+        eta: string;
+      };
     };
     addresses: {
       title: string;
@@ -302,6 +319,10 @@ export interface Dict {
       labels: { HOME: string; WORK: string; OTHER: string };
       deleteConfirm: string;
       noEditNote: string;
+      useMyLocation: string;
+      locating: string;
+      locationFailed: string;
+      customName: string;
     };
     payments: {
       title: string;
@@ -996,6 +1017,23 @@ const en: Dict = {
       track: "Track parcel",
       placedOn: "Placed on",
       failed: "Couldn't cancel this order",
+      detail: {
+        heading: "Order",
+        items: "Items",
+        delivery: "Delivery",
+        pickup: "Store pickup",
+        recipient: "Recipient",
+        summary: "Summary",
+        subtotal: "Subtotal",
+        discount: "Discount",
+        shipping: "Delivery fee",
+        credit: "Paid with credit",
+        total: "Total",
+        timeline: "History",
+        notFound: "We couldn't find this order.",
+        back: "Back to orders",
+        eta: "Estimated delivery",
+      },
     },
     addresses: {
       title: "Saved addresses",
@@ -1013,6 +1051,10 @@ const en: Dict = {
       labels: { HOME: "Home", WORK: "Work", OTHER: "Other" },
       deleteConfirm: "Delete this address?",
       noEditNote: "To change an address, delete it and add the corrected one.",
+      useMyLocation: "Use my location",
+      locating: "Finding your location…",
+      locationFailed: "We couldn't detect your location — fill the address in manually.",
+      customName: "Name this address",
     },
     payments: {
       title: "Payment methods",
@@ -1747,6 +1789,23 @@ const az: Dict = {
       track: "Bağlamanı izlə",
       placedOn: "Sifariş tarixi:",
       failed: "Sifarişi ləğv etmək mümkün olmadı",
+      detail: {
+        heading: "Sifariş",
+        items: "Məhsullar",
+        delivery: "Çatdırılma",
+        pickup: "Mağazadan təhvil",
+        recipient: "Alan şəxs",
+        summary: "Xülasə",
+        subtotal: "Ara cəm",
+        discount: "Endirim",
+        shipping: "Çatdırılma haqqı",
+        credit: "Kreditlə ödənilib",
+        total: "Cəmi",
+        timeline: "Tarixçə",
+        notFound: "Bu sifarişi tapa bilmədik.",
+        back: "Sifarişlərə qayıt",
+        eta: "Təxmini çatdırılma",
+      },
     },
     addresses: {
       title: "Yadda saxlanmış ünvanlar",
@@ -1764,6 +1823,10 @@ const az: Dict = {
       labels: { HOME: "Ev", WORK: "İş", OTHER: "Digər" },
       deleteConfirm: "Bu ünvan silinsin?",
       noEditNote: "Ünvanı dəyişmək üçün onu silib düzəlişlə yenidən əlavə edin.",
+      useMyLocation: "Məkanımı istifadə et",
+      locating: "Məkanınız tapılır…",
+      locationFailed: "Məkanınızı təyin edə bilmədik — ünvanı əl ilə doldurun.",
+      customName: "Bu ünvanı adlandırın",
     },
     payments: {
       title: "Ödəniş üsulları",
@@ -2482,6 +2545,23 @@ const ar: Dict = {
       track: "تتبّع الشحنة",
       placedOn: "تاريخ الطلب:",
       failed: "تعذّر إلغاء هذا الطلب",
+      detail: {
+        heading: "الطلب",
+        items: "المنتجات",
+        delivery: "التوصيل",
+        pickup: "الاستلام من المتجر",
+        recipient: "المستلم",
+        summary: "الملخص",
+        subtotal: "المجموع الفرعي",
+        discount: "الخصم",
+        shipping: "رسوم التوصيل",
+        credit: "مدفوع بالرصيد",
+        total: "الإجمالي",
+        timeline: "السجل",
+        notFound: "لم نتمكن من العثور على هذا الطلب.",
+        back: "العودة إلى الطلبات",
+        eta: "التوصيل المتوقع",
+      },
     },
     addresses: {
       title: "العناوين المحفوظة",
@@ -2499,6 +2579,10 @@ const ar: Dict = {
       labels: { HOME: "المنزل", WORK: "العمل", OTHER: "أخرى" },
       deleteConfirm: "هل تريد حذف هذا العنوان؟",
       noEditNote: "لتغيير عنوان، احذفه ثم أضِفه من جديد مصحّحًا.",
+      useMyLocation: "استخدم موقعي",
+      locating: "جارٍ تحديد موقعك…",
+      locationFailed: "تعذّر تحديد موقعك — املأ العنوان يدويًا.",
+      customName: "سمِّ هذا العنوان",
     },
     payments: {
       title: "طرق الدفع",

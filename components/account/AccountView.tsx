@@ -88,9 +88,19 @@ function AccountViewInner() {
         {/* Sidebar */}
         <aside className="lg:sticky lg:top-40 lg:self-start">
           <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-deep text-base font-bold text-white">
-              {initials}
-            </span>
+            {profile?.avatarUrl ? (
+              // Presigned, short-lived URL — plain <img>, same reasoning as story media.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={profile.avatarUrl}
+                alt=""
+                className="h-12 w-12 shrink-0 rounded-full border border-border object-cover"
+              />
+            ) : (
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-deep text-base font-bold text-white">
+                {initials}
+              </span>
+            )}
             <div className="min-w-0">
               <p className="truncate font-semibold text-foreground">{displayName}</p>
               <p className="truncate text-xs text-muted">{email}</p>

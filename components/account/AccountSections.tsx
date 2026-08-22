@@ -23,6 +23,7 @@ import {
   type OrderSummary,
 } from "@/lib/account-api";
 import { OtpInput } from "@/components/auth/OtpInput";
+import { reverseGeocode, countryFieldValue } from "@/lib/geocode";
 import { Field, Panel, SectionHead, Toggle } from "@/components/account/account-ui";
 import { PhoneField } from "@/components/account/PhoneField";
 import { AvatarUpload } from "@/components/account/AvatarUpload";
@@ -96,6 +97,7 @@ export function ProfileSection() {
             `${(profile?.firstName ?? "").charAt(0)}${(profile?.lastName ?? "").charAt(0)}`.toUpperCase() || "•"
           }
           onFile={setAvatarFile}
+          currentUrl={profile?.avatarUrl}
           name="avatar"
           notAnImageLabel={p.photoNotImage}
           tooLargeLabel={p.photoTooLarge}
@@ -249,9 +251,13 @@ export function OrdersSection() {
               <li key={order.id} className="rounded-2xl border border-border bg-surface p-4">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-foreground" dir="ltr">
+                    <Link
+                      href={`/account/orders/${order.id}`}
+                      className="font-semibold text-foreground hover:text-brand-icon hover:underline"
+                      dir="ltr"
+                    >
                       {o.order} BUY-{shortId}
-                    </p>
+                    </Link>
                     <p className="mt-0.5 text-xs text-muted">
                       {o.placedOn} {dateFmt.format(new Date(order.createdAt))}
                       {order.city ? ` · ${order.city}` : ""}
@@ -344,8 +350,51 @@ export function AddressesSection() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [label, setLabel] = useState<AddressLabel>("HOME");
+  const [locating, setLocating] = useState(false);
+  const [locationNote, setLocationNote] = useState<string | null>(null);
+  // Detected coordinates ride along with the save — they also power the 30-minute
+  // delivery-radius check at checkout, which needs the ADDRESS's position, not the device's.
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [prefill, setPrefill] = useState<{
+    line1?: string; city?: string; state?: string; postalCode?: string; country?: string;
+  }>({});
 
   const load = async () => setRows(await fetchAddresses(uid));
+
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      setLocationNote(ad.locationFailed);
+      return;
+    }
+    setLocating(true);
+    setLocationNote(null);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setCoords({ lat: latitude, lng: longitude });
+        const g = await reverseGeocode(latitude, longitude);
+        if (g) {
+          setPrefill({
+            line1: g.line || undefined,
+            city: g.city ?? undefined,
+            state: g.state ?? undefined,
+            postalCode: g.postalCode ?? undefined,
+            country: countryFieldValue(g) || undefined,
+          });
+        } else {
+          // Coordinates still count — the form just stays manual.
+          setLocationNote(ad.locationFailed);
+        }
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+        setLocationNote(ad.locationFailed);
+      },
+      { enableHighAccuracy: true, timeout: 10_000 },
+    );
+  }
 
   useEffect(() => {
     load().catch(() => setError(t.auth.errors.generic));
@@ -362,7 +411,12 @@ export function AddressesSection() {
         firstName: String(fd.get("firstName") ?? "").trim(),
         lastName: String(fd.get("lastName") ?? "").trim(),
         phoneNumber: String(fd.get("phone") ?? "").trim() || undefined,
-        label: (String(fd.get("label") ?? "HOME") as AddressLabel),
+        label,
+        customLabel: label === "OTHER"
+            ? String(fd.get("customLabel") ?? "").trim() || undefined
+            : undefined,
+        latitude: coords?.lat,
+        longitude: coords?.lng,
         addressLine1: String(fd.get("line1") ?? "").trim(),
         addressLine2: String(fd.get("line2") ?? "").trim() || undefined,
         city: String(fd.get("city") ?? "").trim() || undefined,
@@ -424,7 +478,7 @@ export function AddressesSection() {
                 <div className="flex flex-wrap items-start gap-x-4 gap-y-2">
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-foreground">
-                      {ad.labels[addr.label ?? "OTHER"]}
+                      {addr.customLabel || ad.labels[addr.label ?? "OTHER"]}
                       {addr.isDefault && (
                         <span className="ms-2 rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-icon">
                           {t.account.common.default}
@@ -490,19 +544,31 @@ export function AddressesSection() {
 
           {adding ? (
             <form onSubmit={onAdd} className="mt-4 space-y-4 rounded-2xl border border-border bg-surface-2 p-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  disabled={locating}
+                  onClick={useMyLocation}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 disabled:opacity-60"
+                >
+                  <MapPinIcon className="h-4 w-4 text-brand-icon" />
+                  {locating ? ad.locating : ad.useMyLocation}
+                </button>
+                {locationNote && <span className="text-xs text-muted">{locationNote}</span>}
+              </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label={t.auth.firstName} name="firstName" required />
                 <Field label={t.auth.lastName} name="lastName" required />
               </div>
-              <Field label={ad.street} name="line1" required />
+              <Field key={`l1-${prefill.line1 ?? ""}`} label={ad.street} name="line1" defaultValue={prefill.line1} required />
               <Field label={ad.line2} name="line2" />
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={ad.city} name="city" required />
-                <Field label={ad.state} name="state" />
+                <Field key={`c-${prefill.city ?? ""}`} label={ad.city} name="city" defaultValue={prefill.city} required />
+                <Field key={`s-${prefill.state ?? ""}`} label={ad.state} name="state" defaultValue={prefill.state} />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={ad.country} name="country" defaultValue="UAE" required />
-                <Field label={ad.postalCode} name="postalCode" />
+                <Field key={`co-${prefill.country ?? "UAE"}`} label={ad.country} name="country" defaultValue={prefill.country ?? "UAE"} required />
+                <Field key={`p-${prefill.postalCode ?? ""}`} label={ad.postalCode} name="postalCode" defaultValue={prefill.postalCode} />
               </div>
               <Field label={ad.phone} name="phone" type="tel" />
               <div className="flex flex-wrap items-center gap-4">
@@ -510,7 +576,8 @@ export function AddressesSection() {
                   <span className="mb-1.5 block text-sm font-medium text-foreground">{ad.name}</span>
                   <select
                     name="label"
-                    defaultValue="HOME"
+                    value={label}
+                    onChange={(e) => setLabel(e.target.value as AddressLabel)}
                     className="rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring"
                   >
                     {(Object.keys(ad.labels) as AddressLabel[]).map((k) => (
@@ -518,6 +585,9 @@ export function AddressesSection() {
                     ))}
                   </select>
                 </label>
+                {label === "OTHER" && (
+                  <Field label={ad.customName} name="customLabel" maxLength={60} required />
+                )}
                 <label className="mt-6 flex items-center gap-2 text-sm text-muted">
                   <input type="checkbox" name="isDefault" className="h-4 w-4 rounded border-border accent-brand" />
                   {t.account.common.setDefault}

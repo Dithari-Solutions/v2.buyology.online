@@ -63,6 +63,51 @@ export function isCancellable(status: OrderStatus): boolean {
   ].includes(status);
 }
 
+export type OrderItem = {
+  id: string;
+  productId?: string | null;
+  productName?: string | null;
+  productImage?: string | null;
+  variantSku?: string | null;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+};
+
+export type TrackingEvent = {
+  id: string;
+  status: OrderStatus;
+  notes?: string | null;
+  createdAt?: string | null;
+};
+
+export type OrderDetail = OrderSummary & {
+  deliveryMethod?: "EXPRESS" | "REGULAR" | "PICKUP" | null;
+  recipientFirstName?: string | null;
+  recipientLastName?: string | null;
+  recipientPhone?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  pickupStoreName?: string | null;
+  pickupStoreAddress?: string | null;
+  subtotal?: number | null;
+  shippingFee?: number | null;
+  discount?: number | null;
+  creditApplied?: number | null;
+  creditCurrency?: string | null;
+  couponCode?: string | null;
+  estimatedDeliveryTime?: string | null;
+  cancellationReason?: string | null;
+  items?: OrderItem[] | null;
+  trackingHistory?: TrackingEvent[] | null;
+};
+
+export function fetchOrder(orderId: string): Promise<OrderDetail> {
+  return authedJson<OrderDetail>(`/api/orders/${orderId}`);
+}
+
 // ── Addresses ────────────────────────────────────────────────────────────────
 
 export type AddressLabel = "HOME" | "WORK" | "OTHER";
@@ -79,6 +124,8 @@ export type Address = {
   state?: string | null;
   country: string;
   postalCode?: string | null;
+  /** The customer's own name for this address; shown instead of the label when present. */
+  customLabel?: string | null;
   formattedAddress?: string | null;
   isDefault?: boolean;
   /** The backend may serialize the flag under either name; normalise on read. */
@@ -96,6 +143,9 @@ export type SaveAddress = {
   state?: string;
   country: string;
   postalCode?: string;
+  customLabel?: string;
+  latitude?: number;
+  longitude?: number;
   isDefault?: boolean;
 };
 

@@ -33,6 +33,7 @@ export function AvatarUpload({
   selectedLabel,
   removedLabel,
   onFile,
+  currentUrl,
 }: {
   label: string;
   hint: string;
@@ -55,6 +56,8 @@ export function AvatarUpload({
    * form's FormData at submit time.
    */
   onFile?: (file: File | null) => void;
+  /** The already-saved avatar, shown until a new file is picked. */
+  currentUrl?: string | null;
 }) {
   const uid = useId();
   const inputId = `${uid}-avatar`;
@@ -159,14 +162,12 @@ export function AvatarUpload({
                 : "border-dashed border-border-strong"
           }`}
         >
-          {preview ? (
-            // next/image cannot take a blob: URL — its `src` must be an internal
-            // path, a configured remote URL or a static import (see
-            // node_modules/next/dist/docs/01-app/03-api-reference/02-components/image.md),
-            // and there is nothing to optimise for a local, never-served preview.
+          {preview || currentUrl ? (
+            // next/image cannot take a blob: URL, and the saved avatar is a presigned,
+            // short-lived S3 URL — neither is optimisable, so a plain <img> for both.
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={preview}
+              src={preview ?? currentUrl!}
               alt={previewAltLabel}
               width={80}
               height={80}
