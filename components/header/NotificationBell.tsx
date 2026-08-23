@@ -17,6 +17,11 @@ import { BellIcon } from "@/components/icons";
 const POLL_MS = 60_000;
 const PANEL_LIMIT = 20;
 
+/** Same-document hash jump — fires `hashchange` (which router.push via pushState never does). */
+function jumpToHash(hash: string) {
+  window.location.hash = hash;
+}
+
 /**
  * The header notification bell (signed-in customers only): unread badge polled once a minute
  * and on window focus, a dropdown with the latest updates about the customer's own actions —
@@ -32,6 +37,7 @@ export function NotificationBell({ className }: { className: string }) {
   const [count, setCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[] | null>(null);
+  const [listFailed, setListFailed] = useState(false);
   const [fetchedAt, setFetchedAt] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -63,11 +69,16 @@ export function NotificationBell({ className }: { className: string }) {
       .then((list) => {
         if (!cancelled) {
           setItems(list.slice(0, PANEL_LIMIT));
+          setListFailed(false);
           setFetchedAt(Date.now());
         }
       })
       .catch(() => {
-        if (!cancelled) setItems([]);
+        // A failed fetch must not masquerade as an empty inbox.
+        if (!cancelled) {
+          setItems([]);
+          setListFailed(true);
+        }
       });
     return () => {
       cancelled = true;
@@ -109,12 +120,19 @@ export function NotificationBell({ className }: { className: string }) {
         prev ? prev.map((x) => (x.id === item.id ? { ...x, read: true } : x)) : prev,
       );
       setCount((prev) => Math.max(0, prev - 1));
-      markNotificationRead(item.id).catch(() => {});
+      // Awaited so the freshly-mounted bell on the target page doesn't re-count this row.
+      await markNotificationRead(item.id).catch(() => {});
     }
     const route = notificationRoute(item.type);
     if (route) {
       setOpen(false);
-      router.push(route);
+      const [path, hash] = route.split("#");
+      if (hash && window.location.pathname === path) {
+        // Same-page hash target: the account tabs listen for `hashchange`.
+        jumpToHash(hash);
+      } else {
+        router.push(route);
+      }
     }
   }
 
@@ -167,6 +185,8 @@ export function NotificationBell({ className }: { className: string }) {
                 <div key={i} className="h-14 animate-pulse rounded-xl bg-surface-2 motion-reduce:animate-none" />
               ))}
             </div>
+          ) : listFailed ? (
+            <p className="px-6 py-8 text-center text-sm text-muted">{n.error}</p>
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-brand-icon">

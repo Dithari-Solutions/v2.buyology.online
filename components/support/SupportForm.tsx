@@ -55,12 +55,12 @@ export function SupportForm() {
   function pick(list: FileList | null) {
     if (!list) return;
     setError(null);
-    const merged = [
-      ...files,
-      ...Array.from(list).filter(
-        (x) => x.type.startsWith("image/") && x.size <= MAX_SUPPORT_IMAGE_BYTES,
-      ),
-    ].slice(0, MAX_SUPPORT_IMAGES);
+    const usable = Array.from(list).filter(
+      (x) => x.type.startsWith("image/") && x.size <= MAX_SUPPORT_IMAGE_BYTES,
+    );
+    const merged = [...files, ...usable].slice(0, MAX_SUPPORT_IMAGES);
+    // Dropping a too-big / non-image / over-the-limit file silently reads as a broken picker.
+    if (merged.length < files.length + list.length) setError(s.form.uploadRejected);
     setFiles(merged);
     previews.forEach((u) => URL.revokeObjectURL(u));
     setPreviews(merged.map((x) => URL.createObjectURL(x)));

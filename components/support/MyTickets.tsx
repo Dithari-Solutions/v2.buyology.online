@@ -26,6 +26,7 @@ export function MyTickets({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const { status } = useAuth();
   const [rows, setRows] = useState<SupportTicket[] | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (status === "guest") router.replace("/login?next=/support/my");
@@ -33,10 +34,17 @@ export function MyTickets({ compact = false }: { compact?: boolean }) {
     let cancelled = false;
     listMyTickets()
       .then((list) => {
-        if (!cancelled) setRows(list);
+        if (!cancelled) {
+          setRows(list);
+          setFailed(false);
+        }
       })
       .catch(() => {
-        if (!cancelled) setRows([]);
+        // A failed fetch must not tell a customer with open tickets that none exist.
+        if (!cancelled) {
+          setRows([]);
+          setFailed(true);
+        }
       });
     return () => {
       cancelled = true;
@@ -72,6 +80,10 @@ export function MyTickets({ compact = false }: { compact?: boolean }) {
             <div key={i} className="h-24 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none" />
           ))}
         </div>
+      ) : failed ? (
+        <p className="mt-6 rounded-2xl border border-border bg-surface px-6 py-10 text-center text-sm text-muted">
+          {s.list.loadError}
+        </p>
       ) : rows.length === 0 ? (
         <div className="mt-6 flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface py-16 text-center">
           <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-brand-icon">

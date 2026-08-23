@@ -323,6 +323,7 @@ export interface Dict {
       submit: string;
       submitting: string;
       error: string;
+      uploadRejected: string;
     };
     /** Backend SupportCategory enum → label; code falls back to the raw value. */
     categories: Record<string, string>;
@@ -333,6 +334,7 @@ export interface Dict {
       emptyBody: string;
       createFirst: string;
       updated: string;
+      loadError: string;
     };
     /** Backend SupportTicketStatus enum → label; code falls back to the raw status. */
     statuses: Record<string, string>;
@@ -360,6 +362,7 @@ export interface Dict {
     empty: string;
     emptyBody: string;
     markAllRead: string;
+    error: string;
   };
   repair: {
     landing: {
@@ -1392,6 +1395,7 @@ const en: Dict = {
       submit: "Submit ticket",
       submitting: "Submitting…",
       error: "We couldn't submit your ticket. Please try again.",
+      uploadRejected: "Some files were skipped — up to 4 images, 10 MB each.",
     },
     categories: {
       SOFTWARE_BUG: "Website bug",
@@ -1407,6 +1411,7 @@ const en: Dict = {
       emptyBody: "When you report a problem, you'll track it and talk to our team right here.",
       createFirst: "Report a problem",
       updated: "Updated",
+      loadError: "We couldn't load your tickets. Refresh to try again.",
     },
     statuses: {
       OPEN: "Open",
@@ -1438,6 +1443,7 @@ const en: Dict = {
     empty: "You're all caught up",
     emptyBody: "Updates about your orders, tickets and requests will appear here.",
     markAllRead: "Mark all as read",
+    error: "We couldn't load your notifications. Try again in a moment.",
   },
   repair: {
     landing: {
@@ -2674,6 +2680,7 @@ const az: Dict = {
       submit: "Müraciəti göndər",
       submitting: "Göndərilir…",
       error: "Müraciətinizi göndərə bilmədik. Yenidən cəhd edin.",
+      uploadRejected: "Bəzi fayllar ötürüldü — ən çox 4 şəkil, hər biri 10 MB.",
     },
     categories: {
       SOFTWARE_BUG: "Sayt xətası",
@@ -2689,6 +2696,7 @@ const az: Dict = {
       emptyBody: "Problem bildirdikdə onu burada izləyəcək və komandamızla yazışacaqsınız.",
       createFirst: "Problem bildirin",
       updated: "Yeniləndi",
+      loadError: "Müraciətlərinizi yükləyə bilmədik. Yeniləyib yenidən cəhd edin.",
     },
     statuses: {
       OPEN: "Açıq",
@@ -2720,6 +2728,7 @@ const az: Dict = {
     empty: "Hər şey oxunub",
     emptyBody: "Sifarişləriniz, müraciətləriniz və sorğularınızla bağlı yeniliklər burada görünəcək.",
     markAllRead: "Hamısını oxunmuş et",
+    error: "Bildirişlərinizi yükləyə bilmədik. Bir azdan yenidən cəhd edin.",
   },
   repair: {
     landing: {
@@ -3970,6 +3979,7 @@ const ar: Dict = {
       submit: "إرسال التذكرة",
       submitting: "جارٍ الإرسال…",
       error: "تعذّر إرسال تذكرتك. حاول مرة أخرى.",
+      uploadRejected: "تم تخطي بعض الملفات — حتى 4 صور بحجم 10 م.ب لكل منها.",
     },
     categories: {
       SOFTWARE_BUG: "خلل في الموقع",
@@ -3985,6 +3995,7 @@ const ar: Dict = {
       emptyBody: "عندما تبلّغ عن مشكلة، ستتابعها وتتحدث مع فريقنا هنا مباشرة.",
       createFirst: "الإبلاغ عن مشكلة",
       updated: "تم التحديث",
+      loadError: "تعذّر تحميل تذاكرك. حدّث الصفحة وحاول مجدداً.",
     },
     statuses: {
       OPEN: "مفتوحة",
@@ -4016,6 +4027,7 @@ const ar: Dict = {
     empty: "أنت على اطلاع بكل شيء",
     emptyBody: "ستظهر هنا التحديثات حول طلباتك وتذاكرك وطلبات الخدمة.",
     markAllRead: "وضع علامة مقروء على الكل",
+    error: "تعذّر تحميل إشعاراتك. حاول مجدداً بعد قليل.",
   },
   repair: {
     landing: {
