@@ -338,6 +338,24 @@ export function lookupProduct(locale: Locale, id: string): Promise<Product | nul
 
 // ── Reviews ──────────────────────────────────────────────────────────────────
 
+export type ReviewStats = {
+  totalReviews: number;
+  averageRating: number;
+  rating1Count: number;
+  rating2Count: number;
+  rating3Count: number;
+  rating4Count: number;
+  rating5Count: number;
+};
+
+/** Pre-aggregated per-star counts — zeros when the product has no stats row yet. */
+export async function fetchReviewStats(productId: string): Promise<ReviewStats | null> {
+  const res = await fetch(backendUrl(`/api/reviews/product/${productId}/stats`), { cache: "no-store" });
+  if (!res.ok) return null;
+  const body = (await res.json()) as ApiEnvelope<ReviewStats>;
+  return body.data ?? null;
+}
+
 export async function fetchReviews(locale: Locale, productId: string, page = 0): Promise<Review[]> {
   const p = new URLSearchParams({ page: String(page), size: "10" });
   const res = await fetch(backendUrl(`/api/reviews/product/${productId}?${p}`), { cache: "no-store" });

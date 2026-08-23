@@ -122,6 +122,12 @@ export interface Dict {
   };
   pages: {
     comingSoonHint: string;
+    comingSoonKicker: string;
+    comingSoonNewsletter: string;
+    pageGames: string;
+    pageMap: string;
+    pageQuickDelivery: string;
+    pageSupplier: string;
     browseProducts: string;
     backHome: string;
     helpTitle: string;
@@ -1069,6 +1075,12 @@ const en: Dict = {
   },
   pages: {
     comingSoonHint: "This service is moving to the new Buyology experience and isn't here quite yet. It's on its way.",
+    comingSoonKicker: "Coming soon",
+    comingSoonNewsletter: "Want to hear when it lands? The newsletter in the footer is the first to know.",
+    pageGames: "Games",
+    pageMap: "Store locator",
+    pageQuickDelivery: "30-minute delivery",
+    pageSupplier: "Become a supplier",
     browseProducts: "Browse products",
     backHome: "Back to home",
     helpTitle: "Help center",
@@ -1583,7 +1595,7 @@ const en: Dict = {
       hint: "Find a charging station",
     },
     "svc-diy": { label: "DIY", hint: "Kits & build-it-yourself" },
-    "svc-buyobot": { label: "Buyobot", hint: "Your AI shopping assistant" },
+    "svc-buyobot": { label: "Buyobot", hint: "Robots by Buyology" },
     "svc-tradein": {
       label: "Trade-in",
       hint: "Trade your old device toward a new one.",
@@ -2251,6 +2263,12 @@ const az: Dict = {
   },
   pages: {
     comingSoonHint: "Bu xidmət yeni Buyology təcrübəsinə köçürülür və hələ burada deyil. Yoldadır.",
+    comingSoonKicker: "Tezliklə",
+    comingSoonNewsletter: "Hazır olanda bilmək istəyirsiniz? Aşağıdakı bülleten ilk xəbər tutandır.",
+    pageGames: "Oyunlar",
+    pageMap: "Mağaza xəritəsi",
+    pageQuickDelivery: "30 dəqiqəlik çatdırılma",
+    pageSupplier: "Təchizatçı ol",
     browseProducts: "Məhsullara bax",
     backHome: "Ana səhifəyə qayıt",
     helpTitle: "Yardım mərkəzi",
@@ -2770,7 +2788,7 @@ const az: Dict = {
     "svc-diy": { label: "Özün Düzəlt", hint: "Dəstlər və özün-düzəlt" },
     "svc-buyobot": {
       label: "Buyobot",
-      hint: "Süni intellekt alış-veriş köməkçin",
+      hint: "Buyology-dən robotlar",
     },
     "svc-tradein": {
       label: "Dəyişdirmə",
@@ -3448,6 +3466,12 @@ const ar: Dict = {
   },
   pages: {
     comingSoonHint: "تنتقل هذه الخدمة إلى تجربة Buyology الجديدة وليست هنا بعد. إنها في الطريق.",
+    comingSoonKicker: "قريبًا",
+    comingSoonNewsletter: "تريد أن تعرف متى تصل؟ النشرة البريدية في الأسفل أول من يعلم.",
+    pageGames: "الألعاب",
+    pageMap: "دليل المتاجر",
+    pageQuickDelivery: "توصيل خلال 30 دقيقة",
+    pageSupplier: "كن مورّدًا",
     browseProducts: "تصفح المنتجات",
     backHome: "العودة إلى الرئيسية",
     helpTitle: "مركز المساعدة",
@@ -3960,7 +3984,7 @@ const ar: Dict = {
     "svc-diy": { label: "اصنعها بنفسك", hint: "أطقم وتجميع ذاتي" },
     "svc-buyobot": {
       label: "Buyobot",
-      hint: "مساعد التسوّق بالذكاء الاصطناعي",
+      hint: "روبوتات من Buyology",
     },
     "svc-tradein": {
       label: "الاستبدال",

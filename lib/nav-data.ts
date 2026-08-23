@@ -79,14 +79,14 @@ export const services: NavItem[] = [
   },
 ];
 
-/** Buyology's AI shopping assistant (branded), shown as a gold accent pill. */
+/** Buyobot — Buyology's own robotics line, shown as a gold accent pill. */
 export const buyobot: NavItem = {
   key: "svc-buyobot",
   label: "Buyobot",
   href: "/buyobot",
   icon: BotIcon,
-  hint: "Your AI shopping assistant",
-  keywords: "ai assistant bot chat concierge help recommend",
+  hint: "Robots by Buyology",
+  keywords: "robot robotics buyobot automation smart bot robotlar روبوت",
   accent: true,
 };
 

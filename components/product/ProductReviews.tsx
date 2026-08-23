@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useProduct } from "@/components/product/product-context";
-import { fetchReviews, type Review } from "@/lib/catalogue";
+import { fetchReviews, fetchReviewStats, type Review, type ReviewStats } from "@/lib/catalogue";
 import {
   hasReviewedProduct,
   submitReview,
@@ -225,21 +225,28 @@ function initialsOf(name: string | null | undefined): string {
 }
 
 /**
- * Real, approved customer reviews. The overview keeps the average + count from the product's own
- * pre-aggregated stats; the star-distribution histogram is gone — the backend does not expose one,
- * and inventing percentages under real reviews would be fabrication. The rating bars come back the
- * day the API aggregates them.
+ * Real, approved customer reviews. The overview shows the average + count from the product's
+ * own pre-aggregated stats, and the star-distribution bars from the same real aggregation —
+ * nothing here is invented.
  */
 export function ProductReviews() {
   const { t, locale } = useI18n();
   const { product } = useProduct();
   const [rows, setRows] = useState<Review[] | null>(null);
+  const [stats, setStats] = useState<ReviewStats | null>(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [refreshNonce, setRefreshNonce] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    fetchReviewStats(product.id)
+      .then((res) => {
+        if (!cancelled) setStats(res);
+      })
+      .catch(() => {
+        /* the average+count summary still renders */
+      });
     fetchReviews(locale, product.id, 0).then((list) => {
       if (cancelled) return;
       setRows(list);
@@ -288,6 +295,27 @@ export function ProductReviews() {
           <p className="mt-2 text-sm text-muted">
             {t.pdp.reviews.basedOn} {formatInt(product.reviews)} {t.cart.reviews}
           </p>
+          {stats && stats.totalReviews > 0 && (
+            <ul className="mt-4 space-y-1.5" aria-hidden="true">
+              {([5, 4, 3, 2, 1] as const).map((star) => {
+                const count = stats[`rating${star}Count` as const] ?? 0;
+                const pct = Math.round((count / stats.totalReviews) * 100);
+                return (
+                  <li key={star} className="flex items-center gap-2 text-xs text-muted">
+                    <span className="w-3 text-end font-medium text-foreground tabular-nums">{star}</span>
+                    <StarIcon className="h-3 w-3 shrink-0 text-gold" />
+                    <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2">
+                      <span
+                        className="block h-full rounded-full bg-gold"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </span>
+                    <span className="w-8 text-end tabular-nums">{pct}%</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
           <WriteReview
             productId={product.id}
             onPosted={() => setRefreshNonce((n) => n + 1)}
