@@ -305,6 +305,7 @@ export interface Dict {
       placeholder: string;
       subscribe: string;
       success: string;
+      error: string;
       note: string;
     };
     tagline: string;
@@ -1140,6 +1141,7 @@ const en: Dict = {
       placeholder: "Enter your email",
       subscribe: "Subscribe",
       success: "You're in! Check your inbox to confirm.",
+      error: "Couldn't subscribe right now — please try again.",
       note: "By subscribing you agree to our Privacy Policy. Unsubscribe anytime.",
     },
     tagline:
@@ -2056,6 +2058,7 @@ const az: Dict = {
       placeholder: "E-poçtunuzu daxil edin",
       subscribe: "Abunə ol",
       success: "Tamamdır! Təsdiq üçün poçtunuzu yoxlayın.",
+      error: "Hazırda abunə olmaq mümkün olmadı — yenidən cəhd edin.",
       note: "Abunə olmaqla Məxfilik Siyasətimizi qəbul edirsiniz. İstənilən vaxt imtina edə bilərsiniz.",
     },
     tagline:
@@ -2956,6 +2959,7 @@ const ar: Dict = {
       placeholder: "أدخل بريدك الإلكتروني",
       subscribe: "اشترك",
       success: "تم! تحقّق من بريدك للتأكيد.",
+      error: "تعذر الاشتراك حاليًا — يُرجى المحاولة مرة أخرى.",
       note: "بالاشتراك فأنت توافق على سياسة الخصوصية. يمكنك إلغاء الاشتراك في أي وقت.",
     },
     tagline:
