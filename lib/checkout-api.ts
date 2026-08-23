@@ -121,6 +121,28 @@ export async function fetchPickupStores(): Promise<PublicStore[]> {
   return body.data ?? [];
 }
 
+export type DeliveryQuote = {
+  currency: string;
+  standardFee: number;
+  expressFee: number;
+  freeShippingThreshold: number;
+  qualifiesForFreeShipping: boolean;
+};
+
+/**
+ * The fees a checkout WILL be charged — computed by the same policy the order pipeline uses.
+ * For cart-less flows (Buy Now); the cart preview already carries these figures itself.
+ */
+export function fetchDeliveryQuote(
+  subtotal: number,
+  currency: string,
+  country?: string | null,
+): Promise<DeliveryQuote> {
+  const params = new URLSearchParams({ subtotal: String(subtotal), currency });
+  if (country) params.set("country", country);
+  return authedJson<DeliveryQuote>(`/api/orders/delivery-quote?${params}`);
+}
+
 // ── Payment ──────────────────────────────────────────────────────────────────
 
 export type PaymentMethod = "CARD" | "TABBY" | "TAMARA";

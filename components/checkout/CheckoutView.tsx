@@ -22,7 +22,9 @@ import {
   createBuyNowOrder,
   createOrder,
   repayOrder,
+  fetchDeliveryQuote,
   fetchExpressStores,
+  type DeliveryQuote,
   fetchPickupStores,
   initiatePayment,
   validatePromo,
@@ -77,6 +79,7 @@ export function CheckoutView() {
   const bnStoreId = buyNow ? search.get("storeId") : null;
   const bnQty = Math.min(1000, Math.max(1, Math.floor(Number(search.get("qty") ?? "1") || 1)));
   const { product: bnProduct, loading: bnLoading } = useProductLookup(bnProductId);
+  const [bnQuote, setBnQuote] = useState<DeliveryQuote | null>(null);
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [addresses, setAddresses] = useState<Address[] | null>(null);
@@ -191,6 +194,7 @@ export function CheckoutView() {
   }, [coordKey]);
   const expressStoreIds = expressRes?.key === coordKey ? expressRes.ids : null;
 
+
   const expressAvailable =
     effectiveFulfilment === "DELIVERY" &&
     expressStoreIds !== null &&
@@ -205,11 +209,26 @@ export function CheckoutView() {
   const subtotal = buyNow
     ? (bnProduct?.price ?? 0) * bnQty
     : cart.subtotal;
-  // Buy-now has no server cart to quote fees from — the summary says "calculated at
-  // checkout" and the created order's own total is what gets charged, as everywhere.
-  const free = !buyNow && cart.fees?.qualifiesForFreeShipping === true;
-  const standardFee = buyNow ? null : free ? 0 : cart.fees?.deliveryFee ?? null;
-  const expressFee = buyNow ? null : free ? 0 : cart.fees?.expressFee ?? null;
+  // Buy-now fees come from /api/orders/delivery-quote — the same policy the order pipeline
+  // charges with, so the page and the order can never disagree. Until the quote answers, the
+  // labels fall back to "calculated at checkout" rather than guessing.
+  const free = buyNow
+    ? bnQuote?.qualifiesForFreeShipping === true
+    : cart.fees?.qualifiesForFreeShipping === true;
+  const standardFee = buyNow
+    ? free
+      ? 0
+      : bnQuote?.standardFee ?? null
+    : free
+      ? 0
+      : cart.fees?.deliveryFee ?? null;
+  const expressFee = buyNow
+    ? free
+      ? 0
+      : bnQuote?.expressFee ?? null
+    : free
+      ? 0
+      : cart.fees?.expressFee ?? null;
   const shownFee =
     effectiveFulfilment === "PICKUP" ? 0 : effectiveMethod === "EXPRESS" ? expressFee : standardFee;
   // Mirror the backend clamp: a fixed discount can eat the delivery fee too.
@@ -217,6 +236,22 @@ export function CheckoutView() {
     ? Math.min(promo.discountAmount ?? 0, subtotal + (shownFee ?? 0))
     : 0;
   const total = Math.max(0, subtotal + (shownFee ?? 0) - discount);
+
+  const bnCountry = address?.country ?? null;
+  useEffect(() => {
+    if (!buyNow || authStatus !== "authed" || subtotal <= 0 || !currency) return;
+    let cancelled = false;
+    fetchDeliveryQuote(subtotal, currency, bnCountry)
+      .then((q) => {
+        if (!cancelled) setBnQuote(q);
+      })
+      .catch(() => {
+        /* the labels keep their honest "calculated at checkout" fallback */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [buyNow, authStatus, subtotal, currency, bnCountry]);
 
   // ── Promo ──────────────────────────────────────────────────────────────────
   async function applyPromo(e: React.FormEvent) {
