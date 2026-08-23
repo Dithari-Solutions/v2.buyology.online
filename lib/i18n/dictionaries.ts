@@ -162,6 +162,8 @@ export interface Dict {
     helpShippingHint: string;
     helpReturns: string;
     helpReturnsHint: string;
+    helpSupport: string;
+    helpSupportHint: string;
     helpContactCta: string;
     trackTitle: string;
     trackIntro: string;
@@ -303,6 +305,61 @@ export interface Dict {
       estimateUnavailable: string;
       estimateUnavailableBody: string;
     };
+  };
+  support: {
+    form: {
+      title: string;
+      intro: string;
+      category: string;
+      subject: string;
+      subjectPlaceholder: string;
+      description: string;
+      descriptionPlaceholder: string;
+      pageUrl: string;
+      pageUrlPlaceholder: string;
+      pageUrlHint: string;
+      uploadHint: string;
+      uploadCta: string;
+      submit: string;
+      submitting: string;
+      error: string;
+    };
+    /** Backend SupportCategory enum → label; code falls back to the raw value. */
+    categories: Record<string, string>;
+    list: {
+      title: string;
+      newTicket: string;
+      emptyTitle: string;
+      emptyBody: string;
+      createFirst: string;
+      updated: string;
+    };
+    /** Backend SupportTicketStatus enum → label; code falls back to the raw status. */
+    statuses: Record<string, string>;
+    detail: {
+      backToList: string;
+      notFound: string;
+      category: string;
+      opened: string;
+      page: string;
+      conversation: string;
+      noMessages: string;
+      you: string;
+      team: string;
+      replyPlaceholder: string;
+      send: string;
+      sending: string;
+      closedNote: string;
+      error: string;
+    };
+  };
+  /** The header notification bell (signed-in customers). */
+  notifications: {
+    title: string;
+    aria: string;
+    empty: string;
+    emptyBody: string;
+    markAllRead: string;
   };
   repair: {
     landing: {
@@ -1139,6 +1196,8 @@ const en: Dict = {
     helpShippingHint: "Standard, 30-minute express, and free store pickup — see what applies to your basket.",
     helpReturns: "Returns & refunds",
     helpReturnsHint: "How returns work and how refunds reach your original payment method.",
+    helpSupport: "Report a problem",
+    helpSupportHint: "Found a bug or stuck somewhere? Open a support ticket and track it.",
     helpContactCta: "Contact support",
     trackTitle: "Track your order",
     trackIntro: "Every order's live status — from payment to your door, including courier photo proof — lives in your order history. Orders shipped with a carrier include their tracking link there too.",
@@ -1313,6 +1372,72 @@ const en: Dict = {
       estimateUnavailable: "No instant estimate this time",
       estimateUnavailableBody: "We couldn't prepare a preliminary valuation for this one. Our team will inspect your device and send you a full offer — nothing is delayed.",
     },
+  },
+  support: {
+    form: {
+      title: "Get help",
+      intro:
+        "Hit a bug, got stuck somewhere, or something's wrong with an order or payment? Tell us what happened and our team will get back to you — you'll see every update here, in the bell and by email.",
+      category: "What is it about?",
+      subject: "Subject",
+      subjectPlaceholder: "A short summary of the problem",
+      description: "What happened?",
+      descriptionPlaceholder:
+        "Describe what you did, what you expected and what actually happened…",
+      pageUrl: "Page link (optional)",
+      pageUrlPlaceholder: "https://…",
+      pageUrlHint: "Paste the address of the page where it happened — it helps us find it fast.",
+      uploadHint: "Screenshots (optional, up to 4)",
+      uploadCta: "Add screenshots",
+      submit: "Submit ticket",
+      submitting: "Submitting…",
+      error: "We couldn't submit your ticket. Please try again.",
+    },
+    categories: {
+      SOFTWARE_BUG: "Website bug",
+      ORDER_ISSUE: "Order issue",
+      PAYMENT_ISSUE: "Payment issue",
+      ACCOUNT_ISSUE: "Account issue",
+      OTHER: "Something else",
+    },
+    list: {
+      title: "My support tickets",
+      newTicket: "New ticket",
+      emptyTitle: "No tickets yet",
+      emptyBody: "When you report a problem, you'll track it and talk to our team right here.",
+      createFirst: "Report a problem",
+      updated: "Updated",
+    },
+    statuses: {
+      OPEN: "Open",
+      IN_PROGRESS: "In progress",
+      WAITING_FOR_CUSTOMER: "Waiting for you",
+      RESOLVED: "Resolved",
+      CLOSED: "Closed",
+    },
+    detail: {
+      backToList: "All tickets",
+      notFound: "We couldn't find this ticket.",
+      category: "Category",
+      opened: "Opened",
+      page: "Page",
+      conversation: "Conversation",
+      noMessages: "No replies yet — our team will answer here.",
+      you: "You",
+      team: "Buyology support",
+      replyPlaceholder: "Write a reply…",
+      send: "Send reply",
+      sending: "Sending…",
+      closedNote: "This ticket is closed.",
+      error: "Your reply didn't go through. Please try again.",
+    },
+  },
+  notifications: {
+    title: "Notifications",
+    aria: "Notifications",
+    empty: "You're all caught up",
+    emptyBody: "Updates about your orders, tickets and requests will appear here.",
+    markAllRead: "Mark all as read",
   },
   repair: {
     landing: {
@@ -1725,6 +1850,7 @@ const en: Dict = {
       powerbank: "Powerbank Stations",
       diy: "DIY",
       help: "Help Center",
+      supportTickets: "Report a problem",
       track: "Track Order",
       shipping: "Shipping",
       returns: "Returns",
@@ -1762,6 +1888,7 @@ const en: Dict = {
       payments: "Payment methods",
       preferences: "Preferences",
       security: "Security",
+      support: "Support",
       danger: "Delete account",
     },
     common: {
@@ -2351,6 +2478,8 @@ const az: Dict = {
     helpShippingHint: "Standart, 30 dəqiqəlik ekspres və pulsuz mağazadan götürmə — səbətinizə nəyin aid olduğunu görün.",
     helpReturns: "Qaytarma və geri ödənişlər",
     helpReturnsHint: "Qaytarmalar necə işləyir və geri ödənişlər ilkin ödəniş üsulunuza necə çatır.",
+    helpSupport: "Problem bildirin",
+    helpSupportHint: "Xəta tapdınız və ya ilişib qaldınız? Dəstək müraciəti açın və izləyin.",
     helpContactCta: "Dəstəklə əlaqə",
     trackTitle: "Sifarişinizi izləyin",
     trackIntro: "Hər sifarişin canlı statusu — ödənişdən qapınıza qədər, kuryerin foto sübutu daxil olmaqla — sifariş tarixçənizdədir. Daşıyıcı ilə göndərilən sifarişlərin izləmə linki də oradadır.",
@@ -2525,6 +2654,72 @@ const az: Dict = {
       estimateUnavailable: "Bu dəfə dərhal qiymətləndirmə alınmadı",
       estimateUnavailableBody: "Bunun üçün ilkin qiymətləndirmə hazırlaya bilmədik. Komandamız cihazını yoxlayacaq və tam təklif göndərəcək — heç bir gecikmə olmayacaq.",
     },
+  },
+  support: {
+    form: {
+      title: "Kömək alın",
+      intro:
+        "Xəta ilə qarşılaşdınız, harada isə ilişib qaldınız və ya sifariş, yaxud ödənişlə bağlı problem var? Nə baş verdiyini bizə yazın — komandamız sizə cavab verəcək; hər yeniliyi burada, zəngdə və e-poçtla görəcəksiniz.",
+      category: "Mövzu nədir?",
+      subject: "Başlıq",
+      subjectPlaceholder: "Problemin qısa xülasəsi",
+      description: "Nə baş verdi?",
+      descriptionPlaceholder:
+        "Nə etdiyinizi, nə gözlədiyinizi və əslində nə baş verdiyini təsvir edin…",
+      pageUrl: "Səhifə linki (istəyə bağlı)",
+      pageUrlPlaceholder: "https://…",
+      pageUrlHint: "Problemin baş verdiyi səhifənin ünvanını yapışdırın — tez tapmağımıza kömək edir.",
+      uploadHint: "Ekran görüntüləri (istəyə bağlı, ən çox 4)",
+      uploadCta: "Ekran görüntüsü əlavə edin",
+      submit: "Müraciəti göndər",
+      submitting: "Göndərilir…",
+      error: "Müraciətinizi göndərə bilmədik. Yenidən cəhd edin.",
+    },
+    categories: {
+      SOFTWARE_BUG: "Sayt xətası",
+      ORDER_ISSUE: "Sifariş problemi",
+      PAYMENT_ISSUE: "Ödəniş problemi",
+      ACCOUNT_ISSUE: "Hesab problemi",
+      OTHER: "Başqa bir şey",
+    },
+    list: {
+      title: "Dəstək müraciətlərim",
+      newTicket: "Yeni müraciət",
+      emptyTitle: "Hələ müraciət yoxdur",
+      emptyBody: "Problem bildirdikdə onu burada izləyəcək və komandamızla yazışacaqsınız.",
+      createFirst: "Problem bildirin",
+      updated: "Yeniləndi",
+    },
+    statuses: {
+      OPEN: "Açıq",
+      IN_PROGRESS: "İcradadır",
+      WAITING_FOR_CUSTOMER: "Sizi gözləyir",
+      RESOLVED: "Həll olunub",
+      CLOSED: "Bağlanıb",
+    },
+    detail: {
+      backToList: "Bütün müraciətlər",
+      notFound: "Bu müraciəti tapa bilmədik.",
+      category: "Kateqoriya",
+      opened: "Açılıb",
+      page: "Səhifə",
+      conversation: "Yazışma",
+      noMessages: "Hələ cavab yoxdur — komandamız burada cavab verəcək.",
+      you: "Siz",
+      team: "Buyology dəstəyi",
+      replyPlaceholder: "Cavab yazın…",
+      send: "Cavabı göndər",
+      sending: "Göndərilir…",
+      closedNote: "Bu müraciət bağlanıb.",
+      error: "Cavabınız göndərilmədi. Yenidən cəhd edin.",
+    },
+  },
+  notifications: {
+    title: "Bildirişlər",
+    aria: "Bildirişlər",
+    empty: "Hər şey oxunub",
+    emptyBody: "Sifarişləriniz, müraciətləriniz və sorğularınızla bağlı yeniliklər burada görünəcək.",
+    markAllRead: "Hamısını oxunmuş et",
   },
   repair: {
     landing: {
@@ -2952,6 +3147,7 @@ const az: Dict = {
       powerbank: "Powerbank Stansiyaları",
       diy: "DIY",
       help: "Yardım Mərkəzi",
+      supportTickets: "Problem bildirin",
       track: "Sifarişi izlə",
       shipping: "Çatdırılma",
       returns: "Qaytarma",
@@ -2989,6 +3185,7 @@ const az: Dict = {
       payments: "Ödəniş üsulları",
       preferences: "Tənzimləmələr",
       security: "Təhlükəsizlik",
+      support: "Dəstək",
       danger: "Hesabı sil",
     },
     common: {
@@ -3578,6 +3775,8 @@ const ar: Dict = {
     helpShippingHint: "توصيل عادي، وسريع خلال 30 دقيقة، واستلام مجاني من المتجر — اعرف ما ينطبق على سلتك.",
     helpReturns: "الإرجاع والاسترداد",
     helpReturnsHint: "كيف يعمل الإرجاع وكيف يصل الاسترداد إلى وسيلة الدفع الأصلية.",
+    helpSupport: "الإبلاغ عن مشكلة",
+    helpSupportHint: "وجدت خللاً أو علقت في مكان ما؟ افتح تذكرة دعم وتابعها.",
     helpContactCta: "تواصل مع الدعم",
     trackTitle: "تتبّع طلبك",
     trackIntro: "الحالة الحية لكل طلب — من الدفع حتى بابك، بما في ذلك إثبات الصور من المندوب — موجودة في سجل طلباتك. الطلبات المشحونة عبر ناقل تتضمن رابط التتبع هناك أيضًا.",
@@ -3752,6 +3951,71 @@ const ar: Dict = {
       estimateUnavailable: "لا يوجد تقدير فوري هذه المرة",
       estimateUnavailableBody: "لم نتمكن من إعداد تقدير أولي لهذا الجهاز. سيفحصه فريقنا ويرسل لك عرضًا كاملًا — لن يتأخر شيء.",
     },
+  },
+  support: {
+    form: {
+      title: "احصل على المساعدة",
+      intro:
+        "واجهت خللاً، أو علقت في مكان ما، أو هناك مشكلة في طلب أو دفعة؟ أخبرنا بما حدث وسيرد عليك فريقنا — سترى كل تحديث هنا وفي الجرس وعبر البريد الإلكتروني.",
+      category: "ما موضوع المشكلة؟",
+      subject: "الموضوع",
+      subjectPlaceholder: "ملخص قصير للمشكلة",
+      description: "ماذا حدث؟",
+      descriptionPlaceholder: "صف ما فعلته وما توقعته وما حدث فعلاً…",
+      pageUrl: "رابط الصفحة (اختياري)",
+      pageUrlPlaceholder: "https://…",
+      pageUrlHint: "الصق عنوان الصفحة التي حدثت فيها المشكلة — يساعدنا ذلك على إيجادها بسرعة.",
+      uploadHint: "لقطات الشاشة (اختياري، حتى 4)",
+      uploadCta: "أضف لقطات شاشة",
+      submit: "إرسال التذكرة",
+      submitting: "جارٍ الإرسال…",
+      error: "تعذّر إرسال تذكرتك. حاول مرة أخرى.",
+    },
+    categories: {
+      SOFTWARE_BUG: "خلل في الموقع",
+      ORDER_ISSUE: "مشكلة في الطلب",
+      PAYMENT_ISSUE: "مشكلة في الدفع",
+      ACCOUNT_ISSUE: "مشكلة في الحساب",
+      OTHER: "شيء آخر",
+    },
+    list: {
+      title: "تذاكر الدعم الخاصة بي",
+      newTicket: "تذكرة جديدة",
+      emptyTitle: "لا توجد تذاكر بعد",
+      emptyBody: "عندما تبلّغ عن مشكلة، ستتابعها وتتحدث مع فريقنا هنا مباشرة.",
+      createFirst: "الإبلاغ عن مشكلة",
+      updated: "تم التحديث",
+    },
+    statuses: {
+      OPEN: "مفتوحة",
+      IN_PROGRESS: "قيد المعالجة",
+      WAITING_FOR_CUSTOMER: "بانتظار ردك",
+      RESOLVED: "تم الحل",
+      CLOSED: "مغلقة",
+    },
+    detail: {
+      backToList: "كل التذاكر",
+      notFound: "لم نعثر على هذه التذكرة.",
+      category: "الفئة",
+      opened: "فُتحت",
+      page: "الصفحة",
+      conversation: "المحادثة",
+      noMessages: "لا ردود بعد — سيجيب فريقنا هنا.",
+      you: "أنت",
+      team: "دعم Buyology",
+      replyPlaceholder: "اكتب رداً…",
+      send: "إرسال الرد",
+      sending: "جارٍ الإرسال…",
+      closedNote: "هذه التذكرة مغلقة.",
+      error: "لم يتم إرسال ردك. حاول مرة أخرى.",
+    },
+  },
+  notifications: {
+    title: "الإشعارات",
+    aria: "الإشعارات",
+    empty: "أنت على اطلاع بكل شيء",
+    emptyBody: "ستظهر هنا التحديثات حول طلباتك وتذاكرك وطلبات الخدمة.",
+    markAllRead: "وضع علامة مقروء على الكل",
   },
   repair: {
     landing: {
@@ -4163,6 +4427,7 @@ const ar: Dict = {
       powerbank: "محطات الشحن",
       diy: "DIY",
       help: "مركز المساعدة",
+      supportTickets: "الإبلاغ عن مشكلة",
       track: "تتبّع الطلب",
       shipping: "الشحن",
       returns: "الإرجاع",
@@ -4200,6 +4465,7 @@ const ar: Dict = {
       payments: "طرق الدفع",
       preferences: "التفضيلات",
       security: "الأمان",
+      support: "الدعم",
       danger: "حذف الحساب",
     },
     common: {

@@ -31,6 +31,7 @@ export const footerColumns: FooterColumn[] = [
     titleKey: "support",
     links: [
       { key: "help", href: "/help" },
+      { key: "supportTickets", href: "/support" },
       { key: "track", href: "/track" },
       { key: "shipping", href: "/shipping" },
       { key: "returns", href: "/returns" },

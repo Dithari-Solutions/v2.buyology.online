@@ -15,10 +15,11 @@ export default async function HelpPage() {
     { h: p.helpOrders, hint: p.helpOrdersHint, href: "/account" },
     { h: p.helpShipping, hint: p.helpShippingHint, href: "/shipping" },
     { h: p.helpReturns, hint: p.helpReturnsHint, href: "/returns" },
+    { h: p.helpSupport, hint: p.helpSupportHint, href: "/support" },
   ];
   return (
     <StaticPage title={p.helpTitle} subtitle={p.helpIntro}>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {topics.map((topic) => (
           <Link
             key={topic.href}

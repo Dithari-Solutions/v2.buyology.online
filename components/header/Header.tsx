@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Logo } from "@/components/header/Logo";
 import { SearchBar } from "@/components/header/SearchBar";
 import { AccountButton } from "@/components/header/AccountButton";
+import { NotificationBell } from "@/components/header/NotificationBell";
 import { PrimaryNav } from "@/components/header/PrimaryNav";
 import { AnnouncementBar } from "@/components/header/AnnouncementBar";
 import { buyobot, productCategories, services } from "@/lib/nav-data";
@@ -119,6 +120,8 @@ export function Header() {
                 <BagIcon className="h-[22px] w-[22px]" />
                 <CountBadge count={cartCount} bump />
               </button>
+
+              <NotificationBell className={actionButton} />
             </div>
           </div>
         </div>

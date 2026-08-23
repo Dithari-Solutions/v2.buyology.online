@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { AccountGate, useAccountData } from "@/components/account/account-data";
 import {
   CreditCardIcon,
+  LifeBuoyIcon,
   LockIcon,
   LogOutIcon,
   MapPinIcon,
@@ -25,6 +26,7 @@ import {
   ProfileSection,
   SecuritySection,
 } from "@/components/account/AccountSections";
+import { MyTickets } from "@/components/support/MyTickets";
 
 type Tab = {
   key: string;
@@ -40,11 +42,11 @@ const TABS: Tab[] = [
   { key: "payments", icon: CreditCardIcon, render: () => <PaymentsSection /> },
   { key: "preferences", icon: SettingsIcon, render: () => <PreferencesSection /> },
   { key: "security", icon: LockIcon, render: () => <SecuritySection /> },
+  { key: "support", icon: LifeBuoyIcon, render: () => <MyTickets compact /> },
   { key: "danger", icon: TrashIcon, render: () => <DeleteAccountSection />, danger: true },
 ];
 
 export function AccountView() {
-  const { t } = useI18n();
   return (
     <AccountGate
       fallback={
@@ -60,12 +62,24 @@ export function AccountView() {
   );
 }
 
+function subscribeHash(onChange: () => void) {
+  window.addEventListener("hashchange", onChange);
+  return () => window.removeEventListener("hashchange", onChange);
+}
+
 function AccountViewInner() {
   const { t } = useI18n();
   const { profile } = useAccountData();
   const { user, signOut } = useAuth();
   const router = useRouter();
-  const [tab, setTab] = useState("profile");
+  // URL-hash-driven so the notification bell (and back button) can land on a specific tab
+  // (/account#orders, /account#support). Unknown or empty hash falls back to the profile tab.
+  const hash = useSyncExternalStore(
+    subscribeHash,
+    () => window.location.hash.slice(1),
+    () => "",
+  );
+  const tab = TABS.some((x) => x.key === hash) ? hash : "profile";
   const active = TABS.find((x) => x.key === tab) ?? TABS[0];
 
   const firstName = profile?.firstName ?? "";
@@ -117,7 +131,9 @@ function AccountViewInner() {
                 <button
                   key={key}
                   type="button"
-                  onClick={() => setTab(key)}
+                  onClick={() => {
+                    window.location.hash = key;
+                  }}
                   aria-current={on ? "page" : undefined}
                   className={`flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:w-full ${
                     on
