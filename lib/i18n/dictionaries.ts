@@ -517,6 +517,9 @@ export interface Dict {
       deletedTitle: string;
       deletedBody: string;
       backHome: string;
+      pendingTitle: string;
+      pendingBody: string;
+      recover: string;
     };
   };
   auth: {
@@ -1391,16 +1394,19 @@ const en: Dict = {
       subtitle: "Permanently delete your account and all its data.",
       delete: "Delete account",
       warning:
-        "This can't be undone. Your orders, wishlist, addresses and rewards will be permanently removed.",
+        "Deleting your account removes your orders, wishlist, addresses and rewards. You have a 30-day window to change your mind — after that it's permanent.",
       modalTitle: "Delete your account?",
       modalBody:
-        "This will permanently erase your profile, order history, saved addresses and Buyology rewards. This action cannot be reversed.",
+        "Your account will be scheduled for deletion. For 30 days you can recover it from this page; after that your profile, order history, addresses and rewards are erased permanently.",
       confirmHint: "Type DELETE to confirm",
       confirmWord: "DELETE",
       confirm: "Permanently delete",
       deletedTitle: "Your account has been deleted",
       deletedBody: "We're sorry to see you go. You can create a new account anytime.",
       backHome: "Back to home",
+      pendingTitle: "Deletion scheduled",
+      pendingBody: "Your account is scheduled for permanent deletion in 30 days. Until then ordering is paused — you can recover everything with one tap.",
+      recover: "Recover my account",
     },
   },
   auth: {
@@ -2308,16 +2314,19 @@ const az: Dict = {
       subtitle: "Hesabınızı və bütün məlumatlarını həmişəlik silin.",
       delete: "Hesabı sil",
       warning:
-        "Bu geri qaytarıla bilməz. Sifarişləriniz, istək siyahınız, ünvanlarınız və bonuslarınız həmişəlik silinəcək.",
+        "Hesabın silinməsi sifarişlərinizi, istək siyahınızı, ünvanlarınızı və bonuslarınızı silir. Fikrinizi dəyişmək üçün 30 gününüz var — sonra bu, qalıcıdır.",
       modalTitle: "Hesabınızı silmək istəyirsiniz?",
       modalBody:
-        "Bu, profilinizi, sifariş tarixçənizi, ünvanlarınızı və Buyology bonuslarınızı həmişəlik siləcək. Bu əməliyyat geri qaytarıla bilməz.",
+        "Hesabınız silinmə üçün planlaşdırılacaq. 30 gün ərzində onu bu səhifədən bərpa edə bilərsiniz; sonra profiliniz, sifariş tarixçəniz, ünvanlarınız və bonuslarınız həmişəlik silinir.",
       confirmHint: "Təsdiq üçün DELETE yazın",
       confirmWord: "DELETE",
       confirm: "Həmişəlik sil",
       deletedTitle: "Hesabınız silindi",
       deletedBody: "Getdiyinizə görə üzülürük. İstənilən vaxt yeni hesab yarada bilərsiniz.",
       backHome: "Ana səhifəyə qayıt",
+      pendingTitle: "Silinmə planlaşdırılıb",
+      pendingBody: "Hesabınız 30 gün sonra həmişəlik silinəcək. O vaxta qədər sifariş vermək dayandırılıb — hər şeyi bir toxunuşla bərpa edə bilərsiniz.",
+      recover: "Hesabımı bərpa et",
     },
   },
   auth: {
@@ -3209,16 +3218,19 @@ const ar: Dict = {
       subtitle: "احذف حسابك وكل بياناته نهائيًا.",
       delete: "حذف الحساب",
       warning:
-        "لا يمكن التراجع عن هذا. ستُحذف طلباتك وقائمة أمنياتك وعناوينك ومكافآتك نهائيًا.",
+        "حذف حسابك يزيل طلباتك وقائمة أمنياتك وعناوينك ومكافآتك. لديك 30 يومًا لتغيير رأيك — بعدها يصبح الحذف نهائيًا.",
       modalTitle: "حذف حسابك؟",
       modalBody:
-        "سيؤدي هذا إلى محو ملفك الشخصي وسجل طلباتك وعناوينك المحفوظة ومكافآت Buyology نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+        "ستتم جدولة حسابك للحذف. يمكنك استعادته من هذه الصفحة خلال 30 يومًا؛ بعد ذلك يُمحى ملفك وسجل طلباتك وعناوينك ومكافآتك نهائيًا.",
       confirmHint: "اكتب DELETE للتأكيد",
       confirmWord: "DELETE",
       confirm: "حذف نهائي",
       deletedTitle: "تم حذف حسابك",
       deletedBody: "يؤسفنا رحيلك. يمكنك إنشاء حساب جديد في أي وقت.",
       backHome: "العودة إلى الرئيسية",
+      pendingTitle: "تمت جدولة الحذف",
+      pendingBody: "سيُحذف حسابك نهائيًا بعد 30 يومًا. حتى ذلك الحين، الطلب متوقف — ويمكنك استعادة كل شيء بلمسة واحدة.",
+      recover: "استعادة حسابي",
     },
   },
   auth: {

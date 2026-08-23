@@ -192,6 +192,7 @@ export type Profile = {
   lastName?: string | null;
   phoneNumber?: string | null;
   phoneVerified?: boolean;
+  pendingDeletion?: boolean;
   dateOfBirth?: string | null;
   avatarUrl?: string | null;
   selectedCountryCode?: string | null;

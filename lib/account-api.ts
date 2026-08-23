@@ -124,6 +124,16 @@ export type PaymentInfo = {
   status?: string | null;
 };
 
+/** Deletion is a 30-day grace: PENDING_DELETION blocks ordering, sign-in still works,
+ *  recovery undoes it; a daily purge job finalizes past the window. */
+export function requestAccountDeletion(uid: string): Promise<unknown> {
+  return authedJson(`/api/users/${uid}/account/delete-request`, { method: "POST" });
+}
+
+export function recoverAccount(uid: string): Promise<unknown> {
+  return authedJson(`/api/users/${uid}/account/recover`, { method: "POST" });
+}
+
 /** Twilio Verify: the backend refuses to create orders until the phone is verified. */
 export function sendPhoneOtp(uid: string, phoneNumber: string): Promise<unknown> {
   return authedJson(`/api/users/${uid}/profile/phone/send-otp`, {

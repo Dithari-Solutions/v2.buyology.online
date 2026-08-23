@@ -21,6 +21,8 @@ import {
   type AddressLabel,
   type OrderStatus,
   type OrderSummary,
+  requestAccountDeletion,
+  recoverAccount,
 } from "@/lib/account-api";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { reverseGeocode, countryFieldValue } from "@/lib/geocode";
@@ -870,6 +872,105 @@ export function SecuritySection() {
 
 export function DeleteAccountSection() {
   const { t } = useI18n();
-  return <ComingSoonPanel title={t.account.danger.title} subtitle={t.account.danger.subtitle} />;
+  const d = t.account.danger;
+  const { uid, profile, reload } = useAccountData();
+  const [confirming, setConfirming] = useState(false);
+  const [word, setWord] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function run(action: () => Promise<unknown>) {
+    setBusy(true);
+    setError(null);
+    try {
+      await action();
+      await reload();
+      setConfirming(false);
+      setWord("");
+    } catch {
+      setError(t.auth.errors.generic);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (profile?.pendingDeletion) {
+    return (
+      <Panel>
+        <SectionHead title={d.pendingTitle} subtitle={d.pendingBody} />
+        {error && (
+          <p role="alert" className="mb-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+            {error}
+          </p>
+        )}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => run(() => recoverAccount(uid))}
+          className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {busy ? t.auth.loading : d.recover}
+        </button>
+      </Panel>
+    );
+  }
+
+  return (
+    <Panel>
+      <SectionHead title={d.title} subtitle={d.subtitle} />
+      <p className="mb-5 rounded-xl border border-border bg-surface-2 px-4 py-3 text-sm text-muted">
+        {d.warning}
+      </p>
+      {error && (
+        <p role="alert" className="mb-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+          {error}
+        </p>
+      )}
+      {confirming ? (
+        <div className="space-y-3">
+          <p className="text-sm text-muted">{d.modalBody}</p>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-foreground">{d.confirmHint}</span>
+            <input
+              type="text"
+              value={word}
+              onChange={(e) => setWord(e.target.value)}
+              autoComplete="off"
+              className="w-full max-w-xs rounded-xl border border-border bg-surface-2 px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </label>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              disabled={busy || word.trim() !== d.confirmWord}
+              onClick={() => run(() => requestAccountDeletion(uid))}
+              className="rounded-full bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {busy ? t.auth.loading : d.confirm}
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setConfirming(false);
+                setWord("");
+              }}
+              className="font-medium text-muted hover:text-foreground"
+            >
+              {t.account.orders.cancelKeep}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          className="rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {d.delete}
+        </button>
+      )}
+    </Panel>
+  );
 }
 
