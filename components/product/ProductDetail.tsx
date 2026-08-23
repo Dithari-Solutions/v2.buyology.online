@@ -83,7 +83,6 @@ export function ProductDetail() {
     // the cart would merge different configurations and keep a stale price. The cart resolves
     // rich detail from the base id (before "::").
     const optionIds = selectedOptions.map((s) => s.option?.id).filter(Boolean);
-    const isBase = extra === 0 && optionIds.length === 0;
     const suffix = selectedOptions
       .map((s) => [s.option?.value, s.option?.unit].filter(Boolean).join(" "))
       .filter(Boolean)
@@ -111,8 +110,22 @@ export function ProductDetail() {
   }
 
   function onBuyNow() {
-    add(false);
-    router.push("/cart");
+    const optionIds = selectedOptions.map((s) => s.option?.id).filter(Boolean);
+    if (!product.storeId) {
+      // Demo item — no real store behind it; the local cart is all it has.
+      add(false);
+      router.push("/cart");
+      return;
+    }
+    if (optionIds.length > 0) {
+      // The buy-now endpoint carries no spec selections — configured products ride the cart.
+      add(false);
+      router.push("/checkout");
+      return;
+    }
+    router.push(
+      `/checkout?buyNow=1&productId=${product.id}&storeId=${product.storeId}&qty=${qty}`,
+    );
   }
 
   const activeUrl = gallery?.[Math.min(activeImg, (gallery?.length ?? 1) - 1)]?.url ?? null;

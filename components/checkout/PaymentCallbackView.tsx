@@ -11,7 +11,7 @@ import {
   fetchTransaction,
   type PaymentTransaction,
 } from "@/lib/checkout-api";
-import { PENDING_ORDER_KEY, PENDING_TX_KEY } from "@/components/checkout/CheckoutView";
+import { BUYNOW_ORDER_KEY, PENDING_ORDER_KEY, PENDING_TX_KEY } from "@/components/checkout/CheckoutView";
 import { CheckIcon, CloseIcon, ClockIcon } from "@/components/icons";
 
 type Outcome = "checking" | "success" | "failed" | "pending";
@@ -74,6 +74,7 @@ export function PaymentCallbackView() {
         try {
           sessionStorage.removeItem(PENDING_TX_KEY);
           sessionStorage.removeItem(PENDING_ORDER_KEY);
+          sessionStorage.removeItem(BUYNOW_ORDER_KEY);
         } catch {
           /* ignore */
         }

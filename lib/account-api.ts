@@ -87,6 +87,7 @@ export type TrackingEvent = {
 };
 
 export type OrderDetail = OrderSummary & {
+  cartId?: string | null;
   customerEmail?: string | null;
   customerPhone?: string | null;
   shippedAt?: string | null;

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useCart } from "@/components/cart/cart-provider";
@@ -19,7 +19,9 @@ import {
 } from "@/lib/account-api";
 import {
   checkoutCart,
+  createBuyNowOrder,
   createOrder,
+  repayOrder,
   fetchExpressStores,
   fetchPickupStores,
   initiatePayment,
@@ -28,6 +30,7 @@ import {
   type PromoValidation,
   type PublicStore,
 } from "@/lib/checkout-api";
+import { useProductLookup } from "@/lib/use-product-lookup";
 import { formatMoney } from "@/lib/format";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
@@ -41,6 +44,8 @@ import {
 
 export const PENDING_TX_KEY = "buyo_pending_tx";
 export const PENDING_ORDER_KEY = "buyo_pending_order";
+/** The last buy-now order this tab created, keyed by its exact intent — retries recharge it. */
+export const BUYNOW_ORDER_KEY = "buyo_buynow_order";
 
 type Fulfilment = "DELIVERY" | "PICKUP";
 type Method = "EXPRESS" | "REGULAR";
@@ -65,12 +70,21 @@ export function CheckoutView() {
   const uid = user?.uid ?? null;
   const cart = useCart();
 
+  // ── Buy-now mode: one product, no cart. /checkout?buyNow=1&productId&storeId&qty ──
+  const search = useSearchParams();
+  const buyNow = search.get("buyNow") === "1";
+  const bnProductId = buyNow ? search.get("productId") : null;
+  const bnStoreId = buyNow ? search.get("storeId") : null;
+  const bnQty = Math.min(1000, Math.max(1, Math.floor(Number(search.get("qty") ?? "1") || 1)));
+  const { product: bnProduct, loading: bnLoading } = useProductLookup(bnProductId);
+
   const [profile, setProfile] = useState<Profile | null>(null);
   const [addresses, setAddresses] = useState<Address[] | null>(null);
   const [stores, setStores] = useState<PublicStore[] | null>(null);
   const [loadError, setLoadError] = useState(false);
 
   const [fulfilment, setFulfilment] = useState<Fulfilment>("DELIVERY");
+  const effectiveFulfilment: Fulfilment = buyNow ? "DELIVERY" : fulfilment;
   const [addressId, setAddressId] = useState<string | null>(null);
   const [pickupStoreId, setPickupStoreId] = useState<string | null>(null);
   const [method, setMethod] = useState<Method>("REGULAR");
@@ -91,7 +105,10 @@ export function CheckoutView() {
 
   // ── Guards + data ──────────────────────────────────────────────────────────
   useEffect(() => {
-    if (authStatus === "guest") router.replace("/login?next=/checkout");
+    if (authStatus === "guest")
+      router.replace(
+        `/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`,
+      );
   }, [authStatus, router]);
 
   useEffect(() => {
@@ -130,10 +147,25 @@ export function CheckoutView() {
   }, [fulfilment, stores]);
 
   // ── Express eligibility: judged from the delivery ADDRESS's pin, all lines in range ──
-  const selectedLines = useMemo(
+  const cartSelected = useMemo(
     () => cart.items.filter((l) => l.selected && l.selectable),
     [cart.items],
   );
+  const selectedLines = useMemo(() => {
+    if (!buyNow) return cartSelected;
+    if (!bnProductId || !bnStoreId || !bnProduct) return [];
+    return [
+      {
+        id: `buynow-${bnProductId}`,
+        productId: bnProductId,
+        name: bnProduct.name,
+        price: bnProduct.price,
+        currency: bnProduct.currency,
+        qty: bnQty,
+        storeId: bnStoreId,
+      },
+    ];
+  }, [buyNow, cartSelected, bnProductId, bnStoreId, bnProduct, bnQty]);
   const address = addresses?.find((a) => a.id === addressId) ?? null;
   // Keyed by the address pin so a stale answer for another address can never leak in;
   // an unanswered lookup means express is simply not offered — never guessed.
@@ -160,7 +192,7 @@ export function CheckoutView() {
   const expressStoreIds = expressRes?.key === coordKey ? expressRes.ids : null;
 
   const expressAvailable =
-    fulfilment === "DELIVERY" &&
+    effectiveFulfilment === "DELIVERY" &&
     expressStoreIds !== null &&
     selectedLines.length > 0 &&
     selectedLines.every((l) => l.storeId && expressStoreIds.includes(l.storeId));
@@ -169,13 +201,17 @@ export function CheckoutView() {
   const effectiveMethod: Method = method === "EXPRESS" && !expressAvailable ? "REGULAR" : method;
 
   // ── Money (display only; the order's own total is what gets charged) ───────
-  const currency = cart.currency;
-  const subtotal = cart.subtotal;
-  const free = cart.fees?.qualifiesForFreeShipping === true;
-  const standardFee = free ? 0 : cart.fees?.deliveryFee ?? null;
-  const expressFee = free ? 0 : cart.fees?.expressFee ?? null;
+  const currency = buyNow ? bnProduct?.currency : cart.currency;
+  const subtotal = buyNow
+    ? (bnProduct?.price ?? 0) * bnQty
+    : cart.subtotal;
+  // Buy-now has no server cart to quote fees from — the summary says "calculated at
+  // checkout" and the created order's own total is what gets charged, as everywhere.
+  const free = !buyNow && cart.fees?.qualifiesForFreeShipping === true;
+  const standardFee = buyNow ? null : free ? 0 : cart.fees?.deliveryFee ?? null;
+  const expressFee = buyNow ? null : free ? 0 : cart.fees?.expressFee ?? null;
   const shownFee =
-    fulfilment === "PICKUP" ? 0 : effectiveMethod === "EXPRESS" ? expressFee : standardFee;
+    effectiveFulfilment === "PICKUP" ? 0 : effectiveMethod === "EXPRESS" ? expressFee : standardFee;
   // Mirror the backend clamp: a fixed discount can eat the delivery fee too.
   const discount = promo?.valid
     ? Math.min(promo.discountAmount ?? 0, subtotal + (shownFee ?? 0))
@@ -235,7 +271,7 @@ export function CheckoutView() {
     setError(null);
     try {
       // 0. Let in-flight cart writes land first — what gets priced must be what was shown.
-      await cart.settle();
+      if (!buyNow) await cart.settle();
       // 1. A promo that silently zeroes at order time is worse than a refused one —
       //    re-validate at the moment of truth.
       let coupon: string | undefined;
@@ -250,20 +286,65 @@ export function CheckoutView() {
         }
         coupon = promo.code;
       }
-      // 2. Freeze the cart (resumes a lingering CHECKED_OUT cart on retries).
-      const checked = await checkoutCart(credId);
-      // 3. Create (or reuse) the order — the server prices everything.
-      const order = await createOrder(credId, {
-        cartId: checked.id,
-        deliveryMethod: fulfilment === "PICKUP" ? "PICKUP" : effectiveMethod,
-        addressId: fulfilment === "DELIVERY" ? addressId ?? undefined : undefined,
-        pickupStoreId: fulfilment === "PICKUP" ? pickupStoreId ?? undefined : undefined,
-        couponCode: coupon,
-      });
+      let order;
+      if (buyNow) {
+        // An identical retry recharges the order this tab already created instead of minting
+        // another (the backend also supersedes stranded buy-now orders — belt and braces).
+        const intentKey = ["bn", bnProductId, bnStoreId, bnQty, addressId, effectiveMethod, coupon ?? ""].join("|");
+        try {
+          const stored = JSON.parse(sessionStorage.getItem(BUYNOW_ORDER_KEY) ?? "null") as
+            | { key: string; orderId: string }
+            | null;
+          if (stored?.key === intentKey && stored.orderId) {
+            const pay = await repayOrder(stored.orderId, {
+              methodType: payMethod,
+              redirectionUrl: `${window.location.origin}/payment/callback`,
+            });
+            if (pay.checkoutUrl) {
+              sessionStorage.setItem(PENDING_TX_KEY, pay.transactionId);
+              sessionStorage.setItem(PENDING_ORDER_KEY, stored.orderId);
+              window.location.href = pay.checkoutUrl;
+              return;
+            }
+          }
+        } catch {
+          // The stored order is gone (paid, cancelled, superseded) — fall through and create.
+          try {
+            sessionStorage.removeItem(BUYNOW_ORDER_KEY);
+          } catch {
+            /* ignore */
+          }
+        }
+        // One product straight to an order — the user's real cart is never touched.
+        order = await createBuyNowOrder(credId, {
+          productId: bnProductId!,
+          storeId: bnStoreId!,
+          quantity: bnQty,
+          addressId: addressId!,
+          deliveryMethod: effectiveMethod,
+          couponCode: coupon,
+        });
+        try {
+          sessionStorage.setItem(BUYNOW_ORDER_KEY, JSON.stringify({ key: intentKey, orderId: order.id }));
+        } catch {
+          /* the backend supersede still prevents stranded orders */
+        }
+      } else {
+        // 2. Freeze the cart (resumes a lingering CHECKED_OUT cart on retries).
+        const checked = await checkoutCart(credId);
+        // 3. Create (or reuse) the order — the server prices everything.
+        order = await createOrder(credId, {
+          cartId: checked.id,
+          deliveryMethod: fulfilment === "PICKUP" ? "PICKUP" : effectiveMethod,
+          addressId: fulfilment === "DELIVERY" ? addressId ?? undefined : undefined,
+          pickupStoreId: fulfilment === "PICKUP" ? pickupStoreId ?? undefined : undefined,
+          couponCode: coupon,
+        });
+      }
       // 4. Charge exactly the order's own total.
       const pay = await initiatePayment({
         appOrderId: order.id,
-        cartId: checked.id,
+        cartId: order.cartId ?? "",
         methodType: payMethod,
         amount: order.totalAmount,
         currency: order.currency ?? "AED",
@@ -291,12 +372,14 @@ export function CheckoutView() {
       setPlacing(false);
       cart.refresh(); // stock errors may have changed what's orderable
     }
-  }, [credId, uid, profile, promo, subtotal, selectedLines, fulfilment, effectiveMethod, addressId, pickupStoreId, payMethod, cart, c]);
+  }, [credId, uid, profile, promo, subtotal, selectedLines, fulfilment, effectiveMethod, addressId, pickupStoreId, payMethod, cart, c, buyNow, bnProductId, bnStoreId, bnQty]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   if (
     authStatus === "loading" ||
-    (authStatus === "authed" && !loadError && (!profile || addresses === null || !cart.ready))
+    (authStatus === "authed" &&
+      !loadError &&
+      (!profile || addresses === null || (buyNow ? bnLoading : !cart.ready)))
   ) {
     return (
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]" aria-busy>
@@ -319,7 +402,21 @@ export function CheckoutView() {
     );
   }
 
-  if (cart.ready && selectedLines.length === 0) {
+  if (buyNow && !bnLoading && selectedLines.length === 0) {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center">
+        <p className="text-lg font-semibold text-foreground">{c.productUnavailable}</p>
+        <Link
+          href="/products"
+          className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {t.cart.continueShopping}
+        </Link>
+      </div>
+    );
+  }
+
+  if (!buyNow && cart.ready && selectedLines.length === 0) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center">
         <p className="text-lg font-semibold text-foreground">{t.cart.noneSelected}</p>
@@ -338,7 +435,7 @@ export function CheckoutView() {
     !placing &&
     phoneVerified &&
     selectedLines.length > 0 &&
-    (fulfilment === "PICKUP" ? !!pickupStoreId : !!addressId);
+    (effectiveFulfilment === "PICKUP" ? !!pickupStoreId : !!addressId);
 
   return (
     <div>
@@ -410,7 +507,7 @@ export function CheckoutView() {
           {/* Fulfilment */}
           <section className={card}>
             <h2 id="checkout-fulfilment-h" className="mb-4 font-semibold text-foreground">{c.fulfilment}</h2>
-            <div className="mb-4 grid grid-cols-2 gap-2">
+            <div className={`mb-4 grid gap-2 ${buyNow ? "hidden" : "grid-cols-2"}`}>
               {(["DELIVERY", "PICKUP"] as const).map((f) => (
                 <button
                   key={f}
@@ -428,7 +525,7 @@ export function CheckoutView() {
               ))}
             </div>
 
-            {fulfilment === "DELIVERY" ? (
+            {effectiveFulfilment === "DELIVERY" ? (
               <>
                 {addresses && addresses.length > 0 ? (
                   <div className="space-y-2" role="radiogroup" aria-labelledby="checkout-fulfilment-h">
@@ -506,7 +603,7 @@ export function CheckoutView() {
           </section>
 
           {/* Delivery method */}
-          {fulfilment === "DELIVERY" && (
+          {effectiveFulfilment === "DELIVERY" && (
             <section className={card}>
               <h2 className="mb-4 font-semibold text-foreground">{c.method}</h2>
               <div className="grid gap-2 sm:grid-cols-2">

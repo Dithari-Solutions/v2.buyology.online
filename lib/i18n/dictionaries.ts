@@ -159,6 +159,7 @@ export interface Dict {
       toOrders: string;
     };
     payNow: string;
+    productUnavailable: string;
   };
   ai: {
     eyebrow: string;
@@ -795,6 +796,7 @@ const en: Dict = {
       toOrders: "Go to my orders",
     },
     payNow: "Pay now",
+    productUnavailable: "This product isn't available right now.",
   },
   ai: {
     eyebrow: "Powered by Buyobot",
@@ -1606,6 +1608,7 @@ const az: Dict = {
       toOrders: "Sifarişlərimə keç",
     },
     payNow: "İndi ödə",
+    productUnavailable: "Bu məhsul hazırda mövcud deyil.",
   },
   ai: {
     eyebrow: "Buyobot ilə",
@@ -2432,6 +2435,7 @@ const ar: Dict = {
       toOrders: "الذهاب إلى طلباتي",
     },
     payNow: "ادفع الآن",
+    productUnavailable: "هذا المنتج غير متاح حاليًا.",
   },
   ai: {
     eyebrow: "مدعوم من Buyobot",

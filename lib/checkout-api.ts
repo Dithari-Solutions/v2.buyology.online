@@ -37,6 +37,33 @@ export function createOrder(credentialId: string, body: CreateOrderBody): Promis
   });
 }
 
+export type BuyNowBody = {
+  productId: string;
+  storeId: string;
+  quantity: number;
+  addressId: string;
+  /** EXPRESS/REGULAR; omit to let the server resolve from the address pin. Never PICKUP. */
+  deliveryMethod?: "EXPRESS" | "REGULAR";
+  couponCode?: string;
+};
+
+/**
+ * One product, no cart: the server builds an ephemeral single-line cart, prices it itself
+ * (effectivePrice at the store), and runs the exact same order pipeline — phone gate, stock,
+ * promo, PENDING_PAYMENT. Spec-configured products cannot ride this path (the request has no
+ * spec fields); they go through the real cart instead.
+ */
+export function createBuyNowOrder(
+  credentialId: string,
+  body: BuyNowBody,
+): Promise<OrderDetail> {
+  return authedJson<OrderDetail>(`/api/orders/buy-now`, {
+    method: "POST",
+    headers: { "X-Auth-Credential-Id": credentialId },
+    body: JSON.stringify(body),
+  });
+}
+
 // ── Promo ────────────────────────────────────────────────────────────────────
 
 export type PromoValidation = {
