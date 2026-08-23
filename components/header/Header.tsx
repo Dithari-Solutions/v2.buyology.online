@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/header/Logo";
 import { SearchBar } from "@/components/header/SearchBar";
+import { AccountButton } from "@/components/header/AccountButton";
 import { PrimaryNav } from "@/components/header/PrimaryNav";
 import { AnnouncementBar } from "@/components/header/AnnouncementBar";
 import { buyobot, productCategories, services } from "@/lib/nav-data";
@@ -15,7 +16,6 @@ import {
   HeartIcon,
   MenuIcon,
   TagIcon,
-  UserIcon,
 } from "@/components/icons";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useCart } from "@/components/cart/cart-provider";
@@ -96,16 +96,7 @@ export function Header() {
 
             {/* Actions */}
             <div className="order-2 ms-auto flex items-center gap-1 lg:order-3 lg:ms-0 lg:justify-self-end">
-              <Link
-                href="/account"
-                aria-label={t.header.account}
-                className="hidden items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-medium text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
-              >
-                <UserIcon className="h-[22px] w-[22px]" />
-                <span className="hidden text-foreground xl:inline">
-                  {t.header.account}
-                </span>
-              </Link>
+              <AccountButton className="hidden items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-medium text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex" />
 
               <Link
                 id="header-wishlist"
@@ -208,7 +199,7 @@ export function Header() {
                 {t.header.wishlist}
                 {wishlistCount > 0 ? ` (${wishlistCount})` : ""}
               </Link>
-              <Link href="/orders/track" onClick={close} className="hover:text-foreground">
+              <Link href="/track" onClick={close} className="hover:text-foreground">
                 {t.announcement.trackOrder}
               </Link>
               <Link href="/help" onClick={close} className="hover:text-foreground">
