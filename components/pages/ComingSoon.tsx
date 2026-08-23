@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Header } from "@/components/header/Header";
-import { Footer } from "@/components/footer/Footer";
 import { getDict } from "@/lib/i18n/server";
 import { SparklesIcon } from "@/components/icons";
 
@@ -31,7 +30,6 @@ export async function ComingSoon({ title }: { title: string }) {
           </Link>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

@@ -1,5 +1,4 @@
 import { Header } from "@/components/header/Header";
-import { Footer } from "@/components/footer/Footer";
 
 /** Shared shell for informational pages: centred prose column in the site tokens. */
 export function StaticPage({
@@ -21,7 +20,6 @@ export function StaticPage({
           {children}
         </div>
       </main>
-      <Footer />
     </>
   );
 }
