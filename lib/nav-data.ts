@@ -12,6 +12,7 @@ import {
   RentIcon,
   SparklesIcon,
   TagIcon,
+  WalletIcon,
   WatchIcon,
   WrenchIcon,
 } from "@/components/icons";
@@ -43,6 +44,14 @@ export const services: NavItem[] = [
     icon: WrenchIcon,
     hint: "Book a device repair",
     keywords: "fix broken screen battery service warranty təmir إصلاح",
+  },
+  {
+    key: "svc-sell",
+    label: "Sell",
+    href: "/sell",
+    icon: WalletIcon,
+    hint: "Sell your device for cash",
+    keywords: "sell trade cash buy-back device sat بيع",
   },
   {
     key: "svc-rent",
