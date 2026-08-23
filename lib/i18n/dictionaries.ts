@@ -192,6 +192,8 @@ export interface Dict {
       pendingTitle: string;
       pendingHint: string;
       toOrders: string;
+      feePaidTitle: string;
+      feePaidHint: string;
     };
     payNow: string;
     productUnavailable: string;
@@ -370,6 +372,37 @@ export interface Dict {
       track: string;
       placedOn: string;
       failed: string;
+      refund: {
+        title: string;
+        request: string;
+        chooseMethod: string;
+        payCourierFee: string;
+        amount: string;
+        method: string;
+        windowNote: string;
+        modalTitle: string;
+        descLabel: string;
+        descPlaceholder: string;
+        descHelp: string;
+        imagesLabel: string;
+        imagesHelp: string;
+        submit: string;
+        submitting: string;
+        methodTitle: string;
+        methodHint: string;
+        dropoffTitle: string;
+        dropoffDesc: string;
+        courierTitle: string;
+        courierDesc: string;
+        feePending: string;
+        methodSubmitting: string;
+        statuses: Record<string, string>;
+        errGeneric: string;
+        errDescription: string;
+        errMinImages: string;
+        errNotImage: string;
+        errFileSize: string;
+      };
       detail: {
         heading: string;
         items: string;
@@ -864,6 +897,8 @@ const en: Dict = {
       pendingTitle: "Payment still processing",
       pendingHint: "This can take a moment. Check your orders in a minute — we'll record the result either way.",
       toOrders: "Go to my orders",
+      feePaidTitle: "Pickup fee paid",
+      feePaidHint: "Your courier pickup is being scheduled. Track the return on your order page.",
     },
     payNow: "Pay now",
     productUnavailable: "This product isn't available right now.",
@@ -1197,6 +1232,47 @@ const en: Dict = {
       track: "Track parcel",
       placedOn: "Placed on",
       failed: "Couldn't cancel this order",
+      refund: {
+        title: "Refund request",
+        request: "Request a refund",
+        chooseMethod: "Choose return method",
+        payCourierFee: "Pay courier pickup fee",
+        amount: "Amount",
+        method: "Return method",
+        windowNote: "Delivered orders can be refunded within the returns window.",
+        modalTitle: "Request a refund",
+        descLabel: "What's the issue?",
+        descPlaceholder: "Tell us briefly what went wrong with the product…",
+        descHelp: "Minimum 10 characters.",
+        imagesLabel: "Photos (3 to 8)",
+        imagesHelp: "At least 3 photos showing the issue. Each up to 5 MB.",
+        submit: "Submit request",
+        submitting: "Submitting…",
+        methodTitle: "How should we get the product back?",
+        methodHint: "Pick one option. We'll handle the rest.",
+        dropoffTitle: "Drop off at our store",
+        dropoffDesc: "Free of charge. Bring the product whenever it suits you.",
+        courierTitle: "Courier pickup",
+        courierDesc: "We'll send a courier. A small pickup fee is paid securely now — it's separate from your refund, so your order is refunded in full.",
+        feePending: "Your courier pickup fee payment is still pending. Complete it to schedule your return pickup.",
+        methodSubmitting: "Saving your choice…",
+        statuses: {
+          PENDING_REVIEW: "Pending review",
+          APPROVED: "Approved",
+          DROPOFF_SELECTED: "Drop-off selected",
+          COURIER_FEE_PENDING: "Awaiting courier fee payment",
+          COURIER_REQUESTED: "Courier requested",
+          RECEIVED: "Product received",
+          REJECTED: "Rejected",
+          PAID: "Refunded",
+          FAILED: "Failed — contact support",
+        },
+        errGeneric: "Something went wrong. Please try again.",
+        errDescription: "Description must be at least 10 characters.",
+        errMinImages: "Please upload at least 3 photos.",
+        errNotImage: "Only image files are allowed.",
+        errFileSize: "Each photo must be 5 MB or smaller.",
+      },
       detail: {
         heading: "Order",
         items: "Items",
@@ -1711,6 +1787,8 @@ const az: Dict = {
       pendingTitle: "Ödəniş hələ emal olunur",
       pendingHint: "Bu bir az çəkə bilər. Bir dəqiqə sonra sifarişlərinizi yoxlayın — nəticəni hər halda qeyd edəcəyik.",
       toOrders: "Sifarişlərimə keç",
+      feePaidTitle: "Götürmə haqqı ödənildi",
+      feePaidHint: "Kuryer götürməniz planlaşdırılır. Qaytarmanı sifariş səhifənizdə izləyin.",
     },
     payNow: "İndi ödə",
     productUnavailable: "Bu məhsul hazırda mövcud deyil.",
@@ -2059,6 +2137,47 @@ const az: Dict = {
       track: "Bağlamanı izlə",
       placedOn: "Sifariş tarixi:",
       failed: "Sifarişi ləğv etmək mümkün olmadı",
+      refund: {
+        title: "Geri qaytarma sorğusu",
+        request: "Geri qaytarma tələb et",
+        chooseMethod: "Geri qaytarma üsulunu seç",
+        payCourierFee: "Kuryer götürmə haqqını ödə",
+        amount: "Məbləğ",
+        method: "Geri qaytarma üsulu",
+        windowNote: "Çatdırılmış sifarişlər qaytarma müddəti ərzində geri qaytarıla bilər.",
+        modalTitle: "Geri qaytarma tələb et",
+        descLabel: "Problem nədir?",
+        descPlaceholder: "Məhsulla bağlı problemi qısaca yazın…",
+        descHelp: "Ən azı 10 simvol.",
+        imagesLabel: "Şəkillər (3 ilə 8 arası)",
+        imagesHelp: "Problemi göstərən ən azı 3 şəkil. Hər biri ən çoxu 5 MB.",
+        submit: "Sorğunu göndər",
+        submitting: "Göndərilir…",
+        methodTitle: "Məhsulu necə alaq?",
+        methodHint: "Bir variant seçin, qalanını biz edirik.",
+        dropoffTitle: "Mağazaya gətir",
+        dropoffDesc: "Pulsuzdur. Sizə uyğun zaman gətirin.",
+        courierTitle: "Kuryer ilə götürmə",
+        courierDesc: "Sizə kuryer göndəririk. Kiçik götürmə haqqı indi təhlükəsiz ödənilir — bu, geri qaytarmadan ayrıdır, ona görə sifarişiniz tam geri qaytarılır.",
+        feePending: "Kuryer götürmə haqqı ödənişiniz hələ gözləyir. Götürməni planlaşdırmaq üçün tamamlayın.",
+        methodSubmitting: "Seçiminiz yadda saxlanılır…",
+        statuses: {
+          PENDING_REVIEW: "Baxılır",
+          APPROVED: "Təsdiqləndi",
+          DROPOFF_SELECTED: "Mağazada təhvil seçildi",
+          COURIER_FEE_PENDING: "Kuryer haqqı ödənişi gözlənilir",
+          COURIER_REQUESTED: "Kuryer tələb olunub",
+          RECEIVED: "Məhsul alındı",
+          REJECTED: "Rədd edildi",
+          PAID: "Geri qaytarıldı",
+          FAILED: "Uğursuz oldu — dəstəklə əlaqə saxla",
+        },
+        errGeneric: "Xəta baş verdi. Yenidən cəhd edin.",
+        errDescription: "Açıqlama ən azı 10 simvol olmalıdır.",
+        errMinImages: "Ən azı 3 şəkil yükləyin.",
+        errNotImage: "Yalnız şəkil faylları icazəlidir.",
+        errFileSize: "Hər şəkil ən çox 5 MB ola bilər.",
+      },
       detail: {
         heading: "Sifariş",
         items: "Məhsullar",
@@ -2573,6 +2692,8 @@ const ar: Dict = {
       pendingTitle: "الدفع قيد المعالجة",
       pendingHint: "قد يستغرق هذا لحظة. تفقد طلباتك بعد دقيقة — سنسجل النتيجة في كل الأحوال.",
       toOrders: "الذهاب إلى طلباتي",
+      feePaidTitle: "تم دفع رسوم الاستلام",
+      feePaidHint: "جارٍ جدولة استلام المندوب. تتبّع الإرجاع من صفحة طلبك.",
     },
     payNow: "ادفع الآن",
     productUnavailable: "هذا المنتج غير متاح حاليًا.",
@@ -2905,6 +3026,47 @@ const ar: Dict = {
       track: "تتبّع الشحنة",
       placedOn: "تاريخ الطلب:",
       failed: "تعذّر إلغاء هذا الطلب",
+      refund: {
+        title: "طلب الاسترداد",
+        request: "طلب استرداد",
+        chooseMethod: "اختر طريقة الإرجاع",
+        payCourierFee: "ادفع رسوم استلام المندوب",
+        amount: "المبلغ",
+        method: "طريقة الإرجاع",
+        windowNote: "يمكن استرداد الطلبات المُسلّمة خلال فترة الإرجاع.",
+        modalTitle: "طلب استرداد",
+        descLabel: "ما المشكلة؟",
+        descPlaceholder: "أخبرنا باختصار بما حدث للمنتج…",
+        descHelp: "10 أحرف على الأقل.",
+        imagesLabel: "الصور (من 3 إلى 8)",
+        imagesHelp: "ثلاث صور على الأقل توضّح المشكلة. حجم كل صورة حتى 5 ميجابايت.",
+        submit: "إرسال الطلب",
+        submitting: "جارٍ الإرسال…",
+        methodTitle: "كيف نستلم المنتج منك؟",
+        methodHint: "اختر أحد الخيارَين، وسنتولّى الباقي.",
+        dropoffTitle: "التسليم في المتجر",
+        dropoffDesc: "مجاناً. أحضر المنتج في الوقت المناسب لك.",
+        courierTitle: "استلام بواسطة المندوب",
+        courierDesc: "سنرسل لك مندوباً. تُدفع رسوم استلام صغيرة الآن بأمان — وهي منفصلة عن المبلغ المسترد، لذا يُسترد طلبك بالكامل.",
+        feePending: "لا يزال دفع رسوم استلام المندوب معلّقاً. أكمله لجدولة استلام إرجاعك.",
+        methodSubmitting: "جارٍ حفظ اختيارك…",
+        statuses: {
+          PENDING_REVIEW: "قيد المراجعة",
+          APPROVED: "تمت الموافقة",
+          DROPOFF_SELECTED: "تم اختيار التسليم في المتجر",
+          COURIER_FEE_PENDING: "بانتظار دفع رسوم المندوب",
+          COURIER_REQUESTED: "تم طلب المندوب",
+          RECEIVED: "تم استلام المنتج",
+          REJECTED: "مرفوض",
+          PAID: "تم الاسترداد",
+          FAILED: "فشل — تواصل مع الدعم",
+        },
+        errGeneric: "حدث خطأ. يُرجى المحاولة مرة أخرى.",
+        errDescription: "يجب ألّا يقلّ الوصف عن 10 أحرف.",
+        errMinImages: "يُرجى رفع 3 صور على الأقل.",
+        errNotImage: "يُسمح بملفات الصور فقط.",
+        errFileSize: "يجب ألّا يتجاوز حجم كل صورة 5 ميجابايت.",
+      },
       detail: {
         heading: "الطلب",
         items: "المنتجات",

@@ -35,6 +35,7 @@ export function PaymentCallbackView() {
 
   const [outcome, setOutcome] = useState<Outcome>("checking");
   const [orderId, setOrderId] = useState<string | null>(null);
+  const courierFee = params.get("kind") === "courier-fee";
   const ranRef = useRef(false);
 
   useEffect(() => {
@@ -57,7 +58,8 @@ export function PaymentCallbackView() {
     }
 
     const finish = (tx: PaymentTransaction | null, paymobSuccess: string | null) => {
-      const oid = tx?.appOrderId ?? storedOrder;
+      // Courier-fee transactions carry no appOrderId; the redirect embeds the order id.
+      const oid = tx?.appOrderId ?? storedOrder ?? all.orderId ?? null;
       setOrderId(oid ?? null);
       if (tx && TERMINAL.has(tx.status)) {
         setOutcome(tx.status === "FAILED" || tx.status === "CANCELLED" ? "failed" : "success");
@@ -143,8 +145,8 @@ export function PaymentCallbackView() {
       <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
         <CheckIcon className="h-8 w-8" />
       </span>,
-      cb.successTitle,
-      cb.successHint,
+      courierFee ? cb.feePaidTitle : cb.successTitle,
+      courierFee ? cb.feePaidHint : cb.successHint,
       <>
         {orderId && (
           <Link href={`/account/orders/${orderId}`} className={primaryBtn}>

@@ -19,6 +19,7 @@ import {
 import { useProductLookup } from "@/lib/use-product-lookup";
 import { repayOrder } from "@/lib/checkout-api";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
+import { RefundCard } from "@/components/account/RefundCard";
 import { PENDING_ORDER_KEY, PENDING_TX_KEY } from "@/components/checkout/CheckoutView";
 import { ChevronLeftIcon, StarIcon, TruckIcon, WalletIcon } from "@/components/icons";
 
@@ -552,6 +553,15 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               )}
             </section>
           )}
+
+          {/* Refund */}
+          <RefundCard
+            orderId={order.id}
+            orderStatus={order.status}
+            deliveredAt={order.deliveredAt}
+            currency={order.currency}
+            hasPaymentTransaction={!!order.paymentTransactionId}
+          />
 
           {/* Cancel */}
           {isCancellable(order.status) && (
