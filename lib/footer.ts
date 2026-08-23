@@ -20,6 +20,7 @@ export const footerColumns: FooterColumn[] = [
     links: [
       { key: "buyobot", href: "/buyobot" },
       { key: "repair", href: "/repair" },
+      { key: "sell", href: "/sell" },
       { key: "rent", href: "/rent" },
       { key: "tradein", href: "/trade-in" },
       { key: "powerbank", href: "/powerbank-stations" },

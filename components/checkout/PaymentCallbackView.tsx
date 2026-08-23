@@ -39,6 +39,8 @@ export function PaymentCallbackView() {
   const courierFee = kind === "courier-fee";
   const repairFee = kind === "repair-courier-fee";
   const repairId = params.get("repairId");
+  const sellFee = kind === "sell-courier-fee";
+  const sellId = params.get("sellId");
   const ranRef = useRef(false);
 
   useEffect(() => {
@@ -148,10 +150,14 @@ export function PaymentCallbackView() {
       <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
         <CheckIcon className="h-8 w-8" />
       </span>,
-      courierFee || repairFee ? cb.feePaidTitle : cb.successTitle,
-      repairFee ? cb.repairFeeHint : courierFee ? cb.feePaidHint : cb.successHint,
+      courierFee || repairFee || sellFee ? cb.feePaidTitle : cb.successTitle,
+      sellFee ? cb.sellFeeHint : repairFee ? cb.repairFeeHint : courierFee ? cb.feePaidHint : cb.successHint,
       <>
-        {repairFee && repairId ? (
+        {sellFee && sellId ? (
+          <Link href={`/sell/${sellId}`} className={primaryBtn}>
+            {cb.toSell}
+          </Link>
+        ) : repairFee && repairId ? (
           <Link href={`/repair/${repairId}`} className={primaryBtn}>
             {cb.toRepair}
           </Link>
@@ -174,7 +180,16 @@ export function PaymentCallbackView() {
       cb.failedTitle,
       cb.failedHint,
       <>
-        <Link href={repairFee && repairId ? `/repair/${repairId}` : "/checkout"} className={primaryBtn}>
+        <Link
+          href={
+            sellFee && sellId
+              ? `/sell/${sellId}`
+              : repairFee && repairId
+                ? `/repair/${repairId}`
+                : "/checkout"
+          }
+          className={primaryBtn}
+        >
           {cb.tryAgain}
         </Link>
         <Link href="/account" className={secondaryBtn}>
@@ -190,10 +205,16 @@ export function PaymentCallbackView() {
     cb.pendingTitle,
     cb.pendingHint,
     <Link
-      href={repairFee && repairId ? `/repair/${repairId}` : "/account"}
+      href={
+        sellFee && sellId
+          ? `/sell/${sellId}`
+          : repairFee && repairId
+            ? `/repair/${repairId}`
+            : "/account"
+      }
       className={primaryBtn}
     >
-      {repairFee && repairId ? cb.toRepair : cb.toOrders}
+      {sellFee && sellId ? cb.toSell : repairFee && repairId ? cb.toRepair : cb.toOrders}
     </Link>,
   );
 }

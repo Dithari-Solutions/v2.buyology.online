@@ -154,6 +154,121 @@ export interface Dict {
     aboutP2: string;
     legalEnglishNote: string;
   };
+  sell: {
+    landing: {
+      heroTitle: string;
+      heroSubtitle: string;
+      startCta: string;
+      viewRequests: string;
+      howItWorks: string;
+      ctaTitle: string;
+      ctaBody: string;
+      steps: { title: string; body: string }[];
+    };
+    gate: {
+      title: string;
+      body: string;
+      completeProfile: string;
+    };
+    conditions: Record<string, string>;
+    conditionHints: Record<string, string>;
+    form: {
+      title: string;
+      error: string;
+      conditionTitle: string;
+      productName: string;
+      productNamePlaceholder: string;
+      brand: string;
+      brandPlaceholder: string;
+      model: string;
+      modelPlaceholder: string;
+      purchaseDate: string;
+      description: string;
+      descriptionPlaceholder: string;
+      uploadHintRequired: string;
+      uploadCta: string;
+      imagesRequired: string;
+      submit: string;
+      submitting: string;
+    };
+    list: {
+      title: string;
+      newRequest: string;
+      emptyTitle: string;
+      emptyBody: string;
+      createFirst: string;
+      updated: string;
+    };
+    statuses: Record<string, string>;
+    detail: {
+      deliveryTitle: string;
+      deliveryChangeHint: string;
+      changeDelivery: string;
+      cancelChange: string;
+      feePaid: string;
+      feeUnpaid: string;
+      switchRefundNote: string;
+      notFound: string;
+      backToList: string;
+      pickStore: string;
+      actionFailed: string;
+      dateSubmitted: string;
+      brand: string;
+      model: string;
+      condition: string;
+      purchaseDate: string;
+      images: string;
+      reviewing: string;
+      bringToStore: string;
+      bringToStoreBody: string;
+      free: string;
+      noStores: string;
+      selectStore: string;
+      courierPickup: string;
+      courierPickupBody: string;
+      saving: string;
+      redirecting: string;
+      payCourierFee: string;
+      courierPaymentPending: string;
+      courierPaymentPendingBody: string;
+      returnPaymentPendingBody: string;
+      switchToStorePickup: string;
+      awaitingCourier: string;
+      awaitingDropoff: string;
+      theStore: string;
+      underReview: string;
+      offerTitle: string;
+      weWillPay: string;
+      offerValidity: string;
+      inspectedCondition: string;
+      payoutTitle: string;
+      payoutStore: string;
+      payoutStoreBody: string;
+      payoutWallet: string;
+      payoutWalletBody: string;
+      comingSoon: string;
+      acceptOffer: string;
+      declineOffer: string;
+      collectTitle: string;
+      collectBody: string;
+      collectBodyNoStore: string;
+      completed: string;
+      returnTitle: string;
+      returnBody: string;
+      returnCourierChosen: string;
+      returnPickupChosen: string;
+      pickupFromStore: string;
+      courierReturn: string;
+      aiEstimateTitle: string;
+      aiEstimateBadge: string;
+      aiEstimateDisclaimer: string;
+      problem: string;
+      estimatePending: string;
+      estimatePendingBody: string;
+      estimateUnavailable: string;
+      estimateUnavailableBody: string;
+    };
+  };
   repair: {
     landing: {
       heroTitle: string;
@@ -299,6 +414,8 @@ export interface Dict {
       feePaidHint: string;
       repairFeeHint: string;
       toRepair: string;
+      sellFeeHint: string;
+      toSell: string;
     };
     payNow: string;
     productUnavailable: string;
@@ -979,6 +1096,146 @@ const en: Dict = {
     aboutP2: "We built this new experience around honest prices, real reviews, 30-minute express delivery where it's genuinely possible, and a checkout that shows you exactly what you'll pay before you pay it.",
     legalEnglishNote: "This document is provided in English.",
   },
+  sell: {
+    landing: {
+      heroTitle: "Sell Your Device to Buyology",
+      heroSubtitle: "Turn the device you no longer use into cash. Get an instant estimate, send it to us, and collect your money at our store.",
+      startCta: "Start Sell Request",
+      viewRequests: "My Sell Requests",
+      howItWorks: "How It Works",
+      ctaTitle: "Ready to Get Paid?",
+      ctaBody: "Submit your device now and get a preliminary estimate in seconds.",
+      steps: [
+        { title: "Tell Us About It", body: "Fill in your device details, grade its condition and upload photos." },
+        { title: "Get An Instant Estimate", body: "Our AI values your device from your photos in seconds." },
+        { title: "Send It To Us", body: "Drop it at one of our stores, or request a courier pickup." },
+        { title: "Receive Our Offer", body: "We inspect the device and send you a firm price to accept or decline." },
+        { title: "Get Paid", body: "Accept and collect your money at our store. Decline and we send it back." },
+      ],
+    },
+    gate: {
+      title: "Complete your profile first",
+      body: "Selling a device ends with us paying you in person, so we need your email address and phone number on file before you can submit a request.",
+      completeProfile: "Complete profile",
+    },
+    conditions: {
+      LIKE_NEW: "Like new",
+      GOOD: "Good",
+      FAIR: "Fair",
+      POOR: "Poor",
+    },
+    conditionHints: {
+      LIKE_NEW: "Barely used, no marks, everything works",
+      GOOD: "Normal signs of use, fully working",
+      FAIR: "Visible wear or a minor fault, still usable",
+      POOR: "Heavy damage, or doesn't power on reliably",
+    },
+    form: {
+      title: "Sell Your Device",
+      error: "Something went wrong. Please try again.",
+      conditionTitle: "Condition",
+      productName: "Product Name",
+      productNamePlaceholder: "e.g. MacBook Air",
+      brand: "Brand",
+      brandPlaceholder: "e.g. Apple",
+      model: "Model",
+      modelPlaceholder: "e.g. 2021 M1",
+      purchaseDate: "Purchase Date (Optional)",
+      description: "Description",
+      descriptionPlaceholder: "Storage size, any faults or scratches, what's included (charger, box)…",
+      uploadHintRequired: "Add at least 1 photo of your device (up to 4) — we value it from what they show.",
+      uploadCta: "Click to upload or drag and drop",
+      imagesRequired: "Add at least one photo of your device.",
+      submit: "Submit Sell Request",
+      submitting: "Submitting…",
+    },
+    list: {
+      title: "My Sell Requests",
+      newRequest: "New request",
+      emptyTitle: "No sell requests yet",
+      emptyBody: "When you offer us a device it'll appear here so you can track its progress.",
+      createFirst: "Sell your first device",
+      updated: "New update",
+    },
+    statuses: {
+      SUBMITTED: "Submitted",
+      AWAITING_DEVICE: "Awaiting device",
+      UNDER_REVIEW: "Under inspection",
+      OFFER_MADE: "Waiting for your approval",
+      ACCEPTED: "Collect your payment",
+      COMPLETED: "Paid",
+      DECLINED: "Offer declined",
+      CANCELLED: "Cancelled",
+    },
+    detail: {
+      deliveryTitle: "Getting your device to us",
+      deliveryChangeHint: "You can change this until your device reaches our team.",
+      changeDelivery: "Change",
+      cancelChange: "Cancel",
+      feePaid: "Fee paid",
+      feeUnpaid: "Fee unpaid",
+      switchRefundNote: "You've already paid the courier fee. Switch to a store drop-off and our team will refund it — it isn't returned automatically.",
+      notFound: "Sell request not found.",
+      backToList: "Back to my sell requests",
+      pickStore: "Please choose a store branch.",
+      actionFailed: "Something went wrong. Please try again.",
+      dateSubmitted: "Date Submitted",
+      brand: "Brand",
+      model: "Model",
+      condition: "Condition",
+      purchaseDate: "Purchase Date",
+      images: "Photos",
+      reviewing: "Our team is currently reviewing your request — we've emailed you a confirmation. Next, choose how to get your device to us.",
+      bringToStore: "Bring to Store",
+      bringToStoreBody: "Bring your device to one of our store locations.",
+      free: "Free",
+      noStores: "No stores available in your region yet.",
+      selectStore: "Select a store branch…",
+      courierPickup: "Request Courier Pickup",
+      courierPickupBody: "We'll send a courier to collect your device (fee applies).",
+      saving: "Saving…",
+      redirecting: "Redirecting…",
+      payCourierFee: "Pay courier fee",
+      courierPaymentPending: "Complete your courier payment",
+      courierPaymentPendingBody: "Pay the courier pickup fee to schedule the collection of your device — or choose to bring it to a store below instead.",
+      returnPaymentPendingBody: "Pay the courier fee to have your device delivered back to you — or collect it from the store for free instead.",
+      switchToStorePickup: "Collect from store instead",
+      awaitingCourier: "A courier will collect your device and deliver it to our store. We'll update this page once it arrives.",
+      awaitingDropoff: "Please drop your device at {{store}}. We'll start the inspection as soon as we receive it.",
+      theStore: "the selected store",
+      underReview: "We've received your device and our team is inspecting it. You'll get our offer shortly.",
+      offerTitle: "Our Offer",
+      weWillPay: "We'll pay you",
+      offerValidity: "Offer validity",
+      inspectedCondition: "Graded as",
+      payoutTitle: "How would you like to be paid?",
+      payoutStore: "Collect at our store",
+      payoutStoreBody: "Pick up your money in person at the branch handling your device.",
+      payoutWallet: "Keep it in my Buyology wallet",
+      payoutWalletBody: "Spend the balance on your next Buyology order. Not available just yet.",
+      comingSoon: "Coming soon",
+      acceptOffer: "Accept Offer",
+      declineOffer: "Decline Offer",
+      collectTitle: "Collect your payment",
+      collectBody: "You've accepted our offer. Visit {{store}} with your ID to collect your payment — we'll mark this request as paid once the money is in your hands.",
+      collectBodyNoStore: "You've accepted our offer. Bring your ID to any Buyology store to collect your payment — we'll be in touch to confirm the branch holding your device, and we'll mark this request as paid once the money is in your hands.",
+      completed: "All done — you've been paid. Thanks for selling to Buyology!",
+      returnTitle: "Get your device back",
+      returnBody: "You've declined our offer. Choose how you'd like to receive your device back.",
+      returnCourierChosen: "A courier will deliver your device back to you.",
+      returnPickupChosen: "You can collect your device from the store.",
+      pickupFromStore: "Pick up from store",
+      courierReturn: "Request courier delivery",
+      aiEstimateTitle: "Preliminary valuation",
+      aiEstimateBadge: "AI · not final",
+      aiEstimateDisclaimer: "Generated automatically from your photos and description as a rough guide. Our team will inspect your device and send you the final offer before you commit to anything.",
+      problem: "Description",
+      estimatePending: "AI is valuing your device…",
+      estimatePendingBody: "Analysing your photos and description. This usually takes a few seconds.",
+      estimateUnavailable: "No instant estimate this time",
+      estimateUnavailableBody: "We couldn't prepare a preliminary valuation for this one. Our team will inspect your device and send you a full offer — nothing is delayed.",
+    },
+  },
   repair: {
     landing: {
       heroTitle: "Repair Your Device",
@@ -1139,6 +1396,8 @@ const en: Dict = {
       feePaidHint: "Your courier pickup is being scheduled. Track the return on your order page.",
       repairFeeHint: "Your courier is being arranged. Track your repair from its page.",
       toRepair: "View repair request",
+      sellFeeHint: "Your courier is being arranged. Track your sell request from its page.",
+      toSell: "View sell request",
     },
     payNow: "Pay now",
     productUnavailable: "This product isn't available right now.",
@@ -1381,6 +1640,7 @@ const en: Dict = {
       electronics: "Electronics",
       buyobot: "Buyobot AI",
       repair: "Repair",
+      sell: "Sell your device",
       rent: "Rent",
       tradein: "Trade-in",
       powerbank: "Powerbank Stations",
@@ -2004,6 +2264,146 @@ const az: Dict = {
     aboutP2: "Bu yeni təcrübəni dürüst qiymətlər, real rəylər, həqiqətən mümkün olan yerlərdə 30 dəqiqəlik ekspres çatdırılma və ödəməzdən əvvəl nə ödəyəcəyinizi dəqiq göstərən checkout üzərində qurduq.",
     legalEnglishNote: "Bu sənəd ingilis dilində təqdim olunur.",
   },
+  sell: {
+    landing: {
+      heroTitle: "Cihazını Buyology-yə Sat",
+      heroSubtitle: "İstifadə etmədiyin cihazı nağd pula çevir. Dərhal qiymətləndirmə al, cihazı bizə göndər və pulunu mağazamızdan götür.",
+      startCta: "Satış Sorğusu Yarat",
+      viewRequests: "Satış Sorğularım",
+      howItWorks: "Necə İşləyir",
+      ctaTitle: "Pulunu Almağa Hazırsan?",
+      ctaBody: "Cihazını indi göndər və saniyələr içində ilkin qiymətləndirmə al.",
+      steps: [
+        { title: "Cihaz Haqqında Məlumat Ver", body: "Cihazın məlumatlarını doldur, vəziyyətini qeyd et və şəkil yüklə." },
+        { title: "Dərhal Qiymətləndirmə Al", body: "Süni intellekt şəkillərinə əsasən cihazını saniyələr içində qiymətləndirir." },
+        { title: "Bizə Göndər", body: "Mağazalarımızdan birinə gətir və ya kuryer çağır." },
+        { title: "Təklifimizi Al", body: "Cihazı yoxlayır və qəbul edə və ya rədd edə biləcəyin dəqiq qiymət göndəririk." },
+        { title: "Pulunu Al", body: "Qəbul et və pulunu mağazamızdan götür. Rədd etsən, cihazı geri göndəririk." },
+      ],
+    },
+    gate: {
+      title: "Əvvəlcə profilini tamamla",
+      body: "Cihaz satışı pulun sənə şəxsən ödənilməsi ilə bitir, ona görə sorğu göndərməzdən əvvəl e-poçt ünvanın və telefon nömrən sistemdə olmalıdır.",
+      completeProfile: "Profili tamamla",
+    },
+    conditions: {
+      LIKE_NEW: "Təzə kimi",
+      GOOD: "Yaxşı",
+      FAIR: "Orta",
+      POOR: "Zəif",
+    },
+    conditionHints: {
+      LIKE_NEW: "Demək olar istifadə olunmayıb, cizgi yoxdur, hər şey işləyir",
+      GOOD: "Adi istifadə izləri var, tam işlək",
+      FAIR: "Görünən aşınma və ya kiçik nasazlıq var, istifadə oluna bilir",
+      POOR: "Ciddi zədə var və ya sabit işə düşmür",
+    },
+    form: {
+      title: "Cihazını Sat",
+      error: "Xəta baş verdi. Yenidən cəhd et.",
+      conditionTitle: "Vəziyyət",
+      productName: "Məhsulun adı",
+      productNamePlaceholder: "məs. MacBook Air",
+      brand: "Brend",
+      brandPlaceholder: "məs. Apple",
+      model: "Model",
+      modelPlaceholder: "məs. 2021 M1",
+      purchaseDate: "Alınma tarixi (istəyə bağlı)",
+      description: "Təsvir",
+      descriptionPlaceholder: "Yaddaş həcmi, nasazlıqlar və ya cizgilər, komplektdə nə var (adapter, qutu)…",
+      uploadHintRequired: "Cihazının ən azı 1 şəklini əlavə et (4-ə qədər) — qiyməti şəkillərə əsasən veririk.",
+      uploadCta: "Yükləmək üçün klikləyin və ya sürüşdürün",
+      imagesRequired: "Cihazının ən azı bir şəklini əlavə et.",
+      submit: "Satış Sorğusunu Göndər",
+      submitting: "Göndərilir…",
+    },
+    list: {
+      title: "Satış Sorğularım",
+      newRequest: "Yeni sorğu",
+      emptyTitle: "Hələ satış sorğusu yoxdur",
+      emptyBody: "Bizə cihaz təklif etdikdə burada görünəcək və gedişatı izləyə biləcəksən.",
+      createFirst: "İlk cihazını sat",
+      updated: "Yeni yenilik",
+    },
+    statuses: {
+      SUBMITTED: "Göndərildi",
+      AWAITING_DEVICE: "Cihaz gözlənilir",
+      UNDER_REVIEW: "Yoxlanılır",
+      OFFER_MADE: "Təsdiqin gözlənilir",
+      ACCEPTED: "Pulunu götür",
+      COMPLETED: "Ödənildi",
+      DECLINED: "Təklif rədd edildi",
+      CANCELLED: "Ləğv edildi",
+    },
+    detail: {
+      deliveryTitle: "Cihazın bizə çatdırılması",
+      deliveryChangeHint: "Cihazın komandamıza çatana qədər bunu dəyişə bilərsən.",
+      changeDelivery: "Dəyiş",
+      cancelChange: "Ləğv et",
+      feePaid: "Haqq ödənilib",
+      feeUnpaid: "Haqq ödənilməyib",
+      switchRefundNote: "Kuryer haqqını artıq ödəmisən. Mağazaya gətirməyə keçsən, komandamız məbləği geri qaytaracaq — avtomatik qaytarılmır.",
+      notFound: "Satış sorğusu tapılmadı.",
+      backToList: "Satış sorğularıma qayıt",
+      pickStore: "Zəhmət olmasa mağaza filialı seç.",
+      actionFailed: "Xəta baş verdi. Yenidən cəhd et.",
+      dateSubmitted: "Göndərilmə tarixi",
+      brand: "Brend",
+      model: "Model",
+      condition: "Vəziyyət",
+      purchaseDate: "Alınma tarixi",
+      images: "Şəkillər",
+      reviewing: "Komandamız sorğunu nəzərdən keçirir — təsdiq e-poçtu göndərdik. Növbəti addım: cihazı bizə necə çatdıracağını seç.",
+      bringToStore: "Mağazaya gətir",
+      bringToStoreBody: "Cihazını mağazalarımızdan birinə gətir.",
+      free: "Pulsuz",
+      noStores: "Regionunda hələ mağaza yoxdur.",
+      selectStore: "Mağaza filialı seç…",
+      courierPickup: "Kuryer Çağır",
+      courierPickupBody: "Cihazını götürmək üçün kuryer göndəririk (haqq tətbiq olunur).",
+      saving: "Yadda saxlanılır…",
+      redirecting: "Yönləndirilir…",
+      payCourierFee: "Kuryer haqqını ödə",
+      courierPaymentPending: "Kuryer ödənişini tamamla",
+      courierPaymentPendingBody: "Cihazının götürülməsini planlaşdırmaq üçün kuryer haqqını ödə — və ya aşağıdan mağazaya gətirməyi seç.",
+      returnPaymentPendingBody: "Cihazın sənə geri çatdırılması üçün kuryer haqqını ödə — və ya pulsuz olaraq mağazadan götür.",
+      switchToStorePickup: "Əvəzində mağazadan götür",
+      awaitingCourier: "Kuryer cihazını götürüb mağazamıza çatdıracaq. Cihaz gələn kimi bu səhifəni yeniləyəcəyik.",
+      awaitingDropoff: "Zəhmət olmasa cihazını {{store}} ünvanına gətir. Qəbul edən kimi yoxlamaya başlayacağıq.",
+      theStore: "seçilmiş mağaza",
+      underReview: "Cihazını qəbul etdik və komandamız onu yoxlayır. Təklifimizi tezliklə alacaqsan.",
+      offerTitle: "Təklifimiz",
+      weWillPay: "Sənə ödəyəcəyimiz",
+      offerValidity: "Təklifin qüvvədə olma müddəti",
+      inspectedCondition: "Qiymətləndirmə",
+      payoutTitle: "Ödənişi necə almaq istəyirsən?",
+      payoutStore: "Mağazamızdan götür",
+      payoutStoreBody: "Pulunu cihazınla məşğul olan filialdan şəxsən götür.",
+      payoutWallet: "Buyology cüzdanımda saxla",
+      payoutWalletBody: "Balansı növbəti Buyology sifarişində xərclə. Hələ mövcud deyil.",
+      comingSoon: "Tezliklə",
+      acceptOffer: "Təklifi Qəbul Et",
+      declineOffer: "Təklifi Rədd Et",
+      collectTitle: "Pulunu götür",
+      collectBody: "Təklifimizi qəbul etdin. Şəxsiyyət vəsiqənlə {{store}} ünvanına gəl və pulunu götür — pul sənə çatan kimi bu sorğunu ödənilmiş kimi qeyd edəcəyik.",
+      collectBodyNoStore: "Təklifimizi qəbul etdin. Pulunu götürmək üçün şəxsiyyət vəsiqənlə istənilən Buyology mağazasına gəl — cihazının olduğu filialı təsdiqləmək üçün səninlə əlaqə saxlayacağıq və pul sənə çatan kimi bu sorğunu ödənilmiş kimi qeyd edəcəyik.",
+      completed: "Hər şey hazırdır — ödəniş edildi. Buyology-yə satdığın üçün təşəkkürlər!",
+      returnTitle: "Cihazını geri al",
+      returnBody: "Təklifimizi rədd etdin. Cihazını necə geri almaq istədiyini seç.",
+      returnCourierChosen: "Kuryer cihazını sənə geri çatdıracaq.",
+      returnPickupChosen: "Cihazını mağazadan götürə bilərsən.",
+      pickupFromStore: "Mağazadan götür",
+      courierReturn: "Kuryerlə çatdırılma istə",
+      aiEstimateTitle: "İlkin qiymətləndirmə",
+      aiEstimateBadge: "AI · yekun deyil",
+      aiEstimateDisclaimer: "Şəkillərinə və təsvirinə əsasən avtomatik hazırlanıb, təxmini göstəricidir. Komandamız cihazı yoxlayacaq və heç nəyə razılıq verməzdən əvvəl sənə yekun təklifi göndərəcək.",
+      problem: "Təsvir",
+      estimatePending: "Süni intellekt cihazını qiymətləndirir…",
+      estimatePendingBody: "Şəkillərin və təsvirin analiz edilir. Bu adətən bir neçə saniyə çəkir.",
+      estimateUnavailable: "Bu dəfə dərhal qiymətləndirmə alınmadı",
+      estimateUnavailableBody: "Bunun üçün ilkin qiymətləndirmə hazırlaya bilmədik. Komandamız cihazını yoxlayacaq və tam təklif göndərəcək — heç bir gecikmə olmayacaq.",
+    },
+  },
   repair: {
     landing: {
       heroTitle: "Cihazınızı Təmir Etdirin",
@@ -2164,6 +2564,8 @@ const az: Dict = {
       feePaidHint: "Kuryer götürməniz planlaşdırılır. Qaytarmanı sifariş səhifənizdə izləyin.",
       repairFeeHint: "Kuryeriniz təşkil olunur. Təmirinizi öz səhifəsindən izləyin.",
       toRepair: "Təmir sorğusuna bax",
+      sellFeeHint: "Kuryeriniz təşkil olunur. Satış sorğunuzu öz səhifəsindən izləyin.",
+      toSell: "Satış sorğusuna bax",
     },
     payNow: "İndi ödə",
     productUnavailable: "Bu məhsul hazırda mövcud deyil.",
@@ -2421,6 +2823,7 @@ const az: Dict = {
       electronics: "Elektronika",
       buyobot: "Buyobot Sİ",
       repair: "Təmir",
+      sell: "Cihazını sat",
       rent: "İcarə",
       tradein: "Dəyişdirmə",
       powerbank: "Powerbank Stansiyaları",
@@ -3044,6 +3447,146 @@ const ar: Dict = {
     aboutP2: "بنينا هذه التجربة الجديدة على أسعار صادقة، ومراجعات حقيقية، وتوصيل سريع خلال 30 دقيقة حيث يكون ممكنًا فعلًا، وإتمام شراء يريك بالضبط ما ستدفعه قبل أن تدفع.",
     legalEnglishNote: "هذه الوثيقة متاحة باللغة الإنجليزية.",
   },
+  sell: {
+    landing: {
+      heroTitle: "بع جهازك إلى Buyology",
+      heroSubtitle: "حوّل الجهاز الذي لم تعد تستخدمه إلى نقود. احصل على تقدير فوري، أرسله إلينا، واستلم أموالك من متجرنا.",
+      startCta: "ابدأ طلب البيع",
+      viewRequests: "طلبات البيع الخاصة بي",
+      howItWorks: "كيف يعمل",
+      ctaTitle: "جاهز لاستلام أموالك؟",
+      ctaBody: "أرسل جهازك الآن واحصل على تقدير أولي خلال ثوانٍ.",
+      steps: [
+        { title: "أخبرنا عن جهازك", body: "املأ بيانات الجهاز، حدّد حالته وارفع صورًا له." },
+        { title: "احصل على تقدير فوري", body: "يقيّم الذكاء الاصطناعي جهازك من صورك خلال ثوانٍ." },
+        { title: "أرسله إلينا", body: "أحضره إلى أحد متاجرنا أو اطلب مندوب توصيل لاستلامه." },
+        { title: "استلم عرضنا", body: "نفحص الجهاز ونرسل لك سعرًا نهائيًا لقبوله أو رفضه." },
+        { title: "استلم أموالك", body: "اقبل العرض واستلم أموالك من متجرنا. ارفضه ونعيد لك الجهاز." },
+      ],
+    },
+    gate: {
+      title: "أكمل ملفك الشخصي أولًا",
+      body: "بيع الجهاز ينتهي بتسليمك أموالك شخصيًا، لذا نحتاج إلى بريدك الإلكتروني ورقم هاتفك في حسابك قبل أن ترسل طلبًا.",
+      completeProfile: "إكمال الملف الشخصي",
+    },
+    conditions: {
+      LIKE_NEW: "كالجديد",
+      GOOD: "جيدة",
+      FAIR: "متوسطة",
+      POOR: "ضعيفة",
+    },
+    conditionHints: {
+      LIKE_NEW: "شبه غير مستخدم، بلا خدوش، كل شيء يعمل",
+      GOOD: "آثار استخدام عادية، يعمل بالكامل",
+      FAIR: "تآكل ظاهر أو عطل بسيط، ما زال قابلًا للاستخدام",
+      POOR: "تلف كبير أو لا يعمل بشكل موثوق",
+    },
+    form: {
+      title: "بع جهازك",
+      error: "حدث خطأ ما. حاول مرة أخرى.",
+      conditionTitle: "الحالة",
+      productName: "اسم المنتج",
+      productNamePlaceholder: "مثال: MacBook Air",
+      brand: "العلامة التجارية",
+      brandPlaceholder: "مثال: Apple",
+      model: "الموديل",
+      modelPlaceholder: "مثال: 2021 M1",
+      purchaseDate: "تاريخ الشراء (اختياري)",
+      description: "الوصف",
+      descriptionPlaceholder: "سعة التخزين، أي أعطال أو خدوش، ما المرفق (الشاحن، العلبة)…",
+      uploadHintRequired: "أضف صورة واحدة على الأقل لجهازك (حتى 4) — نقيّمه بناءً على ما تظهره.",
+      uploadCta: "انقر للرفع أو اسحب وأفلت",
+      imagesRequired: "أضف صورة واحدة على الأقل لجهازك.",
+      submit: "إرسال طلب البيع",
+      submitting: "جارٍ الإرسال…",
+    },
+    list: {
+      title: "طلبات البيع الخاصة بي",
+      newRequest: "طلب جديد",
+      emptyTitle: "لا توجد طلبات بيع بعد",
+      emptyBody: "عندما تعرض علينا جهازًا سيظهر هنا لتتمكن من متابعة تقدمه.",
+      createFirst: "بع جهازك الأول",
+      updated: "تحديث جديد",
+    },
+    statuses: {
+      SUBMITTED: "تم الإرسال",
+      AWAITING_DEVICE: "بانتظار الجهاز",
+      UNDER_REVIEW: "قيد الفحص",
+      OFFER_MADE: "بانتظار موافقتك",
+      ACCEPTED: "استلم أموالك",
+      COMPLETED: "تم الدفع",
+      DECLINED: "تم رفض العرض",
+      CANCELLED: "ملغى",
+    },
+    detail: {
+      deliveryTitle: "إيصال جهازك إلينا",
+      deliveryChangeHint: "يمكنك تغيير ذلك إلى أن يصل جهازك إلى فريقنا.",
+      changeDelivery: "تغيير",
+      cancelChange: "إلغاء",
+      feePaid: "الرسوم مدفوعة",
+      feeUnpaid: "الرسوم غير مدفوعة",
+      switchRefundNote: "لقد دفعت رسوم التوصيل بالفعل. إذا انتقلت إلى الإحضار للمتجر فسيقوم فريقنا بإعادتها — لا تُسترد تلقائيًا.",
+      notFound: "لم يتم العثور على طلب البيع.",
+      backToList: "العودة إلى طلبات البيع",
+      pickStore: "الرجاء اختيار فرع المتجر.",
+      actionFailed: "حدث خطأ ما. حاول مرة أخرى.",
+      dateSubmitted: "تاريخ الإرسال",
+      brand: "العلامة التجارية",
+      model: "الموديل",
+      condition: "الحالة",
+      purchaseDate: "تاريخ الشراء",
+      images: "الصور",
+      reviewing: "يراجع فريقنا طلبك حاليًا — أرسلنا لك رسالة تأكيد. الخطوة التالية: اختر طريقة إيصال جهازك إلينا.",
+      bringToStore: "أحضره إلى المتجر",
+      bringToStoreBody: "أحضر جهازك إلى أحد فروعنا.",
+      free: "مجانًا",
+      noStores: "لا توجد متاجر في منطقتك بعد.",
+      selectStore: "اختر فرع المتجر…",
+      courierPickup: "اطلب مندوب استلام",
+      courierPickupBody: "سنرسل مندوبًا لاستلام جهازك (تُطبّق رسوم).",
+      saving: "جارٍ الحفظ…",
+      redirecting: "جارٍ التحويل…",
+      payCourierFee: "دفع رسوم التوصيل",
+      courierPaymentPending: "أكمل دفع رسوم التوصيل",
+      courierPaymentPendingBody: "ادفع رسوم الاستلام لجدولة استلام جهازك — أو اختر إحضاره إلى المتجر أدناه.",
+      returnPaymentPendingBody: "ادفع رسوم التوصيل لإعادة جهازك إليك — أو استلمه من المتجر مجانًا.",
+      switchToStorePickup: "الاستلام من المتجر بدلًا من ذلك",
+      awaitingCourier: "سيستلم المندوب جهازك ويوصله إلى متجرنا. سنحدّث هذه الصفحة فور وصوله.",
+      awaitingDropoff: "الرجاء إحضار جهازك إلى {{store}}. سنبدأ الفحص فور استلامه.",
+      theStore: "المتجر المحدد",
+      underReview: "استلمنا جهازك وفريقنا يفحصه الآن. ستصلك عرضنا قريبًا.",
+      offerTitle: "عرضنا",
+      weWillPay: "سندفع لك",
+      offerValidity: "مدة صلاحية العرض",
+      inspectedCondition: "التقييم",
+      payoutTitle: "كيف تريد استلام أموالك؟",
+      payoutStore: "الاستلام من متجرنا",
+      payoutStoreBody: "استلم أموالك شخصيًا من الفرع الذي يتعامل مع جهازك.",
+      payoutWallet: "احتفظ بها في محفظة Buyology",
+      payoutWalletBody: "أنفق الرصيد على طلبك القادم من Buyology. غير متاح بعد.",
+      comingSoon: "قريبًا",
+      acceptOffer: "قبول العرض",
+      declineOffer: "رفض العرض",
+      collectTitle: "استلم أموالك",
+      collectBody: "لقد قبلت عرضنا. توجّه إلى {{store}} ومعك هويتك لاستلام أموالك — سنضع الطلب كمدفوع فور استلامك المبلغ.",
+      collectBodyNoStore: "لقد قبلت عرضنا. أحضر هويتك إلى أي متجر Buyology لاستلام أموالك — سنتواصل معك لتأكيد الفرع الذي يحتفظ بجهازك، وسنضع الطلب كمدفوع فور استلامك المبلغ.",
+      completed: "تم كل شيء — استلمت أموالك. شكرًا لبيعك إلى Buyology!",
+      returnTitle: "استعد جهازك",
+      returnBody: "لقد رفضت عرضنا. اختر كيف تريد استعادة جهازك.",
+      returnCourierChosen: "سيقوم مندوب بإعادة جهازك إليك.",
+      returnPickupChosen: "يمكنك استلام جهازك من المتجر.",
+      pickupFromStore: "الاستلام من المتجر",
+      courierReturn: "اطلب التوصيل بمندوب",
+      aiEstimateTitle: "تقدير أولي",
+      aiEstimateBadge: "ذكاء اصطناعي · غير نهائي",
+      aiEstimateDisclaimer: "تم إنشاؤه تلقائيًا من صورك ووصفك كدليل تقريبي. سيفحص فريقنا جهازك ويرسل لك العرض النهائي قبل أن تلتزم بأي شيء.",
+      problem: "الوصف",
+      estimatePending: "الذكاء الاصطناعي يقيّم جهازك…",
+      estimatePendingBody: "يجري تحليل صورك ووصفك. عادةً ما يستغرق ذلك بضع ثوانٍ.",
+      estimateUnavailable: "لا يوجد تقدير فوري هذه المرة",
+      estimateUnavailableBody: "لم نتمكن من إعداد تقدير أولي لهذا الجهاز. سيفحصه فريقنا ويرسل لك عرضًا كاملًا — لن يتأخر شيء.",
+    },
+  },
   repair: {
     landing: {
       heroTitle: "أصلح جهازك",
@@ -3204,6 +3747,8 @@ const ar: Dict = {
       feePaidHint: "جارٍ جدولة استلام المندوب. تتبّع الإرجاع من صفحة طلبك.",
       repairFeeHint: "جارٍ ترتيب المندوب. تتبّع إصلاحك من صفحته.",
       toRepair: "عرض طلب الإصلاح",
+      sellFeeHint: "جارٍ ترتيب المندوب. تتبّع طلب البيع من صفحته.",
+      toSell: "عرض طلب البيع",
     },
     payNow: "ادفع الآن",
     productUnavailable: "هذا المنتج غير متاح حاليًا.",
@@ -3445,6 +3990,7 @@ const ar: Dict = {
       electronics: "إلكترونيات",
       buyobot: "Buyobot AI",
       repair: "الإصلاح",
+      sell: "بِع جهازك",
       rent: "التأجير",
       tradein: "الاستبدال",
       powerbank: "محطات الشحن",
