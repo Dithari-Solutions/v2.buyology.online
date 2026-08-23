@@ -1,6 +1,8 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { useI18n } from "@/components/i18n/language-provider";
+import { currentMarket } from "@/lib/market";
 import { formatMoney } from "@/lib/format";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 
@@ -30,7 +32,16 @@ export function BnplOptions({
   compact?: boolean;
 }) {
   const { t } = useI18n();
+  // Tabby/Tamara are UAE rails — browse-only regions must not advertise pay-in-4.
+  // useSyncExternalStore is the sanctioned way to read a client-only value without a
+  // hydration mismatch: the server snapshot says shown, the client corrects on mount.
+  const shown = useSyncExternalStore(
+    () => () => {},
+    () => currentMarket().paymentsEnabled,
+    () => true,
+  );
   const per = formatMoney(Math.round((total / 4) * 100) / 100, currency);
+  if (!shown) return null;
 
   return (
     <div>

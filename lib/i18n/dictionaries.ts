@@ -116,6 +116,7 @@ export interface Dict {
     selectItem: string;
     shippingAtCheckout: string;
     syncErrorNote: string;
+    paymentsSoon: string;
     reviews: string;
     inStock: string;
   };
@@ -153,6 +154,10 @@ export interface Dict {
     aboutP1: string;
     aboutP2: string;
     legalEnglishNote: string;
+    globalTitle: string;
+    globalBody: string;
+    globalRegions: string;
+    regionNames: Record<string, string>;
   };
   sell: {
     landing: {
@@ -1057,6 +1062,7 @@ const en: Dict = {
     selectItem: "Select",
     shippingAtCheckout: "Calculated at checkout",
     syncErrorNote: "Something went wrong syncing your cart — it has been reloaded.",
+    paymentsSoon: "Online payment isn't available in your region yet — it's coming soon.",
     saved: "Saved",
     reviews: "reviews",
     inStock: "In stock",
@@ -1095,6 +1101,18 @@ const en: Dict = {
     aboutP1: "Buyology is a UAE-based electronics marketplace: laptops, audio, wearables, accessories and more — new and renewed — from vetted stores, delivered fast.",
     aboutP2: "We built this new experience around honest prices, real reviews, 30-minute express delivery where it's genuinely possible, and a checkout that shows you exactly what you'll pay before you pay it.",
     legalEnglishNote: "This document is provided in English.",
+    globalTitle: "We're not in your region yet",
+    globalBody: "Buyology currently serves the regions below. We're expanding — check back soon.",
+    globalRegions: "Choose your region",
+    regionNames: {
+      UAE: "United Arab Emirates",
+      IND: "India",
+      SAU: "Saudi Arabia",
+      BHR: "Bahrain",
+      QAT: "Qatar",
+      OMN: "Oman",
+      AZE: "Azerbaijan",
+    },
   },
   sell: {
     landing: {
@@ -2226,6 +2244,7 @@ const az: Dict = {
     selectItem: "Seç",
     shippingAtCheckout: "Ödəniş zamanı hesablanır",
     syncErrorNote: "Səbətinizi sinxronlaşdırarkən xəta baş verdi — yenidən yükləndi.",
+    paymentsSoon: "Regionunuzda onlayn ödəniş hələ mövcud deyil — tezliklə olacaq.",
     saved: "Saxlanıldı",
     reviews: "rəy",
     inStock: "Stokda var",
@@ -2264,6 +2283,18 @@ const az: Dict = {
     aboutP1: "Buyology BƏƏ mərkəzli elektronika marketpleysidir: noutbuklar, audio, geyilə bilən cihazlar, aksesuarlar və daha çoxu — yeni və yenilənmiş — yoxlanılmış mağazalardan, sürətli çatdırılma ilə.",
     aboutP2: "Bu yeni təcrübəni dürüst qiymətlər, real rəylər, həqiqətən mümkün olan yerlərdə 30 dəqiqəlik ekspres çatdırılma və ödəməzdən əvvəl nə ödəyəcəyinizi dəqiq göstərən checkout üzərində qurduq.",
     legalEnglishNote: "Bu sənəd ingilis dilində təqdim olunur.",
+    globalTitle: "Hələ sizin regionda deyilik",
+    globalBody: "Buyology hazırda aşağıdakı regionlarda xidmət göstərir. Genişlənirik — tezliklə yenidən yoxlayın.",
+    globalRegions: "Regionunuzu seçin",
+    regionNames: {
+      UAE: "Birləşmiş Ərəb Əmirlikləri",
+      IND: "Hindistan",
+      SAU: "Səudiyyə Ərəbistanı",
+      BHR: "Bəhreyn",
+      QAT: "Qətər",
+      OMN: "Oman",
+      AZE: "Azərbaycan",
+    },
   },
   sell: {
     landing: {
@@ -3410,6 +3441,7 @@ const ar: Dict = {
     selectItem: "تحديد",
     shippingAtCheckout: "يُحسب عند إتمام الشراء",
     syncErrorNote: "حدث خطأ أثناء مزامنة سلتك — تم إعادة تحميلها.",
+    paymentsSoon: "الدفع الإلكتروني غير متاح في منطقتك بعد — قريبًا.",
     saved: "محفوظ",
     reviews: "تقييم",
     inStock: "متوفّر",
@@ -3448,6 +3480,18 @@ const ar: Dict = {
     aboutP1: "Buyology سوق إلكترونيات مقره الإمارات: حواسيب محمولة وصوتيات وأجهزة قابلة للارتداء وإكسسوارات والمزيد — جديدة ومجددة — من متاجر موثوقة وبتوصيل سريع.",
     aboutP2: "بنينا هذه التجربة الجديدة على أسعار صادقة، ومراجعات حقيقية، وتوصيل سريع خلال 30 دقيقة حيث يكون ممكنًا فعلًا، وإتمام شراء يريك بالضبط ما ستدفعه قبل أن تدفع.",
     legalEnglishNote: "هذه الوثيقة متاحة باللغة الإنجليزية.",
+    globalTitle: "لسنا في منطقتك بعد",
+    globalBody: "تخدم Buyology حاليًا المناطق أدناه. نحن نتوسع — عاود الزيارة قريبًا.",
+    globalRegions: "اختر منطقتك",
+    regionNames: {
+      UAE: "الإمارات العربية المتحدة",
+      IND: "الهند",
+      SAU: "المملكة العربية السعودية",
+      BHR: "البحرين",
+      QAT: "قطر",
+      OMN: "عُمان",
+      AZE: "أذربيجان",
+    },
   },
   sell: {
     landing: {

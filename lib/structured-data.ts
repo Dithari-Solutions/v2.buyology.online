@@ -83,7 +83,7 @@ export function productSchema(p: Product): JsonLd {
     offers: {
       "@type": "Offer",
       url: `${site.url}/product/${p.id}`,
-      priceCurrency: "AED",
+      priceCurrency: p.currency ?? "AED",
       price: p.price,
       availability: "https://schema.org/InStock",
       seller: { "@id": `${site.url}/#organization` },

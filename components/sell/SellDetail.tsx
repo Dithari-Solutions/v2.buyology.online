@@ -7,6 +7,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { useAuth } from "@/components/auth/auth-provider";
 import { AuthError } from "@/lib/auth/client";
 import { formatMoney } from "@/lib/format";
+import { currentMarket } from "@/lib/market";
 import {
   chooseSellDelivery,
   chooseSellReturn,
@@ -250,6 +251,7 @@ export function SellDetail({ sellId }: { sellId: string }) {
         ))}
       <button
         type="button"
+        hidden={!currentMarket().paymentsEnabled}
         disabled={
           busy != null ||
           (kind === "inbound" &&

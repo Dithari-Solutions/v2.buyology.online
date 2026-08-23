@@ -1,5 +1,6 @@
 import { authedFetch, authedJson, AuthError } from "@/lib/auth/client";
 import type { ApiEnvelope } from "@/lib/backend";
+import { currentMarket } from "@/lib/market";
 import type { PaymentInitiated } from "@/lib/checkout-api";
 
 /**
@@ -114,7 +115,7 @@ export function fetchSellRequest(id: string): Promise<SellRequest> {
   return authedJson<SellRequest>(`/api/sell-requests/${id}`);
 }
 
-export function fetchSellStores(country = "UAE"): Promise<SellStore[]> {
+export function fetchSellStores(country = currentMarket().countryCode): Promise<SellStore[]> {
   return authedJson<SellStore[]>(`/api/sell-requests/stores?country=${country}`);
 }
 

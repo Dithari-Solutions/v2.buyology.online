@@ -18,6 +18,7 @@ import {
 } from "@/lib/account-api";
 import { useProductLookup } from "@/lib/use-product-lookup";
 import { repayOrder } from "@/lib/checkout-api";
+import { currentMarket } from "@/lib/market";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import { RefundCard } from "@/components/account/RefundCard";
 import { PENDING_ORDER_KEY, PENDING_TX_KEY } from "@/components/checkout/CheckoutView";
@@ -250,7 +251,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         {order.id}
       </p>
 
-      {order.status === "PENDING_PAYMENT" && (
+      {order.status === "PENDING_PAYMENT" && currentMarket().paymentsEnabled && (
         <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3">
           <p className="text-sm text-muted">{o.statuses.PENDING_PAYMENT}</p>
           <div className="ms-auto flex flex-wrap items-center gap-2">

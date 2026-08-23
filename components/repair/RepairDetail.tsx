@@ -7,6 +7,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { useAuth } from "@/components/auth/auth-provider";
 import { AuthError } from "@/lib/auth/client";
 import { formatMoney } from "@/lib/format";
+import { currentMarket } from "@/lib/market";
 import {
   chooseRepairDelivery,
   chooseRepairReturn,
@@ -248,6 +249,7 @@ export function RepairDetail({ repairId }: { repairId: string }) {
         ))}
       <button
         type="button"
+        hidden={!currentMarket().paymentsEnabled}
         disabled={
           busy != null ||
           (kind === "inbound" &&

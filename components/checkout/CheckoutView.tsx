@@ -34,6 +34,7 @@ import {
 } from "@/lib/checkout-api";
 import { useProductLookup } from "@/lib/use-product-lookup";
 import { formatMoney } from "@/lib/format";
+import { currentMarket } from "@/lib/market";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import {
@@ -139,7 +140,19 @@ export function CheckoutView() {
     let cancelled = false;
     fetchPickupStores()
       .then((rows) => {
-        if (!cancelled) setStores(rows.filter((s) => s.locations.length > 0));
+        if (cancelled) return;
+        // Only this market's branches — /api/stores/public spans every region.
+        const m = currentMarket();
+        const mine = rows
+          .map((store) => ({
+            ...store,
+            locations: store.locations.filter((l) => {
+              const c = (l.country ?? "").toUpperCase();
+              return c === m.countryCode || c === m.alpha2;
+            }),
+          }))
+          .filter((store) => store.locations.length > 0);
+        setStores(mine);
       })
       .catch(() => {
         if (!cancelled) setStores([]);
@@ -428,6 +441,20 @@ export function CheckoutView() {
     );
   }
   if (authStatus !== "authed") return null;
+
+  if (!currentMarket().paymentsEnabled) {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center">
+        <p className="text-lg font-semibold text-foreground">{t.cart.paymentsSoon}</p>
+        <Link
+          href="/cart"
+          className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {t.cart.goToCart}
+        </Link>
+      </div>
+    );
+  }
 
   if (loadError) {
     return (

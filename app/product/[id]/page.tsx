@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/header/Header";
 import { fetchProductDetail, fetchCategories, toProduct } from "@/lib/catalogue";
 import { getLocale } from "@/lib/i18n/server";
+import { serverMarket } from "@/lib/market-server";
 import { site } from "@/lib/site";
 import { getDict } from "@/lib/i18n/server";
 import { jsonLdScript, productSchema } from "@/lib/structured-data";
@@ -19,11 +20,12 @@ export const dynamic = "force-dynamic";
 
 async function loadProduct(id: string) {
   const locale = await getLocale();
+  const market = await serverMarket();
   try {
-    const api = await fetchProductDetail(locale, id);
+    const api = await fetchProductDetail(locale, id, market);
     let categoryName: string | undefined;
     try {
-      categoryName = (await fetchCategories(locale)).find((c) => c.id === api.categoryId)?.name;
+      categoryName = (await fetchCategories(locale, market)).find((c) => c.id === api.categoryId)?.name;
     } catch {
       /* blank breadcrumb label */
     }

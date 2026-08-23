@@ -19,6 +19,7 @@ import {
 } from "@/lib/refund-api";
 import { PENDING_ORDER_KEY, PENDING_TX_KEY } from "@/components/checkout/CheckoutView";
 import { AuthError } from "@/lib/auth/client";
+import { currentMarket } from "@/lib/market";
 import { CloseIcon, RentIcon } from "@/components/icons";
 
 function statusTone(status: RefundStatus): string {
@@ -158,7 +159,8 @@ export function RefundCard({
               {r.request}
             </button>
           )}
-          {(refund.status === "APPROVED" || refund.status === "COURIER_FEE_PENDING") && (
+          {(refund.status === "APPROVED" ||
+            (refund.status === "COURIER_FEE_PENDING" && currentMarket().paymentsEnabled)) && (
             <button
               type="button"
               onClick={() => setModal("method")}
@@ -487,6 +489,7 @@ function MethodModal({
         </button>
         <button
           type="button"
+          hidden={!currentMarket().paymentsEnabled}
           disabled={busy != null}
           onClick={() => choose("COURIER_PICKUP")}
           className="w-full rounded-xl border border-border p-4 text-start transition-colors hover:border-border-strong disabled:opacity-60"

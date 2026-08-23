@@ -1,5 +1,6 @@
 import { authedFetch, authedJson, AuthError } from "@/lib/auth/client";
 import type { ApiEnvelope } from "@/lib/backend";
+import { currentMarket } from "@/lib/market";
 import type { PaymentInitiated } from "@/lib/checkout-api";
 
 /**
@@ -108,7 +109,7 @@ export function fetchRepair(id: string): Promise<RepairRequest> {
   return authedJson<RepairRequest>(`/api/repairs/${id}`);
 }
 
-export function fetchRepairStores(country = "UAE"): Promise<RepairStore[]> {
+export function fetchRepairStores(country = currentMarket().countryCode): Promise<RepairStore[]> {
   return authedJson<RepairStore[]>(`/api/repairs/stores?country=${country}`);
 }
 

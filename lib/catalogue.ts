@@ -19,8 +19,7 @@ import type { Product } from "@/lib/products";
  *   The wrong name silently returns everything.
  */
 
-const MARKET_COUNTRY = "UAE";
-const MARKET_CURRENCY = "AED";
+import { currentMarket, type Market } from "@/lib/market";
 const LANGUAGE: Record<Locale, "EN" | "AZ" | "AR"> = { en: "EN", az: "AZ", ar: "AR" };
 
 // ── Backend shapes (the fields v2 renders) ───────────────────────────────────
@@ -92,11 +91,12 @@ type ApiReview = {
 
 // ── Fetch plumbing ───────────────────────────────────────────────────────────
 
-function params(locale: Locale, extra: Record<string, unknown> = {}): URLSearchParams {
+function params(locale: Locale, extra: Record<string, unknown> = {}, market?: Market): URLSearchParams {
+  const m = market ?? currentMarket();
   const p = new URLSearchParams();
   p.set("lang", LANGUAGE[locale]);
-  p.set("countryCode", MARKET_COUNTRY);
-  p.set("currency", MARKET_CURRENCY);
+  p.set("countryCode", m.countryCode);
+  p.set("currency", m.currency);
   for (const [k, v] of Object.entries(extra)) {
     if (v === undefined || v === null || v === "") continue;
     if (Array.isArray(v)) v.forEach((item) => p.append(k, String(item))); // repeated keys, not brackets
@@ -115,16 +115,20 @@ async function get<T>(path: string, search: URLSearchParams): Promise<T> {
 
 // ── Categories (cached per locale for the session — names label the cards) ──
 
-const categoryCache = new Map<Locale, Promise<Category[]>>();
+// Keyed per locale AND market: on the server this cache outlives a request, and one
+// region's category names must never be served to another region's render.
+const categoryCache = new Map<string, Promise<Category[]>>();
 
-export function fetchCategories(locale: Locale): Promise<Category[]> {
-  let cached = categoryCache.get(locale);
+export function fetchCategories(locale: Locale, market?: Market): Promise<Category[]> {
+  const m = market ?? currentMarket();
+  const cacheKey = `${locale}:${m.countryCode}`;
+  let cached = categoryCache.get(cacheKey);
   if (!cached) {
-    cached = get<Category[]>("/api/category", params(locale)).catch((err) => {
-      categoryCache.delete(locale); // a failed fetch must not poison the session
+    cached = get<Category[]>("/api/category", params(locale, {}, market)).catch((err) => {
+      categoryCache.delete(cacheKey); // a failed fetch must not poison the session
       throw err;
     });
-    categoryCache.set(locale, cached);
+    categoryCache.set(cacheKey, cached);
   }
   return cached;
 }
@@ -171,7 +175,7 @@ export function toProduct(api: ApiProduct, categoryName?: string): Product {
     rating: api.averageRating ?? 0,
     reviews: api.totalReviews ?? 0,
     bestseller: api.isSuperDeal ?? false,
-    currency: api.currency ?? MARKET_CURRENCY,
+    currency: api.currency ?? currentMarket().currency,
     storeId: api.storeId ?? undefined,
     stock: api.stockQuantity ?? undefined,
     inStock: api.availabilityStatus !== "OUT_OF_STOCK",
@@ -264,8 +268,12 @@ export async function searchCatalogue(locale: Locale, q: CatalogueQuery): Promis
   return withCategoryNames(locale, rows);
 }
 
-export async function fetchProductDetail(locale: Locale, id: string): Promise<ApiProduct> {
-  return get<ApiProduct>(`/api/product/${id}`, params(locale));
+export async function fetchProductDetail(
+  locale: Locale,
+  id: string,
+  market?: Market,
+): Promise<ApiProduct> {
+  return get<ApiProduct>(`/api/product/${id}`, params(locale, {}, market));
 }
 
 export async function fetchRelated(locale: Locale, id: string): Promise<Product[]> {

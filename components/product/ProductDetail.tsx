@@ -10,6 +10,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { BnplOptions } from "@/components/cart/BnplOptions";
 import { useProduct } from "@/components/product/product-context";
 import { formatInt, formatMoney } from "@/lib/format";
+import { currentMarket } from "@/lib/market";
 import {
   BagIcon,
   CheckIcon,
@@ -111,6 +112,12 @@ export function ProductDetail() {
 
   function onBuyNow() {
     const optionIds = selectedOptions.map((s) => s.option?.id).filter(Boolean);
+    if (!currentMarket().paymentsEnabled) {
+      // Browse-only region: the cart still works; checkout says the honest thing.
+      add(false);
+      router.push("/cart");
+      return;
+    }
     if (!product.storeId) {
       // Demo item — no real store behind it; the local cart is all it has.
       add(false);

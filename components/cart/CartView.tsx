@@ -7,6 +7,7 @@ import { BnplOptions } from "@/components/cart/BnplOptions";
 import { RecommendedProducts } from "@/components/cart/RecommendedProducts";
 import { useProductLookup } from "@/lib/use-product-lookup";
 import { formatMoney } from "@/lib/format";
+import { currentMarket } from "@/lib/market";
 import {
   BagIcon,
   ChevronLeftIcon,
@@ -431,7 +432,11 @@ export function CartView() {
             <BnplOptions total={total} currency={currency} />
           </div>
 
-          {selectedCount === 0 ? (
+          {!currentMarket().paymentsEnabled ? (
+            <p className="mt-4 rounded-xl border border-border bg-surface-2 px-4 py-3 text-center text-sm text-muted">
+              {t.cart.paymentsSoon}
+            </p>
+          ) : selectedCount === 0 ? (
             <button
               type="button"
               disabled
