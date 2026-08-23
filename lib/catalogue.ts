@@ -75,9 +75,18 @@ export type Category = {
 export type Review = {
   id: string;
   rating: number;
-  title?: string | null;
   comment?: string | null;
   reviewerName?: string | null;
+  createdAt?: string | null;
+};
+
+/** The backend's ReviewResponse — first/last name and `body`, never title/comment. */
+type ApiReview = {
+  id: string;
+  rating: number;
+  body?: string | null;
+  userFirstName?: string | null;
+  userLastName?: string | null;
   createdAt?: string | null;
 };
 
@@ -325,6 +334,12 @@ export async function fetchReviews(locale: Locale, productId: string, page = 0):
   const p = new URLSearchParams({ page: String(page), size: "10" });
   const res = await fetch(backendUrl(`/api/reviews/product/${productId}?${p}`), { cache: "no-store" });
   if (!res.ok) return [];
-  const body = (await res.json()) as ApiEnvelope<Review[]>;
-  return body.data ?? [];
+  const body = (await res.json()) as ApiEnvelope<ApiReview[]>;
+  return (body.data ?? []).map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    comment: r.body ?? null,
+    reviewerName: [r.userFirstName, r.userLastName].filter(Boolean).join(" ") || null,
+    createdAt: r.createdAt ?? null,
+  }));
 }

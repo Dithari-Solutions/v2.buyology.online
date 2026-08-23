@@ -260,6 +260,17 @@ export interface Dict {
       verified: string;
       helpful: string;
       basedOn: string;
+      signInToReview: string;
+      alreadyReviewed: string;
+      posted: string;
+      ratingLabel: string;
+      bodyPlaceholder: string;
+      addPhoto: string;
+      submit: string;
+      submitting: string;
+      errGeneric: string;
+      errContent: string;
+      errFileSize: string;
     };
     qa: {
       title: string;
@@ -1014,6 +1025,17 @@ const en: Dict = {
       verified: "Verified purchase",
       helpful: "Helpful",
       basedOn: "Based on",
+      signInToReview: "Sign in to write a review.",
+      alreadyReviewed: "You've already reviewed this product.",
+      posted: "Your review has been posted.",
+      ratingLabel: "Your rating",
+      bodyPlaceholder: "What did you think of it?",
+      addPhoto: "Add photo",
+      submit: "Submit review",
+      submitting: "Submitting…",
+      errGeneric: "Couldn't submit your review. Please try again.",
+      errContent: "Your review contains content we can't accept — please reword it.",
+      errFileSize: "Each photo must be 10 MB or smaller.",
     },
     qa: {
       title: "Questions & answers",
@@ -1904,6 +1926,17 @@ const az: Dict = {
       verified: "Təsdiqlənmiş alış",
       helpful: "Faydalı",
       basedOn: "Əsaslanır",
+      signInToReview: "Rəy yazmaq üçün daxil olun.",
+      alreadyReviewed: "Bu məhsula artıq rəy yazmısınız.",
+      posted: "Rəyiniz dərc olundu.",
+      ratingLabel: "Qiymətiniz",
+      bodyPlaceholder: "Məhsul haqqında nə düşünürsünüz?",
+      addPhoto: "Şəkil əlavə et",
+      submit: "Rəyi göndər",
+      submitting: "Göndərilir…",
+      errGeneric: "Rəyinizi göndərmək mümkün olmadı. Yenidən cəhd edin.",
+      errContent: "Rəyinizdə qəbul edə bilmədiyimiz məzmun var — zəhmət olmasa yenidən yazın.",
+      errFileSize: "Hər şəkil ən çox 10 MB ola bilər.",
     },
     qa: {
       title: "Suallar və cavablar",
@@ -2808,6 +2841,17 @@ const ar: Dict = {
       verified: "شراء موثّق",
       helpful: "مفيد",
       basedOn: "استنادًا إلى",
+      signInToReview: "سجّل الدخول لكتابة تقييم.",
+      alreadyReviewed: "لقد قيّمت هذا المنتج بالفعل.",
+      posted: "تم نشر تقييمك.",
+      ratingLabel: "تقييمك",
+      bodyPlaceholder: "ما رأيك في المنتج؟",
+      addPhoto: "أضف صورة",
+      submit: "إرسال التقييم",
+      submitting: "جارٍ الإرسال…",
+      errGeneric: "تعذر إرسال تقييمك. حاول مرة أخرى.",
+      errContent: "يتضمن تقييمك محتوى لا يمكننا قبوله — يُرجى إعادة صياغته.",
+      errFileSize: "يجب ألّا يتجاوز حجم كل صورة 10 ميجابايت.",
     },
     qa: {
       title: "الأسئلة والأجوبة",
