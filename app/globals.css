@@ -489,3 +489,18 @@ main {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
+
+/* ── Powerbank coming-soon: the battery slowly filling (components respect reduced motion) ── */
+@keyframes buyo-charge {
+  0% { transform: scaleX(0.08); }
+  75% { transform: scaleX(0.86); }
+  100% { transform: scaleX(0.86); }
+}
+.buyo-charge {
+  transform-origin: left center;
+  animation: buyo-charge 3.2s ease-out infinite;
+}
+[dir="rtl"] .buyo-charge { transform-origin: right center; }
+@media (prefers-reduced-motion: reduce) {
+  .buyo-charge { animation: none; transform: scaleX(0.86); }
+}

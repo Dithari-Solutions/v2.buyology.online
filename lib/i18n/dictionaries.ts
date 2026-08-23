@@ -125,6 +125,30 @@ export interface Dict {
     comingSoonKicker: string;
     comingSoonNewsletter: string;
     pageGames: string;
+    powerbank: {
+      kicker: string;
+      title: string;
+      body: string;
+      point1: string;
+      point2: string;
+      point3: string;
+    };
+    diy: {
+      kicker: string;
+      title: string;
+      body: string;
+      item1: string;
+      item2: string;
+      item3: string;
+      note: string;
+    };
+    rent: {
+      kicker: string;
+      title: string;
+      body: string;
+      perDay: string;
+      soon: string;
+    };
     pageMap: string;
     pageQuickDelivery: string;
     pageSupplier: string;
@@ -1078,6 +1102,30 @@ const en: Dict = {
     comingSoonKicker: "Coming soon",
     comingSoonNewsletter: "Want to hear when it lands? The newsletter in the footer is the first to know.",
     pageGames: "Games",
+    powerbank: {
+      kicker: "Charging the network",
+      title: "Power, wherever you run out",
+      body: "Grab a powerbank from a Buyology station, charge on the move, drop it at any other station. The stations are being installed now.",
+      point1: "Grab at one station, return at any other",
+      point2: "Pay only for the time you hold it",
+      point3: "Find the nearest station in the app",
+    },
+    diy: {
+      kicker: "On the workbench",
+      title: "Build it yourself",
+      body: "Kits, components and guides for people who'd rather make it than buy it. We're still drawing the plans.",
+      item1: "Curated build kits, from starter to serious",
+      item2: "Components and parts, sold the honest way",
+      item3: "Step-by-step guides by people who build",
+      note: "Blueprint subject to change. Good ideas welcome.",
+    },
+    rent: {
+      kicker: "By the day",
+      title: "Rent tech, return it when you're done",
+      body: "A laptop for a deadline, a console for a weekend, a camera for a trip. Daily rentals are almost ready.",
+      perDay: "/ day",
+      soon: "soon",
+    },
     pageMap: "Store locator",
     pageQuickDelivery: "30-minute delivery",
     pageSupplier: "Become a supplier",
@@ -2266,6 +2314,30 @@ const az: Dict = {
     comingSoonKicker: "Tezliklə",
     comingSoonNewsletter: "Hazır olanda bilmək istəyirsiniz? Aşağıdakı bülleten ilk xəbər tutandır.",
     pageGames: "Oyunlar",
+    powerbank: {
+      kicker: "Şəbəkə enerji yığır",
+      title: "Enerji, harada bitsə",
+      body: "Buyology stansiyasından powerbank götürün, yolda şarj edin, istənilən digər stansiyaya təhvil verin. Stansiyalar indi quraşdırılır.",
+      point1: "Bir stansiyadan götür, istənilənində qaytar",
+      point2: "Yalnız istifadə etdiyin vaxta ödə",
+      point3: "Ən yaxın stansiyanı tətbiqdə tap",
+    },
+    diy: {
+      kicker: "Emalatxanada",
+      title: "Özün qur",
+      body: "Almaqdansa düzəltməyi sevənlər üçün dəstlər, hissələr və təlimatlar. Planları hələ çəkirik.",
+      item1: "Başlanğıcdan ciddiyə qədər seçilmiş dəstlər",
+      item2: "Dürüst satılan komponentlər və hissələr",
+      item3: "Quranların yazdığı addım-addım təlimatlar",
+      note: "Cizgi dəyişə bilər. Yaxşı ideyalar qəbul olunur.",
+    },
+    rent: {
+      kicker: "Günlük",
+      title: "Texnikanı icarəyə götür, bitirəndə qaytar",
+      body: "Son tarix üçün noutbuk, həftəsonu üçün konsol, səyahət üçün kamera. Günlük icarə demək olar hazırdır.",
+      perDay: "/ gün",
+      soon: "tezliklə",
+    },
     pageMap: "Mağaza xəritəsi",
     pageQuickDelivery: "30 dəqiqəlik çatdırılma",
     pageSupplier: "Təchizatçı ol",
@@ -3469,6 +3541,30 @@ const ar: Dict = {
     comingSoonKicker: "قريبًا",
     comingSoonNewsletter: "تريد أن تعرف متى تصل؟ النشرة البريدية في الأسفل أول من يعلم.",
     pageGames: "الألعاب",
+    powerbank: {
+      kicker: "الشبكة قيد الشحن",
+      title: "طاقة أينما نفدت منك",
+      body: "خذ باوربانك من محطة Buyology، اشحن أثناء التنقل، وأعده إلى أي محطة أخرى. المحطات قيد التركيب الآن.",
+      point1: "خذه من محطة وأعده إلى أي محطة أخرى",
+      point2: "ادفع فقط مقابل مدة استخدامك",
+      point3: "اعثر على أقرب محطة في التطبيق",
+    },
+    diy: {
+      kicker: "على طاولة العمل",
+      title: "اصنعه بنفسك",
+      body: "أطقم ومكوّنات وأدلة لمن يفضّل الصنع على الشراء. ما زلنا نرسم المخططات.",
+      item1: "أطقم بناء منتقاة، من المبتدئ إلى المحترف",
+      item2: "مكوّنات وقطع تُباع بطريقة صادقة",
+      item3: "أدلة خطوة بخطوة كتبها من يبنون فعلًا",
+      note: "المخطط قابل للتغيير. الأفكار الجيدة مرحّب بها.",
+    },
+    rent: {
+      kicker: "باليوم",
+      title: "استأجر التقنية وأعدها عند الانتهاء",
+      body: "حاسوب لموعد تسليم، جهاز ألعاب لعطلة، كاميرا لرحلة. الإيجار اليومي شبه جاهز.",
+      perDay: "/ يوم",
+      soon: "قريبًا",
+    },
     pageMap: "دليل المتاجر",
     pageQuickDelivery: "توصيل خلال 30 دقيقة",
     pageSupplier: "كن مورّدًا",
