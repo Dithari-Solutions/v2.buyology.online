@@ -34,17 +34,15 @@ export const footerColumns: FooterColumn[] = [
       { key: "shipping", href: "/shipping" },
       { key: "returns", href: "/returns" },
       { key: "warranty", href: "/warranty" },
-      { key: "contact", href: "/contact" },
     ],
   },
   {
     titleKey: "company",
+    // Only pages that exist: template links (careers, press, …) pointed nowhere and
+    // fabricating their content would be worse than not linking them.
     links: [
       { key: "about", href: "/about" },
-      { key: "careers", href: "/careers" },
-      { key: "sustainability", href: "/sustainability" },
-      { key: "press", href: "/press" },
-      { key: "affiliates", href: "/affiliates" },
+      { key: "contact", href: "/contact" },
     ],
   },
 ];

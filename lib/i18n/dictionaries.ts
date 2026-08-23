@@ -119,6 +119,41 @@ export interface Dict {
     reviews: string;
     inStock: string;
   };
+  pages: {
+    comingSoonHint: string;
+    browseProducts: string;
+    backHome: string;
+    helpTitle: string;
+    helpIntro: string;
+    helpOrders: string;
+    helpOrdersHint: string;
+    helpShipping: string;
+    helpShippingHint: string;
+    helpReturns: string;
+    helpReturnsHint: string;
+    helpContactCta: string;
+    trackTitle: string;
+    trackIntro: string;
+    trackCta: string;
+    shipTitle: string;
+    shipIntro: string;
+    shipStandardH: string;
+    shipStandardP: string;
+    shipExpressH: string;
+    shipExpressP: string;
+    shipPickupH: string;
+    shipPickupP: string;
+    shipFreeH: string;
+    shipFreeP: string;
+    shipNote: string;
+    warrantyTitle: string;
+    warrantyP1: string;
+    warrantyP2: string;
+    aboutTitle: string;
+    aboutP1: string;
+    aboutP2: string;
+    legalEnglishNote: string;
+  };
   checkout: {
     title: string;
     fulfilment: string;
@@ -755,6 +790,41 @@ const en: Dict = {
     saved: "Saved",
     reviews: "reviews",
     inStock: "In stock",
+  },
+  pages: {
+    comingSoonHint: "This service is moving to the new Buyology experience and isn't here quite yet. It's on its way.",
+    browseProducts: "Browse products",
+    backHome: "Back to home",
+    helpTitle: "Help center",
+    helpIntro: "Quick answers to the most common questions — and a human when you need one.",
+    helpOrders: "Orders & delivery",
+    helpOrdersHint: "Track status, cancel a pending order, or view your delivery timeline from your account's order history.",
+    helpShipping: "Shipping options & fees",
+    helpShippingHint: "Standard, 30-minute express, and free store pickup — see what applies to your basket.",
+    helpReturns: "Returns & refunds",
+    helpReturnsHint: "How returns work and how refunds reach your original payment method.",
+    helpContactCta: "Contact support",
+    trackTitle: "Track your order",
+    trackIntro: "Every order's live status — from payment to your door, including courier photo proof — lives in your order history. Orders shipped with a carrier include their tracking link there too.",
+    trackCta: "View my orders",
+    shipTitle: "Shipping & delivery",
+    shipIntro: "What to expect from each delivery option. The exact fee for your basket is always shown at checkout before you pay.",
+    shipStandardH: "Standard delivery",
+    shipStandardP: "Delivered in 2–3 business days across the UAE.",
+    shipExpressH: "Express (30 minutes)",
+    shipExpressP: "Available when every item in your order is stocked within 30 minutes of your delivery address — checkout offers it automatically when your address qualifies.",
+    shipPickupH: "Store pickup",
+    shipPickupP: "Free. Usually ready within 24 hours — you'll see the store's address at checkout.",
+    shipFreeH: "Free delivery",
+    shipFreeP: "Orders over AED 100 ship free with every delivery option.",
+    shipNote: "Fees and thresholds may change; checkout always shows the final amount before payment.",
+    warrantyTitle: "Warranty",
+    warrantyP1: "Warranty coverage depends on the product and its manufacturer. The applicable terms are stated on the product page or in the box.",
+    warrantyP2: "For any warranty claim, contact support with your order number — we'll take it from there with the supplier or manufacturer.",
+    aboutTitle: "About Buyology",
+    aboutP1: "Buyology is a UAE-based electronics marketplace: laptops, audio, wearables, accessories and more — new and renewed — from vetted stores, delivered fast.",
+    aboutP2: "We built this new experience around honest prices, real reviews, 30-minute express delivery where it's genuinely possible, and a checkout that shows you exactly what you'll pay before you pay it.",
+    legalEnglishNote: "This document is provided in English.",
   },
   checkout: {
     title: "Checkout",
@@ -1567,6 +1637,41 @@ const az: Dict = {
     saved: "Saxlanıldı",
     reviews: "rəy",
     inStock: "Stokda var",
+  },
+  pages: {
+    comingSoonHint: "Bu xidmət yeni Buyology təcrübəsinə köçürülür və hələ burada deyil. Yoldadır.",
+    browseProducts: "Məhsullara bax",
+    backHome: "Ana səhifəyə qayıt",
+    helpTitle: "Yardım mərkəzi",
+    helpIntro: "Ən çox verilən suallara sürətli cavablar — lazım olanda isə canlı dəstək.",
+    helpOrders: "Sifarişlər və çatdırılma",
+    helpOrdersHint: "Hesabınızdakı sifariş tarixçəsindən statusu izləyin, gözləyən sifarişi ləğv edin və ya çatdırılma qrafikinə baxın.",
+    helpShipping: "Çatdırılma seçimləri və haqları",
+    helpShippingHint: "Standart, 30 dəqiqəlik ekspres və pulsuz mağazadan götürmə — səbətinizə nəyin aid olduğunu görün.",
+    helpReturns: "Qaytarma və geri ödənişlər",
+    helpReturnsHint: "Qaytarmalar necə işləyir və geri ödənişlər ilkin ödəniş üsulunuza necə çatır.",
+    helpContactCta: "Dəstəklə əlaqə",
+    trackTitle: "Sifarişinizi izləyin",
+    trackIntro: "Hər sifarişin canlı statusu — ödənişdən qapınıza qədər, kuryerin foto sübutu daxil olmaqla — sifariş tarixçənizdədir. Daşıyıcı ilə göndərilən sifarişlərin izləmə linki də oradadır.",
+    trackCta: "Sifarişlərimə bax",
+    shipTitle: "Çatdırılma",
+    shipIntro: "Hər çatdırılma seçimindən nə gözləmək olar. Səbətiniz üçün dəqiq haqq ödənişdən əvvəl həmişə checkout-da göstərilir.",
+    shipStandardH: "Standart çatdırılma",
+    shipStandardP: "BƏƏ üzrə 2–3 iş günü ərzində çatdırılır.",
+    shipExpressH: "Ekspres (30 dəqiqə)",
+    shipExpressP: "Sifarişinizdəki bütün məhsullar çatdırılma ünvanınızdan 30 dəqiqəlik məsafədə anbarda olduqda mümkündür — ünvanınız uyğun gələndə checkout bunu avtomatik təklif edir.",
+    shipPickupH: "Mağazadan götürmə",
+    shipPickupP: "Pulsuz. Adətən 24 saat ərzində hazır olur — mağazanın ünvanını checkout-da görəcəksiniz.",
+    shipFreeH: "Pulsuz çatdırılma",
+    shipFreeP: "100 AED-dən yuxarı sifarişlər bütün çatdırılma seçimləri ilə pulsuz göndərilir.",
+    shipNote: "Haqlar və hədlər dəyişə bilər; checkout ödənişdən əvvəl həmişə yekun məbləği göstərir.",
+    warrantyTitle: "Zəmanət",
+    warrantyP1: "Zəmanət əhatəsi məhsuldan və istehsalçısından asılıdır. Tətbiq olunan şərtlər məhsul səhifəsində və ya qutuda göstərilir.",
+    warrantyP2: "Hər hansı zəmanət müraciəti üçün sifariş nömrənizlə dəstəyə yazın — qalanını təchizatçı və ya istehsalçı ilə biz həll edəcəyik.",
+    aboutTitle: "Buyology haqqında",
+    aboutP1: "Buyology BƏƏ mərkəzli elektronika marketpleysidir: noutbuklar, audio, geyilə bilən cihazlar, aksesuarlar və daha çoxu — yeni və yenilənmiş — yoxlanılmış mağazalardan, sürətli çatdırılma ilə.",
+    aboutP2: "Bu yeni təcrübəni dürüst qiymətlər, real rəylər, həqiqətən mümkün olan yerlərdə 30 dəqiqəlik ekspres çatdırılma və ödəməzdən əvvəl nə ödəyəcəyinizi dəqiq göstərən checkout üzərində qurduq.",
+    legalEnglishNote: "Bu sənəd ingilis dilində təqdim olunur.",
   },
   checkout: {
     title: "Sifarişin rəsmiləşdirilməsi",
@@ -2394,6 +2499,41 @@ const ar: Dict = {
     saved: "محفوظ",
     reviews: "تقييم",
     inStock: "متوفّر",
+  },
+  pages: {
+    comingSoonHint: "تنتقل هذه الخدمة إلى تجربة Buyology الجديدة وليست هنا بعد. إنها في الطريق.",
+    browseProducts: "تصفح المنتجات",
+    backHome: "العودة إلى الرئيسية",
+    helpTitle: "مركز المساعدة",
+    helpIntro: "إجابات سريعة على الأسئلة الأكثر شيوعًا — ودعم بشري عندما تحتاجه.",
+    helpOrders: "الطلبات والتوصيل",
+    helpOrdersHint: "تتبّع الحالة، أو ألغِ طلبًا قيد الانتظار، أو اطّلع على جدول التوصيل من سجل طلباتك في حسابك.",
+    helpShipping: "خيارات الشحن ورسومه",
+    helpShippingHint: "توصيل عادي، وسريع خلال 30 دقيقة، واستلام مجاني من المتجر — اعرف ما ينطبق على سلتك.",
+    helpReturns: "الإرجاع والاسترداد",
+    helpReturnsHint: "كيف يعمل الإرجاع وكيف يصل الاسترداد إلى وسيلة الدفع الأصلية.",
+    helpContactCta: "تواصل مع الدعم",
+    trackTitle: "تتبّع طلبك",
+    trackIntro: "الحالة الحية لكل طلب — من الدفع حتى بابك، بما في ذلك إثبات الصور من المندوب — موجودة في سجل طلباتك. الطلبات المشحونة عبر ناقل تتضمن رابط التتبع هناك أيضًا.",
+    trackCta: "عرض طلباتي",
+    shipTitle: "الشحن والتوصيل",
+    shipIntro: "ما يمكن توقعه من كل خيار توصيل. الرسوم الدقيقة لسلتك تظهر دائمًا عند إتمام الشراء قبل الدفع.",
+    shipStandardH: "توصيل عادي",
+    shipStandardP: "يصل خلال 2–3 أيام عمل في أنحاء الإمارات.",
+    shipExpressH: "سريع (30 دقيقة)",
+    shipExpressP: "متاح عندما تكون كل منتجات طلبك متوفرة على بُعد 30 دقيقة من عنوان التوصيل — يعرضه إتمام الشراء تلقائيًا عندما يكون عنوانك مؤهلًا.",
+    shipPickupH: "استلام من المتجر",
+    shipPickupP: "مجاني. جاهز عادةً خلال 24 ساعة — سترى عنوان المتجر عند إتمام الشراء.",
+    shipFreeH: "توصيل مجاني",
+    shipFreeP: "الطلبات فوق 100 درهم تُشحن مجانًا مع كل خيارات التوصيل.",
+    shipNote: "قد تتغير الرسوم والحدود؛ يعرض إتمام الشراء دائمًا المبلغ النهائي قبل الدفع.",
+    warrantyTitle: "الضمان",
+    warrantyP1: "تغطية الضمان تعتمد على المنتج والشركة المصنّعة. الشروط المطبقة مذكورة في صفحة المنتج أو داخل العبوة.",
+    warrantyP2: "لأي مطالبة ضمان، تواصل مع الدعم برقم طلبك — وسنتولى الباقي مع المورّد أو المصنّع.",
+    aboutTitle: "عن Buyology",
+    aboutP1: "Buyology سوق إلكترونيات مقره الإمارات: حواسيب محمولة وصوتيات وأجهزة قابلة للارتداء وإكسسوارات والمزيد — جديدة ومجددة — من متاجر موثوقة وبتوصيل سريع.",
+    aboutP2: "بنينا هذه التجربة الجديدة على أسعار صادقة، ومراجعات حقيقية، وتوصيل سريع خلال 30 دقيقة حيث يكون ممكنًا فعلًا، وإتمام شراء يريك بالضبط ما ستدفعه قبل أن تدفع.",
+    legalEnglishNote: "هذه الوثيقة متاحة باللغة الإنجليزية.",
   },
   checkout: {
     title: "إتمام الشراء",
