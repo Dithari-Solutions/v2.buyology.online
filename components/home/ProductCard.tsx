@@ -51,17 +51,19 @@ export function ProductCard({
           every card; swap for a real per-product photo later. */}
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-border bg-surface-2">
         {product.image?.startsWith("http") ? (
-          // Real catalogue photo: a presigned, short-lived S3 URL — plain <img>, since next/image
-          // would need remotePatterns for hosts that vary per request and caches nothing useful.
+          // Real catalogue photo through next/image: the source is a ~200KB PNG, the card needs
+          // ~300px — the optimizer serves a cached AVIF/WebP a tenth the size. The backend keeps
+          // presigned URLs stable for ~4h, so the variant cache gets real hits.
           // object-CONTAIN on a white tile, never object-cover: a product shot exists to show the
           // whole product, and cover crops it into a zoomed corner. White stays white in dark mode
           // too — a photo's own background does not theme.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={product.image}
             alt=""
-            className="absolute inset-0 h-full w-full bg-white object-contain p-3 transition-transform duration-500 group-hover:scale-[1.03]"
-            loading="lazy"
+            fill
+            quality={75}
+            sizes="(min-width: 1024px) 300px, (min-width: 640px) 33vw, 50vw"
+            className="bg-white object-contain p-3 transition-transform duration-500 group-hover:scale-[1.03]"
             draggable={false}
           />
         ) : (

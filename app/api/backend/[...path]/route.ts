@@ -43,7 +43,13 @@ async function forward(req: NextRequest, path: string[]) {
 
   return new NextResponse(await upstream.text(), {
     status: upstream.status,
-    headers: { "Content-Type": upstream.headers.get("Content-Type") ?? "application/json" },
+    headers: {
+      "Content-Type": upstream.headers.get("Content-Type") ?? "application/json",
+      // Preserve the backend's caching intent so dev matches prod browser behaviour.
+      ...(upstream.headers.get("Cache-Control")
+        ? { "Cache-Control": upstream.headers.get("Cache-Control")! }
+        : {}),
+    },
   });
 }
 

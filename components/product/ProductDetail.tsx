@@ -143,12 +143,15 @@ export function ProductDetail() {
       <div className="flex flex-col gap-3">
         <div className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-surface-2">
           {activeUrl ? (
-            // Presigned, short-lived URL — plain <img> on purpose.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            // Hero shot through next/image — resized, AVIF/WebP, priority (it is the LCP).
+            <Image
               src={activeUrl}
               alt={product.name}
-              className="absolute inset-0 h-full w-full bg-white object-contain p-6"
+              fill
+              priority
+              quality={90}
+              sizes="(min-width: 1024px) 40vw, 100vw"
+              className="bg-white object-contain p-6"
               draggable={false}
             />
           ) : (
@@ -186,12 +189,13 @@ export function ProductDetail() {
                   activeImg === i ? "border-brand" : "border-border hover:border-border-strong"
                 }`}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={m.thumbnailUrl ?? m.url!}
                   alt=""
-                  className="absolute inset-0 h-full w-full bg-white object-contain p-1"
-                  loading="lazy"
+                  fill
+                  quality={75}
+                  sizes="80px"
+                  className="bg-white object-contain p-1"
                   draggable={false}
                 />
               </button>

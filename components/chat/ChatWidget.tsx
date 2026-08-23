@@ -72,8 +72,9 @@ function AssistantCard({
   const body = (
     <>
       {card.imageUrl ? (
-        /* The image host comes from the API at runtime, so it cannot be added to
-           next.config remotePatterns at build time — next/image would throw. */
+        /* Deliberately NOT next/image: the optimizer allow-list is scoped to our product
+           buckets, assistant cards may reference other hosts, and at 48px there is nothing
+           worth optimizing — an unlisted host would just make next/image throw. */
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={card.imageUrl}

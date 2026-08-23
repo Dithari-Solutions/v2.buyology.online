@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/products";
@@ -44,13 +45,14 @@ function RecCard({ product }: { product: Product }) {
     <div className="group relative flex flex-col rounded-2xl border border-border bg-surface p-3 shadow-[var(--shadow-elevation)] transition-transform duration-300 hover:-translate-y-0.5">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-surface-2">
         {product.image?.startsWith("http") ? (
-          // Presigned catalogue photo — plain <img>; contained on white so the whole product shows.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          // Catalogue photo through next/image — contained on white so the whole product shows.
+          <Image
             src={product.image}
             alt=""
-            className="absolute inset-0 h-full w-full bg-white object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]"
-            loading="lazy"
+            fill
+            quality={75}
+            sizes="200px"
+            className="bg-white object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]"
             draggable={false}
           />
         ) : (

@@ -7,8 +7,9 @@ import type { Product } from "@/lib/products";
  * so the cards, cart and wishlist keep compiling while the data underneath becomes real.
  *
  * Contract notes that shape this module:
- * - Every image URL is a presigned S3 link with a ~2-hour signature: render with plain <img>,
- *   fetch fresh per view, never persist.
+ * - Every image URL is a presigned S3 link. The backend keeps product-image URLs byte-identical
+ *   for ~4h (6h signature) and the objects carry `public, max-age=21600`, so they ARE cache- and
+ *   optimizer-friendly within a session — render through next/image, just never persist a URL.
  * - List responses are bare arrays with NO total count — page until a short page.
  * - The market is fixed to the UAE for now (countryCode=UAE, prices in AED): v2 has no country
  *   selector yet, and without countryCode the backend prices from the global-cheapest store,
@@ -106,7 +107,10 @@ function params(locale: Locale, extra: Record<string, unknown> = {}, market?: Ma
 }
 
 async function get<T>(path: string, search: URLSearchParams): Promise<T> {
-  const res = await fetch(backendUrl(`${path}?${search}`), { cache: "no-store" });
+  // Server side this opts into Next's data cache (60s — matching the backend's own
+  // micro-cache TTL); in the browser the `next` option is inert and the default HTTP
+  // cache honours the backend's `max-age=60`, so repeat navigations stop refetching.
+  const res = await fetch(backendUrl(`${path}?${search}`), { next: { revalidate: 60 } });
   if (!res.ok) throw new Error(`${path} ${res.status}`);
   const body = (await res.json()) as ApiEnvelope<T>;
   if (body.data == null) throw new Error(`${path}: empty`);
@@ -116,19 +120,22 @@ async function get<T>(path: string, search: URLSearchParams): Promise<T> {
 // ── Categories (cached per locale for the session — names label the cards) ──
 
 // Keyed per locale AND market: on the server this cache outlives a request, and one
-// region's category names must never be served to another region's render.
-const categoryCache = new Map<string, Promise<Category[]>>();
+// region's category names must never be served to another region's render. TTL'd so an
+// admin category rename reaches long-lived server processes within minutes, not never.
+const CATEGORY_TTL_MS = 5 * 60_000;
+const categoryCache = new Map<string, { promise: Promise<Category[]>; at: number }>();
 
 export function fetchCategories(locale: Locale, market?: Market): Promise<Category[]> {
   const m = market ?? currentMarket();
   const cacheKey = `${locale}:${m.countryCode}`;
-  let cached = categoryCache.get(cacheKey);
+  const entry = categoryCache.get(cacheKey);
+  let cached = entry && Date.now() - entry.at <= CATEGORY_TTL_MS ? entry.promise : undefined;
   if (!cached) {
     cached = get<Category[]>("/api/category", params(locale, {}, market)).catch((err) => {
       categoryCache.delete(cacheKey); // a failed fetch must not poison the session
       throw err;
     });
-    categoryCache.set(cacheKey, cached);
+    categoryCache.set(cacheKey, { promise: cached, at: Date.now() });
   }
   return cached;
 }

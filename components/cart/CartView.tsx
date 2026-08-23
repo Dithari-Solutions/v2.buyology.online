@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCart, type CartLine } from "@/components/cart/cart-provider";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -46,9 +47,8 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
         {loading ? (
           <div className="absolute inset-0 animate-pulse bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
         ) : detail?.image?.startsWith("http") ? (
-          // Presigned catalogue photo — plain <img> (short-lived URL).
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={detail.image} alt="" className="absolute inset-0 h-full w-full bg-white object-contain p-2" loading="lazy" />
+          // Catalogue photo through next/image — contained so the whole product shows.
+          <Image src={detail.image} alt="" fill quality={75} sizes="(min-width: 640px) 112px, 100vw" className="bg-white object-contain p-2" />
         ) : (
           // No photo in the catalogue — a quiet placeholder, never a fake product image.
           <span className="absolute inset-0 flex items-center justify-center text-muted" aria-hidden="true">

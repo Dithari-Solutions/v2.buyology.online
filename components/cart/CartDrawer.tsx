@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useCart, type CartLine } from "@/components/cart/cart-provider";
@@ -166,13 +167,14 @@ function DrawerLine({ line }: { line: CartLine }) {
         {loading ? (
           <div className="absolute inset-0 animate-pulse bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
         ) : detail?.image?.startsWith("http") ? (
-          // Presigned catalogue photo — plain <img>; contained so the whole product shows.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          // Catalogue photo through next/image — contained so the whole product shows.
+          <Image
             src={detail.image}
             alt=""
-            className="absolute inset-0 h-full w-full bg-white object-contain p-1"
-            loading="lazy"
+            fill
+            quality={75}
+            sizes="64px"
+            className="bg-white object-contain p-1"
           />
         ) : (
           // No photo in the catalogue — a quiet placeholder, never a fake product image.
