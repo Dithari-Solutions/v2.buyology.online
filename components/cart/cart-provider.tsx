@@ -57,6 +57,7 @@ type AddInput = {
 
 type CartFees = {
   deliveryFee: number | null;
+  expressFee: number | null;
   freeShippingThreshold: number | null;
   qualifiesForFreeShipping: boolean | null;
 };
@@ -87,6 +88,11 @@ type CartValue = {
   moveToCart: (id: string) => void;
   open: () => void;
   close: () => void;
+  /** Re-fetch the server cart (e.g. after a payment settled and the backend cleaned it). */
+  refresh: () => void;
+  /** Flush pending debounced writes and wait for the server queue to drain — call before
+   *  freezing the cart at checkout, so what gets priced is what the summary showed. */
+  settle: () => Promise<void>;
 };
 
 const CartContext = createContext<CartValue | null>(null);
@@ -253,6 +259,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCurrency(cart.currency ?? undefined);
     setFees({
       deliveryFee: cart.deliveryFee ?? null,
+      expressFee: cart.expressDeliveryFee ?? null,
       freeShippingThreshold: cart.freeShippingThreshold ?? null,
       qualifiesForFreeShipping: cart.qualifiesForFreeShipping ?? null,
     });
@@ -673,6 +680,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [authed, credId, enqueue],
   );
 
+  const settle = useCallback(async () => {
+    if (credId) {
+      // Fire every debounced quantity PATCH now instead of in up-to-450ms.
+      for (const [id, timer] of [...qtyTimersRef.current]) {
+        clearTimeout(timer);
+        qtyTimersRef.current.delete(id);
+        const target = pendingQtyRef.current.get(id);
+        if (target == null) continue;
+        enqueue(async () => {
+          try {
+            return await updateCartItemQuantity(credId, id, target);
+          } finally {
+            if (pendingQtyRef.current.get(id) === target) pendingQtyRef.current.delete(id);
+          }
+        });
+      }
+    }
+    // Drain: ops may enqueue more ops (tmp-line intents), so loop until quiet.
+    while (pendingRef.current > 0) {
+      await queueRef.current.catch(() => {});
+      await new Promise((r) => setTimeout(r, 0));
+    }
+  }, [credId, enqueue]);
+
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
 
@@ -719,9 +750,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       moveToCart,
       open,
       close,
+      refresh: () => void reload(),
+      settle,
     };
   }, [
-    authed, status, hydrated, serverLines, localLines, currency, fees, isOpen, syncing, ready, syncError,
+    authed, status, hydrated, serverLines, localLines, currency, fees, isOpen, syncing, ready, syncError, reload, settle,
     addItem, removeItem, setQty, setSelected, setAllSelected, saveForLater, moveToCart, open, close,
   ]);
 

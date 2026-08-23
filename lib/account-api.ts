@@ -123,6 +123,21 @@ export type PaymentInfo = {
   status?: string | null;
 };
 
+/** Twilio Verify: the backend refuses to create orders until the phone is verified. */
+export function sendPhoneOtp(uid: string, phoneNumber: string): Promise<unknown> {
+  return authedJson(`/api/users/${uid}/profile/phone/send-otp`, {
+    method: "POST",
+    body: JSON.stringify({ phoneNumber }),
+  });
+}
+
+export function verifyPhone(uid: string, phoneNumber: string, code: string): Promise<unknown> {
+  return authedJson(`/api/users/${uid}/profile/phone/verify`, {
+    method: "POST",
+    body: JSON.stringify({ phoneNumber, code }),
+  });
+}
+
 /** Ownership is enforced server-side: the transaction must belong to the caller. */
 export function fetchPaymentTransaction(transactionId: string): Promise<PaymentInfo> {
   return authedJson<PaymentInfo>(`/api/payments/transactions/${transactionId}`);
@@ -150,6 +165,8 @@ export type Address = {
   postalCode?: string | null;
   /** The customer's own name for this address; shown instead of the label when present. */
   customLabel?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   formattedAddress?: string | null;
   isDefault?: boolean;
   /** The backend may serialize the flag under either name; normalise on read. */

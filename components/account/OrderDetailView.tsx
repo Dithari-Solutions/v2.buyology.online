@@ -17,6 +17,9 @@ import {
   type PaymentInfo,
 } from "@/lib/account-api";
 import { useProductLookup } from "@/lib/use-product-lookup";
+import { repayOrder } from "@/lib/checkout-api";
+import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
+import { PENDING_ORDER_KEY, PENDING_TX_KEY } from "@/components/checkout/CheckoutView";
 import { ChevronLeftIcon, StarIcon, TruckIcon, WalletIcon } from "@/components/icons";
 
 /**
@@ -245,6 +248,53 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
       <p className="mt-1 text-xs text-muted" dir="ltr">
         {order.id}
       </p>
+
+      {order.status === "PENDING_PAYMENT" && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3">
+          <p className="text-sm text-muted">{o.statuses.PENDING_PAYMENT}</p>
+          <div className="ms-auto flex flex-wrap items-center gap-2">
+            {(["CARD", "TABBY", "TAMARA"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                disabled={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  setError(null);
+                  try {
+                    const pay = await repayOrder(order.id, {
+                      methodType: m,
+                      redirectionUrl: `${window.location.origin}/payment/callback`,
+                    });
+                    if (!pay.checkoutUrl) throw new Error("no checkout url");
+                    try {
+                      sessionStorage.setItem(PENDING_TX_KEY, pay.transactionId);
+                      sessionStorage.setItem(PENDING_ORDER_KEY, order.id);
+                    } catch { /* callback falls back to params */ }
+                    window.location.href = pay.checkoutUrl;
+                  } catch {
+                    setError(t.checkout.placeFailed);
+                    setBusy(false);
+                  }
+                }}
+                className={
+                  m === "CARD"
+                    ? "rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+                    : "rounded-full border border-border px-4 py-2 transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
+                }
+              >
+                {m === "CARD" ? (
+                  busy ? t.auth.loading : t.checkout.payNow
+                ) : m === "TABBY" ? (
+                  <TabbyLogo className="h-[16px] w-auto" />
+                ) : (
+                  <TamaraLogo className="h-[16px] w-auto" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {order.cancellationReason && (
         <p className="mt-3 rounded-xl border border-border bg-surface-2 px-4 py-3 text-sm text-muted">

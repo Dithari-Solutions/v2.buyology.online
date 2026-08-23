@@ -33,6 +33,11 @@ const RESEND_COOLDOWN_S = 60;
 export function SignupForm() {
   const { t } = useI18n();
   const router = useRouter();
+  /** Where to land after signup: ?next=/some/path when present, else home. */
+  function destination(): string {
+    const next = new URLSearchParams(window.location.search).get("next");
+    return next && next.startsWith("/") ? next : "/";
+  }
   const { signUp, verifyOtp } = useAuth();
   const s = t.auth.signup;
   const a = t.auth;
@@ -122,7 +127,7 @@ export function SignupForm() {
       if (claims.uid && (pending.firstName || pending.lastName)) {
         await saveProfileNames(claims.uid, pending.firstName, pending.lastName);
       }
-      router.push("/");
+      router.push(destination());
     } catch (err) {
       setError(otpErrorFor(err));
       setBusy(false);
@@ -376,7 +381,7 @@ export function SignupForm() {
         </button>
       </form>
 
-      {type === "personal" && <AuthSocial onDone={() => router.push("/")} />}
+      {type === "personal" && <AuthSocial onDone={() => router.push(destination())} />}
 
       <p className="mt-6 text-center text-sm text-muted">
         {s.hasAccount}{" "}

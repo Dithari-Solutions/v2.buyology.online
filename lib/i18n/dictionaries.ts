@@ -119,6 +119,47 @@ export interface Dict {
     reviews: string;
     inStock: string;
   };
+  checkout: {
+    title: string;
+    fulfilment: string;
+    delivery: string;
+    pickup: string;
+    manageAddresses: string;
+    noAddresses: string;
+    noStores: string;
+    method: string;
+    standard: string;
+    express: string;
+    expressNeedsPin: string;
+    expressUnavailable: string;
+    payment: string;
+    card: string;
+    discount: string;
+    promoInvalid: string;
+    totalNote: string;
+    placeOrder: string;
+    placing: string;
+    placeFailed: string;
+    phoneTitle: string;
+    phoneHint: string;
+    phoneRequired: string;
+    sendCode: string;
+    resendCode: string;
+    verify: string;
+    callback: {
+      checking: string;
+      successTitle: string;
+      successHint: string;
+      viewOrder: string;
+      failedTitle: string;
+      failedHint: string;
+      tryAgain: string;
+      pendingTitle: string;
+      pendingHint: string;
+      toOrders: string;
+    };
+    payNow: string;
+  };
   ai: {
     eyebrow: string;
     heading: string;
@@ -713,6 +754,47 @@ const en: Dict = {
     saved: "Saved",
     reviews: "reviews",
     inStock: "In stock",
+  },
+  checkout: {
+    title: "Checkout",
+    fulfilment: "How would you like to get it?",
+    delivery: "Delivery",
+    pickup: "Store pickup",
+    manageAddresses: "Manage addresses",
+    noAddresses: "No saved addresses yet — add one in your account to continue.",
+    noStores: "No stores are available for pickup right now.",
+    method: "Delivery speed",
+    standard: "Standard delivery",
+    express: "Express (30 min)",
+    expressNeedsPin: "Add a map pin to this address to unlock express",
+    expressUnavailable: "Not available for these items at this address",
+    payment: "Payment method",
+    card: "Card",
+    discount: "Discount",
+    promoInvalid: "This promo code can't be applied.",
+    totalNote: "The final amount is confirmed on the payment page.",
+    placeOrder: "Place order & pay",
+    placing: "Preparing your payment…",
+    placeFailed: "We couldn't place the order. Nothing was charged — please try again.",
+    phoneTitle: "Verify your phone",
+    phoneHint: "A quick SMS code — couriers need a reachable number.",
+    phoneRequired: "Verify your phone number to place the order.",
+    sendCode: "Send code",
+    resendCode: "Resend code",
+    verify: "Verify",
+    callback: {
+      checking: "Confirming your payment…",
+      successTitle: "Payment confirmed",
+      successHint: "Your order is paid and being prepared. A confirmation email is on its way.",
+      viewOrder: "View order",
+      failedTitle: "Payment didn't go through",
+      failedHint: "You weren't charged. Your items are still reserved — you can try again.",
+      tryAgain: "Try again",
+      pendingTitle: "Payment still processing",
+      pendingHint: "This can take a moment. Check your orders in a minute — we'll record the result either way.",
+      toOrders: "Go to my orders",
+    },
+    payNow: "Pay now",
   },
   ai: {
     eyebrow: "Powered by Buyobot",
@@ -1483,6 +1565,47 @@ const az: Dict = {
     saved: "Saxlanıldı",
     reviews: "rəy",
     inStock: "Stokda var",
+  },
+  checkout: {
+    title: "Sifarişin rəsmiləşdirilməsi",
+    fulfilment: "Necə almaq istəyirsiniz?",
+    delivery: "Çatdırılma",
+    pickup: "Mağazadan götürmə",
+    manageAddresses: "Ünvanları idarə et",
+    noAddresses: "Hələ yadda saxlanmış ünvan yoxdur — davam etmək üçün hesabınızda əlavə edin.",
+    noStores: "Hazırda götürmə üçün mağaza yoxdur.",
+    method: "Çatdırılma sürəti",
+    standard: "Standart çatdırılma",
+    express: "Ekspres (30 dəq)",
+    expressNeedsPin: "Ekspres üçün bu ünvana xəritə nişanı əlavə edin",
+    expressUnavailable: "Bu ünvanda bu məhsullar üçün mövcud deyil",
+    payment: "Ödəniş üsulu",
+    card: "Kart",
+    discount: "Endirim",
+    promoInvalid: "Bu promo kod tətbiq oluna bilmir.",
+    totalNote: "Yekun məbləğ ödəniş səhifəsində təsdiqlənir.",
+    placeOrder: "Sifariş ver və ödə",
+    placing: "Ödənişiniz hazırlanır…",
+    placeFailed: "Sifarişi yerləşdirə bilmədik. Heç nə çıxılmayıb — yenidən cəhd edin.",
+    phoneTitle: "Telefonunuzu təsdiqləyin",
+    phoneHint: "Qısa SMS kod — kuryerlərə əlçatan nömrə lazımdır.",
+    phoneRequired: "Sifariş vermək üçün telefon nömrənizi təsdiqləyin.",
+    sendCode: "Kod göndər",
+    resendCode: "Kodu yenidən göndər",
+    verify: "Təsdiqlə",
+    callback: {
+      checking: "Ödənişiniz təsdiqlənir…",
+      successTitle: "Ödəniş təsdiqləndi",
+      successHint: "Sifarişiniz ödənilib və hazırlanır. Təsdiq e-poçtu yoldadır.",
+      viewOrder: "Sifarişə bax",
+      failedTitle: "Ödəniş alınmadı",
+      failedHint: "Sizdən heç nə çıxılmayıb. Məhsullarınız hələ rezervdədir — yenidən cəhd edə bilərsiniz.",
+      tryAgain: "Yenidən cəhd et",
+      pendingTitle: "Ödəniş hələ emal olunur",
+      pendingHint: "Bu bir az çəkə bilər. Bir dəqiqə sonra sifarişlərinizi yoxlayın — nəticəni hər halda qeyd edəcəyik.",
+      toOrders: "Sifarişlərimə keç",
+    },
+    payNow: "İndi ödə",
   },
   ai: {
     eyebrow: "Buyobot ilə",
@@ -2268,6 +2391,47 @@ const ar: Dict = {
     saved: "محفوظ",
     reviews: "تقييم",
     inStock: "متوفّر",
+  },
+  checkout: {
+    title: "إتمام الشراء",
+    fulfilment: "كيف تودّ الاستلام؟",
+    delivery: "توصيل",
+    pickup: "استلام من المتجر",
+    manageAddresses: "إدارة العناوين",
+    noAddresses: "لا توجد عناوين محفوظة بعد — أضف عنوانًا في حسابك للمتابعة.",
+    noStores: "لا توجد متاجر متاحة للاستلام حاليًا.",
+    method: "سرعة التوصيل",
+    standard: "توصيل عادي",
+    express: "سريع (30 دقيقة)",
+    expressNeedsPin: "أضف موقعًا على الخريطة لهذا العنوان لتفعيل التوصيل السريع",
+    expressUnavailable: "غير متاح لهذه المنتجات على هذا العنوان",
+    payment: "طريقة الدفع",
+    card: "بطاقة",
+    discount: "الخصم",
+    promoInvalid: "لا يمكن تطبيق هذا الرمز الترويجي.",
+    totalNote: "يتم تأكيد المبلغ النهائي في صفحة الدفع.",
+    placeOrder: "أكِّد الطلب وادفع",
+    placing: "جارٍ تجهيز الدفع…",
+    placeFailed: "تعذر إتمام الطلب. لم يُخصم أي مبلغ — حاول مرة أخرى.",
+    phoneTitle: "تحقق من هاتفك",
+    phoneHint: "رمز SMS سريع — يحتاج المندوب إلى رقم يمكن الوصول إليه.",
+    phoneRequired: "تحقق من رقم هاتفك لإتمام الطلب.",
+    sendCode: "أرسل الرمز",
+    resendCode: "إعادة إرسال الرمز",
+    verify: "تحقق",
+    callback: {
+      checking: "جارٍ تأكيد دفعتك…",
+      successTitle: "تم تأكيد الدفع",
+      successHint: "طلبك مدفوع وقيد التجهيز. رسالة التأكيد في الطريق.",
+      viewOrder: "عرض الطلب",
+      failedTitle: "لم تتم عملية الدفع",
+      failedHint: "لم يُخصم منك شيء. منتجاتك لا تزال محجوزة — يمكنك المحاولة مجددًا.",
+      tryAgain: "حاول مرة أخرى",
+      pendingTitle: "الدفع قيد المعالجة",
+      pendingHint: "قد يستغرق هذا لحظة. تفقد طلباتك بعد دقيقة — سنسجل النتيجة في كل الأحوال.",
+      toOrders: "الذهاب إلى طلباتي",
+    },
+    payNow: "ادفع الآن",
   },
   ai: {
     eyebrow: "مدعوم من Buyobot",

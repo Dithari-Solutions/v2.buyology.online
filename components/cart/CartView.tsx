@@ -431,13 +431,22 @@ export function CartView() {
             <BnplOptions total={total} currency={currency} />
           </div>
 
-          <button
-            type="button"
-            disabled={selectedCount === 0}
-            className="mt-4 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {t.cart.checkout}
-          </button>
+          {selectedCount === 0 ? (
+            <button
+              type="button"
+              disabled
+              className="mt-4 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-fg opacity-50 disabled:cursor-not-allowed"
+            >
+              {t.cart.checkout}
+            </button>
+          ) : (
+            <Link
+              href="/checkout"
+              className="mt-4 block w-full rounded-full bg-primary py-3 text-center text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            >
+              {t.cart.checkout}
+            </Link>
+          )}
           {selectedCount === 0 && items.length > 0 && (
             <p className="mt-2 text-center text-xs text-muted">{t.cart.noneSelected}</p>
           )}

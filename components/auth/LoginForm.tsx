@@ -111,7 +111,12 @@ export function LoginForm() {
       <p className="mt-6 text-center text-sm text-muted">
         {a.login.noAccount}{" "}
         <Link
-          href="/signup"
+          href={
+            typeof window !== "undefined" &&
+            new URLSearchParams(window.location.search).get("next")?.startsWith("/")
+              ? `/signup?next=${encodeURIComponent(new URLSearchParams(window.location.search).get("next")!)}`
+              : "/signup"
+          }
           className="font-semibold text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {a.login.cta}
