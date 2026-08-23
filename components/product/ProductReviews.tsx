@@ -85,7 +85,13 @@ function WriteReview({ productId, onPosted }: { productId: string; onPosted: () 
     };
   }, [status, user?.uid, productId]);
 
-  useEffect(() => () => previews.forEach((u) => URL.revokeObjectURL(u)), [previews]);
+  // Unmount-only: per-change cleanup would revoke URLs that survive a single-thumbnail
+  // removal. Discard-site revokes (pick/remove) handle everything else.
+  const previewsRef = useRef<string[]>([]);
+  useEffect(() => {
+    previewsRef.current = previews;
+  }, [previews]);
+  useEffect(() => () => previewsRef.current.forEach((u) => URL.revokeObjectURL(u)), []);
 
   if (status === "loading") return null;
   if (status === "guest") {

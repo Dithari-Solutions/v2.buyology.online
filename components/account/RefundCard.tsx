@@ -297,7 +297,13 @@ function RequestModal({
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => () => previews.forEach((u) => URL.revokeObjectURL(u)), [previews]);
+  // Unmount-only: per-change cleanup would revoke URLs that survive a single-thumbnail
+  // removal. Discard-site revokes (pick/remove) handle everything else.
+  const previewsRef = useRef<string[]>([]);
+  useEffect(() => {
+    previewsRef.current = previews;
+  }, [previews]);
+  useEffect(() => () => previewsRef.current.forEach((u) => URL.revokeObjectURL(u)), []);
 
   function pick(list: FileList | null) {
     if (!list) return;

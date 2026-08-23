@@ -154,6 +154,109 @@ export interface Dict {
     aboutP2: string;
     legalEnglishNote: string;
   };
+  repair: {
+    landing: {
+      heroTitle: string;
+      heroSubtitle: string;
+      startCta: string;
+      viewRequests: string;
+      howItWorks: string;
+      ctaTitle: string;
+      ctaBody: string;
+      steps: { title: string; body: string }[];
+    };
+    form: {
+      title: string;
+      error: string;
+      productName: string;
+      productNamePlaceholder: string;
+      brand: string;
+      brandPlaceholder: string;
+      model: string;
+      modelPlaceholder: string;
+      purchaseDate: string;
+      description: string;
+      descriptionPlaceholder: string;
+      uploadHintRequired: string;
+      uploadCta: string;
+      imagesRequired: string;
+      submit: string;
+      submitting: string;
+    };
+    list: {
+      title: string;
+      newRequest: string;
+      emptyTitle: string;
+      emptyBody: string;
+      createFirst: string;
+      updated: string;
+    };
+    statuses: Record<string, string>;
+    detail: {
+      deliveryTitle: string;
+      deliveryChangeHint: string;
+      changeDelivery: string;
+      cancelChange: string;
+      feePaid: string;
+      feeUnpaid: string;
+      notFound: string;
+      backToList: string;
+      pickStore: string;
+      saveFailed: string;
+      requestId: string;
+      dateSubmitted: string;
+      brand: string;
+      model: string;
+      purchaseDate: string;
+      problem: string;
+      images: string;
+      reviewing: string;
+      chooseDelivery: string;
+      bringToStore: string;
+      bringToStoreBody: string;
+      free: string;
+      noStores: string;
+      selectStore: string;
+      courierPickup: string;
+      courierPickupBody: string;
+      confirmDelivery: string;
+      saving: string;
+      redirecting: string;
+      payCourierFee: string;
+      courierPaymentPending: string;
+      courierPaymentPendingBody: string;
+      returnPaymentPendingBody: string;
+      switchToStorePickup: string;
+      awaitingCourier: string;
+      awaitingDropoff: string;
+      theStore: string;
+      underReview: string;
+      costEstimate: string;
+      estimatedCost: string;
+      estimatedTime: string;
+      acceptRepair: string;
+      declineRepair: string;
+      inRepair: string;
+      completed: string;
+      returnTitle: string;
+      returnBody: string;
+      returnCourierChosen: string;
+      returnPickupChosen: string;
+      pickupFromStore: string;
+      courierReturn: string;
+      confirmReturn: string;
+      aiEstimateTitle: string;
+      aiEstimateBadge: string;
+      aiEstimateTime: string;
+      aiEstimateDisclaimer: string;
+      switchRefundNote: string;
+      actionFailed: string;
+      estimatePending: string;
+      estimatePendingBody: string;
+      estimateUnavailable: string;
+      estimateUnavailableBody: string;
+    };
+  };
   checkout: {
     title: string;
     fulfilment: string;
@@ -194,6 +297,8 @@ export interface Dict {
       toOrders: string;
       feePaidTitle: string;
       feePaidHint: string;
+      repairFeeHint: string;
+      toRepair: string;
     };
     payNow: string;
     productUnavailable: string;
@@ -874,6 +979,124 @@ const en: Dict = {
     aboutP2: "We built this new experience around honest prices, real reviews, 30-minute express delivery where it's genuinely possible, and a checkout that shows you exactly what you'll pay before you pay it.",
     legalEnglishNote: "This document is provided in English.",
   },
+  repair: {
+    landing: {
+      heroTitle: "Repair Your Device",
+      heroSubtitle: "Get your devices fixed by certified technicians. Fast, reliable, and affordable repair services for all your tech needs.",
+      startCta: "Start Repair Request",
+      viewRequests: "My Repair Requests",
+      howItWorks: "How It Works",
+      ctaTitle: "Ready to Get Started?",
+      ctaBody: "Submit your repair request now and our team will get back to you within 24 hours.",
+      steps: [
+        { title: "Submit Repair Request", body: "Fill out the form with your device details and upload images." },
+        { title: "Technician Review", body: "Our experts review your request and diagnose the issue." },
+        { title: "Receive Price Estimate", body: "Get a transparent cost estimate and repair timeline." },
+        { title: "Send Device", body: "Choose to bring it to our store or request courier pickup." },
+        { title: "Device Repaired", body: "We repair your device and notify you when it's ready." },
+      ],
+    },
+    form: {
+      title: "Submit Repair Request",
+      error: "Something went wrong. Please try again.",
+      productName: "Product Name",
+      productNamePlaceholder: "e.g. MacBook Air",
+      brand: "Brand",
+      brandPlaceholder: "e.g. Apple",
+      model: "Model",
+      modelPlaceholder: "e.g. 2021 M1",
+      purchaseDate: "Purchase Date (Optional)",
+      description: "Problem Description",
+      descriptionPlaceholder: "Please describe the issue you're experiencing in detail…",
+      uploadHintRequired: "Add at least 1 photo of the issue (up to 4) — we price the repair from what they show.",
+      uploadCta: "Click to upload or drag and drop",
+      imagesRequired: "Add at least one photo of the problem.",
+      submit: "Submit Repair Request",
+      submitting: "Submitting…",
+    },
+    list: {
+      title: "My Repairs",
+      newRequest: "New request",
+      emptyTitle: "No repair requests yet",
+      emptyBody: "When you request a repair it'll appear here so you can track its progress.",
+      createFirst: "Create your first repair request",
+      updated: "New update",
+    },
+    statuses: {
+      SUBMITTED: "Submitted",
+      AWAITING_DEVICE: "Awaiting device",
+      UNDER_REVIEW: "Under review",
+      PRICE_ESTIMATED: "Waiting for your approval",
+      IN_REPAIR: "In repair",
+      COMPLETED: "Completed",
+      DECLINED: "Estimate declined",
+      CANCELLED: "Cancelled",
+    },
+    detail: {
+      deliveryTitle: "Getting your device to us",
+      deliveryChangeHint: "You can change this until your device reaches our team.",
+      changeDelivery: "Change",
+      cancelChange: "Cancel",
+      feePaid: "Fee paid",
+      feeUnpaid: "Fee unpaid",
+      notFound: "Repair request not found.",
+      backToList: "Back to my repairs",
+      pickStore: "Please choose a store branch.",
+      saveFailed: "Couldn't save your choice. Please try again.",
+      requestId: "Request ID",
+      dateSubmitted: "Date Submitted",
+      brand: "Brand",
+      model: "Model",
+      purchaseDate: "Purchase Date",
+      problem: "Problem Description",
+      images: "Images",
+      reviewing: "Our team is currently reviewing your request — we've emailed you a confirmation. Next, choose how to get your device to us.",
+      chooseDelivery: "Choose Delivery Method",
+      bringToStore: "Bring to Store",
+      bringToStoreBody: "Bring your device to one of our store locations.",
+      free: "Free",
+      noStores: "No stores available in your region yet.",
+      selectStore: "Select a store branch…",
+      courierPickup: "Request Courier Pickup",
+      courierPickupBody: "We'll send a courier to collect your device (fee applies).",
+      confirmDelivery: "Confirm delivery method",
+      saving: "Saving…",
+      redirecting: "Redirecting…",
+      payCourierFee: "Pay courier fee",
+      courierPaymentPending: "Complete your courier payment",
+      courierPaymentPendingBody: "Pay the courier pickup fee to schedule the collection of your device — or choose to bring it to a store below instead.",
+      returnPaymentPendingBody: "Pay the courier fee to have your device delivered back to you — or collect it from the store for free instead.",
+      switchToStorePickup: "Collect from store instead",
+      awaitingCourier: "A courier will collect your device and deliver it to our store. We'll update this page once it arrives.",
+      awaitingDropoff: "Please drop your device at {{store}}. We'll start the review as soon as we receive it.",
+      theStore: "the selected store",
+      underReview: "We've received your device and our technicians are diagnosing the issue. You'll get a price estimate shortly.",
+      costEstimate: "Repair Cost Estimate",
+      estimatedCost: "Estimated Cost",
+      estimatedTime: "Estimated Time",
+      acceptRepair: "Accept Repair",
+      declineRepair: "Decline Repair",
+      inRepair: "You've accepted the estimate and our team has started the repair. We'll let you know as soon as it's ready.",
+      completed: "Your repair is complete! Thanks for choosing Buyology.",
+      returnTitle: "Get your device back",
+      returnBody: "You've declined the estimate. Choose how you'd like to receive your device back.",
+      returnCourierChosen: "A courier will deliver your device back to you.",
+      returnPickupChosen: "You can collect your device from the store.",
+      pickupFromStore: "Pick up from store",
+      courierReturn: "Request courier delivery",
+      confirmReturn: "Confirm return method",
+      aiEstimateTitle: "Preliminary estimate",
+      aiEstimateBadge: "AI · not final",
+      aiEstimateTime: "Typical turnaround",
+      aiEstimateDisclaimer: "Generated automatically from your photos and description as a rough guide. Our technicians will inspect your device and send you the final price before any repair starts.",
+      switchRefundNote: "You've already paid the courier fee. Switch to a store drop-off and our team will refund it — it isn't returned automatically.",
+      actionFailed: "Something went wrong. Please try again.",
+      estimatePending: "AI is estimating your repair…",
+      estimatePendingBody: "Analysing your photos and description. This usually takes a few seconds.",
+      estimateUnavailable: "No instant estimate this time",
+      estimateUnavailableBody: "We couldn't prepare a preliminary price for this one. Our technicians will review your device and send you a full quote — nothing is delayed.",
+    },
+  },
   checkout: {
     title: "Checkout",
     fulfilment: "How would you like to get it?",
@@ -914,6 +1137,8 @@ const en: Dict = {
       toOrders: "Go to my orders",
       feePaidTitle: "Pickup fee paid",
       feePaidHint: "Your courier pickup is being scheduled. Track the return on your order page.",
+      repairFeeHint: "Your courier is being arranged. Track your repair from its page.",
+      toRepair: "View repair request",
     },
     payNow: "Pay now",
     productUnavailable: "This product isn't available right now.",
@@ -1779,6 +2004,124 @@ const az: Dict = {
     aboutP2: "Bu yeni təcrübəni dürüst qiymətlər, real rəylər, həqiqətən mümkün olan yerlərdə 30 dəqiqəlik ekspres çatdırılma və ödəməzdən əvvəl nə ödəyəcəyinizi dəqiq göstərən checkout üzərində qurduq.",
     legalEnglishNote: "Bu sənəd ingilis dilində təqdim olunur.",
   },
+  repair: {
+    landing: {
+      heroTitle: "Cihazınızı Təmir Etdirin",
+      heroSubtitle: "Cihazlarınız sertifikatlı texniklər tərəfindən təmir olunsun. Bütün texnoloji ehtiyaclarınız üçün sürətli, etibarlı və sərfəli təmir xidmətləri.",
+      startCta: "Təmir Sorğusu Yarat",
+      viewRequests: "Təmir Sorğularım",
+      howItWorks: "Necə İşləyir",
+      ctaTitle: "Başlamağa Hazırsınız?",
+      ctaBody: "Təmir sorğunuzu indi göndərin, komandamız 24 saat ərzində sizinlə əlaqə saxlayacaq.",
+      steps: [
+        { title: "Təmir Sorğusu Göndər", body: "Formanı cihaz məlumatları ilə doldurun və şəkillər yükləyin." },
+        { title: "Texnik Baxışı", body: "Mütəxəssislərimiz sorğunuza baxır və problemi diaqnoz edir." },
+        { title: "Qiymət Təxmini Alın", body: "Şəffaf qiymət təxmini və təmir müddəti əldə edin." },
+        { title: "Cihazı Göndər", body: "Mağazamıza gətirin və ya kuryer sifariş edin." },
+        { title: "Cihaz Təmir Olundu", body: "Cihazınızı təmir edir və hazır olduqda sizə bildiririk." },
+      ],
+    },
+    form: {
+      title: "Təmir Sorğusu Göndər",
+      error: "Xəta baş verdi. Yenidən cəhd edin.",
+      productName: "Məhsulun Adı",
+      productNamePlaceholder: "məs. MacBook Air",
+      brand: "Brend",
+      brandPlaceholder: "məs. Apple",
+      model: "Model",
+      modelPlaceholder: "məs. 2021 M1",
+      purchaseDate: "Alış Tarixi (İstəyə bağlı)",
+      description: "Problemin Təsviri",
+      descriptionPlaceholder: "Zəhmət olmasa qarşılaşdığınız problemi ətraflı təsvir edin…",
+      uploadHintRequired: "Problemi göstərən ən azı 1 şəkil əlavə edin (4-ə qədər) — qiyməti şəkillərə əsasən müəyyən edirik.",
+      uploadCta: "Yükləmək üçün klikləyin və ya sürüşdürün",
+      imagesRequired: "Problemin ən azı bir şəklini əlavə edin.",
+      submit: "Təmir Sorğusu Göndər",
+      submitting: "Göndərilir…",
+    },
+    list: {
+      title: "Təmirlərim",
+      newRequest: "Yeni sorğu",
+      emptyTitle: "Hələ təmir sorğusu yoxdur",
+      emptyBody: "Təmir sorğusu göndərdiyiniz zaman irəliləyişi izləmək üçün burada görünəcək.",
+      createFirst: "İlk təmir sorğunuzu yaradın",
+      updated: "Yeni yeniləmə",
+    },
+    statuses: {
+      SUBMITTED: "Göndərildi",
+      AWAITING_DEVICE: "Cihaz gözlənilir",
+      UNDER_REVIEW: "Baxılır",
+      PRICE_ESTIMATED: "Təsdiqiniz gözlənilir",
+      IN_REPAIR: "Təmirdə",
+      COMPLETED: "Tamamlandı",
+      DECLINED: "Təxmin rədd edildi",
+      CANCELLED: "Ləğv edildi",
+    },
+    detail: {
+      deliveryTitle: "Cihazın bizə çatdırılması",
+      deliveryChangeHint: "Cihazın komandamıza çatana qədər bunu dəyişə bilərsən.",
+      changeDelivery: "Dəyiş",
+      cancelChange: "Ləğv et",
+      feePaid: "Haqq ödənilib",
+      feeUnpaid: "Haqq ödənilməyib",
+      notFound: "Təmir sorğusu tapılmadı.",
+      backToList: "Təmirlərimə qayıt",
+      pickStore: "Zəhmət olmasa mağaza filialı seçin.",
+      saveFailed: "Seçiminiz yadda saxlanılmadı. Yenidən cəhd edin.",
+      requestId: "Sorğu Nömrəsi",
+      dateSubmitted: "Göndərilmə Tarixi",
+      brand: "Brend",
+      model: "Model",
+      purchaseDate: "Alış Tarixi",
+      problem: "Problemin Təsviri",
+      images: "Şəkillər",
+      reviewing: "Komandamız hazırda sorğunuza baxır — sizə təsdiq e-poçtu göndərdik. Sonra cihazınızı bizə necə çatdıracağınızı seçin.",
+      chooseDelivery: "Çatdırılma Üsulunu Seçin",
+      bringToStore: "Mağazaya Gətir",
+      bringToStoreBody: "Cihazınızı mağaza filiallarımızdan birinə gətirin.",
+      free: "Pulsuz",
+      noStores: "Regionunuzda hələ mağaza mövcud deyil.",
+      selectStore: "Mağaza filialı seçin…",
+      courierPickup: "Kuryer Sifariş Et",
+      courierPickupBody: "Cihazınızı götürmək üçün kuryer göndərəcəyik (haqq tətbiq olunur).",
+      confirmDelivery: "Çatdırılma üsulunu təsdiqlə",
+      saving: "Saxlanılır…",
+      redirecting: "Yönləndirilir…",
+      payCourierFee: "Kuryer haqqını ödə",
+      courierPaymentPending: "Kuryer ödənişini tamamlayın",
+      courierPaymentPendingBody: "Cihazınızın götürülməsini planlaşdırmaq üçün kuryer haqqını ödəyin — və ya aşağıda mağazaya gətirməyi seçin.",
+      returnPaymentPendingBody: "Cihazınızın sizə geri çatdırılması üçün kuryer haqqını ödəyin — və ya pulsuz olaraq mağazadan götürün.",
+      switchToStorePickup: "Əvəzində mağazadan götür",
+      awaitingCourier: "Kuryer cihazınızı götürüb mağazamıza çatdıracaq. Gəldikdən sonra bu səhifəni yeniləyəcəyik.",
+      awaitingDropoff: "Zəhmət olmasa cihazınızı {{store}} ünvanına təhvil verin. Aldıqdan dərhal sonra baxışa başlayacağıq.",
+      theStore: "seçilmiş mağaza",
+      underReview: "Cihazınızı aldıq və texniklərimiz problemi diaqnoz edir. Tezliklə qiymət təxmini alacaqsınız.",
+      costEstimate: "Təmir Xərci Təxmini",
+      estimatedCost: "Təxmini Xərc",
+      estimatedTime: "Təxmini Müddət",
+      acceptRepair: "Təmiri Qəbul Et",
+      declineRepair: "Təmiri Rədd Et",
+      inRepair: "Təxmini qəbul etdiniz və komandamız təmirə başladı. Hazır olan kimi sizə bildirəcəyik.",
+      completed: "Təmiriniz tamamlandı! Buyology-ni seçdiyiniz üçün təşəkkür edirik.",
+      returnTitle: "Cihazınızı geri alın",
+      returnBody: "Təxmini rədd etdiniz. Cihazınızı necə geri almaq istədiyinizi seçin.",
+      returnCourierChosen: "Kuryer cihazınızı sizə geri çatdıracaq.",
+      returnPickupChosen: "Cihazınızı mağazadan götürə bilərsiniz.",
+      pickupFromStore: "Mağazadan götür",
+      courierReturn: "Kuryer çatdırılması sifariş et",
+      confirmReturn: "Geri qaytarma üsulunu təsdiqlə",
+      aiEstimateTitle: "İlkin qiymət təxmini",
+      aiEstimateBadge: "Sİ · yekun deyil",
+      aiEstimateTime: "Təxmini müddət",
+      aiEstimateDisclaimer: "Şəkilləriniz və təsvirinizə əsasən avtomatik hazırlanmış təxmini göstəricidir. Texniklərimiz cihazınızı yoxlayacaq və təmirə başlamazdan əvvəl yekun qiyməti göndərəcək.",
+      switchRefundNote: "Kuryer haqqını artıq ödəmisən. Mağazaya gətirməyə keçsən, komandamız məbləği geri qaytaracaq — avtomatik qaytarılmır.",
+      actionFailed: "Xəta baş verdi. Yenidən cəhd edin.",
+      estimatePending: "Süni intellekt təmiri qiymətləndirir…",
+      estimatePendingBody: "Şəkilləriniz və təsviriniz təhlil edilir. Bu adətən bir neçə saniyə çəkir.",
+      estimateUnavailable: "Bu dəfə dərhal təxmin yoxdur",
+      estimateUnavailableBody: "Bunun üçün ilkin qiymət hazırlaya bilmədik. Texniklərimiz cihazınızı yoxlayacaq və tam qiymət təklifi göndərəcək — heç bir gecikmə olmayacaq.",
+    },
+  },
   checkout: {
     title: "Sifarişin rəsmiləşdirilməsi",
     fulfilment: "Necə almaq istəyirsiniz?",
@@ -1819,6 +2162,8 @@ const az: Dict = {
       toOrders: "Sifarişlərimə keç",
       feePaidTitle: "Götürmə haqqı ödənildi",
       feePaidHint: "Kuryer götürməniz planlaşdırılır. Qaytarmanı sifariş səhifənizdə izləyin.",
+      repairFeeHint: "Kuryeriniz təşkil olunur. Təmirinizi öz səhifəsindən izləyin.",
+      toRepair: "Təmir sorğusuna bax",
     },
     payNow: "İndi ödə",
     productUnavailable: "Bu məhsul hazırda mövcud deyil.",
@@ -2699,6 +3044,124 @@ const ar: Dict = {
     aboutP2: "بنينا هذه التجربة الجديدة على أسعار صادقة، ومراجعات حقيقية، وتوصيل سريع خلال 30 دقيقة حيث يكون ممكنًا فعلًا، وإتمام شراء يريك بالضبط ما ستدفعه قبل أن تدفع.",
     legalEnglishNote: "هذه الوثيقة متاحة باللغة الإنجليزية.",
   },
+  repair: {
+    landing: {
+      heroTitle: "أصلح جهازك",
+      heroSubtitle: "أصلح أجهزتك على يد فنيين معتمدين. خدمات إصلاح سريعة وموثوقة وبأسعار معقولة لكل احتياجاتك التقنية.",
+      startCta: "ابدأ طلب الإصلاح",
+      viewRequests: "طلبات الإصلاح الخاصة بي",
+      howItWorks: "كيف تعمل الخدمة",
+      ctaTitle: "هل أنت مستعد للبدء؟",
+      ctaBody: "أرسل طلب الإصلاح الآن وسيتواصل معك فريقنا خلال 24 ساعة.",
+      steps: [
+        { title: "أرسل طلب الإصلاح", body: "املأ النموذج ببيانات جهازك وارفع الصور." },
+        { title: "مراجعة الفني", body: "يراجع خبراؤنا طلبك ويشخّصون المشكلة." },
+        { title: "استلم تقدير السعر", body: "احصل على تقدير تكلفة شفاف ومدة الإصلاح." },
+        { title: "أرسل الجهاز", body: "اختر إحضاره إلى متجرنا أو اطلب خدمة استلام بمندوب." },
+        { title: "تم إصلاح الجهاز", body: "نصلح جهازك ونخطرك عندما يكون جاهزًا." },
+      ],
+    },
+    form: {
+      title: "أرسل طلب الإصلاح",
+      error: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      productName: "اسم المنتج",
+      productNamePlaceholder: "مثال: MacBook Air",
+      brand: "العلامة التجارية",
+      brandPlaceholder: "مثال: Apple",
+      model: "الطراز",
+      modelPlaceholder: "مثال: 2021 M1",
+      purchaseDate: "تاريخ الشراء (اختياري)",
+      description: "وصف المشكلة",
+      descriptionPlaceholder: "يرجى وصف المشكلة التي تواجهها بالتفصيل…",
+      uploadHintRequired: "أضف صورة واحدة على الأقل للمشكلة (حتى 4) — نحدد سعر الإصلاح بناءً على ما تظهره.",
+      uploadCta: "انقر للرفع أو اسحب وأفلت",
+      imagesRequired: "أضف صورة واحدة على الأقل للمشكلة.",
+      submit: "أرسل طلب الإصلاح",
+      submitting: "جارٍ الإرسال…",
+    },
+    list: {
+      title: "إصلاحاتي",
+      newRequest: "طلب جديد",
+      emptyTitle: "لا توجد طلبات إصلاح بعد",
+      emptyBody: "عندما تطلب إصلاحًا سيظهر هنا لتتمكن من متابعة تقدّمه.",
+      createFirst: "أنشئ أول طلب إصلاح لك",
+      updated: "تحديث جديد",
+    },
+    statuses: {
+      SUBMITTED: "تم الإرسال",
+      AWAITING_DEVICE: "بانتظار الجهاز",
+      UNDER_REVIEW: "قيد المراجعة",
+      PRICE_ESTIMATED: "بانتظار موافقتك",
+      IN_REPAIR: "قيد الإصلاح",
+      COMPLETED: "مكتمل",
+      DECLINED: "تم رفض التقدير",
+      CANCELLED: "ملغى",
+    },
+    detail: {
+      deliveryTitle: "إيصال جهازك إلينا",
+      deliveryChangeHint: "يمكنك تغيير ذلك إلى أن يصل جهازك إلى فريقنا.",
+      changeDelivery: "تغيير",
+      cancelChange: "إلغاء",
+      feePaid: "الرسوم مدفوعة",
+      feeUnpaid: "الرسوم غير مدفوعة",
+      notFound: "طلب الإصلاح غير موجود.",
+      backToList: "العودة إلى إصلاحاتي",
+      pickStore: "يرجى اختيار فرع المتجر.",
+      saveFailed: "تعذّر حفظ اختيارك. يرجى المحاولة مرة أخرى.",
+      requestId: "رقم الطلب",
+      dateSubmitted: "تاريخ الإرسال",
+      brand: "العلامة التجارية",
+      model: "الطراز",
+      purchaseDate: "تاريخ الشراء",
+      problem: "وصف المشكلة",
+      images: "الصور",
+      reviewing: "يراجع فريقنا طلبك حاليًا — أرسلنا لك تأكيدًا بالبريد الإلكتروني. بعد ذلك، اختر كيفية إيصال جهازك إلينا.",
+      chooseDelivery: "اختر طريقة التوصيل",
+      bringToStore: "الإحضار إلى المتجر",
+      bringToStoreBody: "أحضر جهازك إلى أحد فروع متجرنا.",
+      free: "مجاني",
+      noStores: "لا توجد متاجر متاحة في منطقتك بعد.",
+      selectStore: "اختر فرع المتجر…",
+      courierPickup: "طلب استلام بمندوب",
+      courierPickupBody: "سنرسل مندوبًا لاستلام جهازك (تُطبّق رسوم).",
+      confirmDelivery: "تأكيد طريقة التوصيل",
+      saving: "جارٍ الحفظ…",
+      redirecting: "جارٍ إعادة التوجيه…",
+      payCourierFee: "ادفع رسوم المندوب",
+      courierPaymentPending: "أكمل دفع رسوم المندوب",
+      courierPaymentPendingBody: "ادفع رسوم استلام المندوب لجدولة استلام جهازك — أو اختر إحضاره إلى المتجر أدناه بدلاً من ذلك.",
+      returnPaymentPendingBody: "ادفع رسوم المندوب لإعادة جهازك إليك — أو استلمه من المتجر مجانًا بدلاً من ذلك.",
+      switchToStorePickup: "الاستلام من المتجر بدلاً من ذلك",
+      awaitingCourier: "سيستلم المندوب جهازك ويوصله إلى متجرنا. سنحدّث هذه الصفحة بمجرد وصوله.",
+      awaitingDropoff: "يرجى تسليم جهازك في {{store}}. سنبدأ المراجعة بمجرد استلامه.",
+      theStore: "المتجر المحدد",
+      underReview: "استلمنا جهازك ويقوم فنيونا بتشخيص المشكلة. ستحصل على تقدير السعر قريبًا.",
+      costEstimate: "تقدير تكلفة الإصلاح",
+      estimatedCost: "التكلفة المقدّرة",
+      estimatedTime: "المدة المقدّرة",
+      acceptRepair: "قبول الإصلاح",
+      declineRepair: "رفض الإصلاح",
+      inRepair: "لقد قبلت التقدير وبدأ فريقنا بالإصلاح. سنُعلمك بمجرد أن يصبح جاهزًا.",
+      completed: "اكتمل إصلاحك! شكرًا لاختيارك Buyology.",
+      returnTitle: "استرجع جهازك",
+      returnBody: "لقد رفضت التقدير. اختر كيف ترغب في استلام جهازك.",
+      returnCourierChosen: "سيوصّل المندوب جهازك إليك.",
+      returnPickupChosen: "يمكنك استلام جهازك من المتجر.",
+      pickupFromStore: "الاستلام من المتجر",
+      courierReturn: "طلب توصيل بمندوب",
+      confirmReturn: "تأكيد طريقة الإرجاع",
+      aiEstimateTitle: "تقدير أولي",
+      aiEstimateBadge: "ذكاء اصطناعي · غير نهائي",
+      aiEstimateTime: "المدة المتوقعة",
+      aiEstimateDisclaimer: "تم إنشاؤه تلقائياً من صورك ووصفك كدليل تقريبي. سيقوم فنيونا بفحص جهازك وإرسال السعر النهائي قبل بدء أي إصلاح.",
+      switchRefundNote: "لقد دفعت رسوم التوصيل بالفعل. إذا انتقلت إلى الإحضار للمتجر فسيقوم فريقنا بإعادتها — لا تُسترد تلقائيًا.",
+      actionFailed: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      estimatePending: "الذكاء الاصطناعي يقدّر تكلفة الإصلاح…",
+      estimatePendingBody: "يتم تحليل صورك ووصفك. عادةً ما يستغرق ذلك بضع ثوانٍ.",
+      estimateUnavailable: "لا يوجد تقدير فوري هذه المرة",
+      estimateUnavailableBody: "لم نتمكن من إعداد سعر أولي لهذا الطلب. سيقوم فنيونا بمراجعة جهازك وإرسال عرض سعر كامل — لن يتأخر شيء.",
+    },
+  },
   checkout: {
     title: "إتمام الشراء",
     fulfilment: "كيف تودّ الاستلام؟",
@@ -2739,6 +3202,8 @@ const ar: Dict = {
       toOrders: "الذهاب إلى طلباتي",
       feePaidTitle: "تم دفع رسوم الاستلام",
       feePaidHint: "جارٍ جدولة استلام المندوب. تتبّع الإرجاع من صفحة طلبك.",
+      repairFeeHint: "جارٍ ترتيب المندوب. تتبّع إصلاحك من صفحته.",
+      toRepair: "عرض طلب الإصلاح",
     },
     payNow: "ادفع الآن",
     productUnavailable: "هذا المنتج غير متاح حاليًا.",

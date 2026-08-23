@@ -35,7 +35,10 @@ export function PaymentCallbackView() {
 
   const [outcome, setOutcome] = useState<Outcome>("checking");
   const [orderId, setOrderId] = useState<string | null>(null);
-  const courierFee = params.get("kind") === "courier-fee";
+  const kind = params.get("kind");
+  const courierFee = kind === "courier-fee";
+  const repairFee = kind === "repair-courier-fee";
+  const repairId = params.get("repairId");
   const ranRef = useRef(false);
 
   useEffect(() => {
@@ -145,14 +148,18 @@ export function PaymentCallbackView() {
       <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
         <CheckIcon className="h-8 w-8" />
       </span>,
-      courierFee ? cb.feePaidTitle : cb.successTitle,
-      courierFee ? cb.feePaidHint : cb.successHint,
+      courierFee || repairFee ? cb.feePaidTitle : cb.successTitle,
+      repairFee ? cb.repairFeeHint : courierFee ? cb.feePaidHint : cb.successHint,
       <>
-        {orderId && (
+        {repairFee && repairId ? (
+          <Link href={`/repair/${repairId}`} className={primaryBtn}>
+            {cb.toRepair}
+          </Link>
+        ) : orderId ? (
           <Link href={`/account/orders/${orderId}`} className={primaryBtn}>
             {cb.viewOrder}
           </Link>
-        )}
+        ) : null}
         <Link href="/" className={secondaryBtn}>
           {t.cart.continueShopping}
         </Link>
@@ -167,7 +174,7 @@ export function PaymentCallbackView() {
       cb.failedTitle,
       cb.failedHint,
       <>
-        <Link href="/checkout" className={primaryBtn}>
+        <Link href={repairFee && repairId ? `/repair/${repairId}` : "/checkout"} className={primaryBtn}>
           {cb.tryAgain}
         </Link>
         <Link href="/account" className={secondaryBtn}>
@@ -182,8 +189,11 @@ export function PaymentCallbackView() {
     </span>,
     cb.pendingTitle,
     cb.pendingHint,
-    <Link href="/account" className={primaryBtn}>
-      {cb.toOrders}
+    <Link
+      href={repairFee && repairId ? `/repair/${repairId}` : "/account"}
+      className={primaryBtn}
+    >
+      {repairFee && repairId ? cb.toRepair : cb.toOrders}
     </Link>,
   );
 }
