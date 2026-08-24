@@ -15,7 +15,6 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { Footer } from "@/components/footer/Footer";
 import { HideOnAuth } from "@/components/layout/HideOnAuth";
-import { PasswordGate } from "@/components/gate/PasswordGate";
 
 // Raleway is the site typeface, carrying both body and headings. This
 // supersedes the Brand Identity Guidelines (Biennale for display, Manrope for
@@ -138,7 +137,6 @@ export default async function RootLayout({
             </WishlistProvider>
           </CartProvider>
           </AuthProvider>
-          <PasswordGate />
         </LanguageProvider>
       </body>
     </html>

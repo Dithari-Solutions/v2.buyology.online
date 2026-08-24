@@ -15,7 +15,7 @@ const IMAGE_DURATION_MS = 6000;
  * every other modal here (SearchModal, CartDrawer) opens from state.
  *
  * z-[130]: above the chat launcher (120) on purpose — a floating chat bubble over a fullscreen
- * story reads as broken — and below the PasswordGate (200), which must cover everything.
+ * story reads as broken.
  *
  * Media is rendered with plain <img>/<video>, deliberately not next/image: the URLs are presigned
  * S3 GETs that differ on every request and expire in 2 hours, so optimization caching is useless
