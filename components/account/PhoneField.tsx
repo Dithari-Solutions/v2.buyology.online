@@ -19,7 +19,7 @@ import {
  * The control is really two widgets, but a phone number is one value. Rather
  * than teach every consumer to stitch a `dialCode` and a `phoneNational` entry
  * back together, the two visible controls carry NO `name` at all and a single
- * `<input type="hidden" name={name}>` submits the combined `"+971 50 123 4567"`
+ * `<input type="hidden" name={name}>` submits the combined E.164 `"+971501234567"`
  * string. Existing `new FormData(form).get(name)` handling (see
  * AddressesSection.onAdd) therefore keeps working unchanged — swapping a
  * <Field label={ad.phone} name="phone" /> for a <PhoneField> is a drop-in edit
@@ -158,8 +158,17 @@ export function PhoneField({
     0,
   );
 
-  const nationalValue = national.trim();
-  const combined = nationalValue ? `${country.dial} ${nationalValue}` : "";
+  // The submitted value must be E.164 — "+" then digits only, no spaces or dashes. The
+  // visible input stays free to hold the groups a human types; the hidden value is compacted
+  // here. Getting this wrong rejected EVERY number server-side ("must be in E.164 format"),
+  // because both the dial-code join and the typed groups carried spaces.
+  //
+  // A leading trunk zero is dropped: people type their number the way they dial it at home
+  // ("050 123 4567"), and keeping the 0 would silently store a different, unreachable number.
+  // None of the served markets (AE, IN, SA, BH, QA, OM, AZ) keep a trunk zero in E.164.
+  const nationalDigits = national.replace(/\D/g, "").replace(/^0+/, "");
+  const dialDigits = country.dial.replace(/[^\d+]/g, "");
+  const combined = nationalDigits ? `${dialDigits}${nationalDigits}` : "";
 
   function openList(seedQuery: string, index: number) {
     setQuery(seedQuery);

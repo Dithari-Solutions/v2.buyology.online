@@ -686,6 +686,9 @@ export interface Dict {
       phoneNoResults: string;
       phoneResults: string;
       phoneResultOne: string;
+      phoneVerifiedLabel: string;
+      phoneUnverifiedLabel: string;
+      phoneVerifyCta: string;
       photo: string;
       photoHint: string;
       photoChoose: string;
@@ -1962,6 +1965,9 @@ const en: Dict = {
       phoneNoResults: "No country matches that search.",
       phoneResults: "countries",
       phoneResultOne: "country",
+      phoneVerifiedLabel: "Verified",
+      phoneUnverifiedLabel: "Not verified",
+      phoneVerifyCta: "Verify now",
       photo: "Profile photo",
       photoHint: "Optional. PNG, JPG or WebP, up to 5 MB.",
       photoChoose: "Add photo",
@@ -3293,6 +3299,9 @@ const az: Dict = {
       phoneNoResults: "Axtarışa uyğun ölkə tapılmadı.",
       phoneResults: "ölkə",
       phoneResultOne: "ölkə",
+      phoneVerifiedLabel: "Təsdiqlənib",
+      phoneUnverifiedLabel: "Təsdiqlənməyib",
+      phoneVerifyCta: "İndi təsdiqlə",
       photo: "Profil şəkli",
       photoHint: "İstəyə bağlı. PNG, JPG və ya WebP, 5 MB-a qədər.",
       photoChoose: "Şəkil əlavə edin",
@@ -4607,6 +4616,9 @@ const ar: Dict = {
       phoneNoResults: "لا توجد دولة مطابقة لبحثك.",
       phoneResults: "دولة",
       phoneResultOne: "دولة",
+      phoneVerifiedLabel: "موثّق",
+      phoneUnverifiedLabel: "غير موثّق",
+      phoneVerifyCta: "التوثيق الآن",
       photo: "صورة الملف الشخصي",
       photoHint: "اختياري. PNG أو JPG أو WebP، حتى 5 ميغابايت.",
       photoChoose: "إضافة صورة",

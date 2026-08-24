@@ -10,6 +10,7 @@ import { useAccountData } from "@/components/account/account-data";
 import { updateProfile, uploadAvatar, AuthError, forgotPassword, resetPassword } from "@/lib/auth/client";
 import { useAuth } from "@/components/auth/auth-provider";
 import { GiveawayProfileCard } from "@/components/account/GiveawayBadge";
+import { PhoneVerification } from "@/components/account/PhoneVerification";
 import {
   cancelOrder,
   deleteAddress,
@@ -124,6 +125,7 @@ export function ProfileSection() {
           resultsLabel={p.phoneResults}
           resultOneLabel={p.phoneResultOne}
         />
+        <PhoneVerification />
         {error && (
           <p role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</p>
         )}
