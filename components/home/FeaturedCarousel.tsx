@@ -55,7 +55,7 @@ export function FeaturedCarousel({ slides }: { slides: CarouselSlide[] }) {
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
       onKeyDown={onKeyDown}
-      className="group relative h-full min-h-[260px] w-full overflow-hidden rounded-2xl border border-border"
+      className="group relative h-full w-full overflow-hidden rounded-2xl border border-border"
     >
       {slides.map((slide, i) => {
         const active = i === index;
@@ -83,7 +83,7 @@ export function FeaturedCarousel({ slides }: { slides: CarouselSlide[] }) {
             <div className="absolute inset-0 bg-gradient-to-tr from-brand-deep/90 via-brand-deep/30 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-            <div className="absolute inset-0 flex flex-col justify-end gap-3 p-6 sm:p-8 lg:p-10">
+            <div className="absolute inset-0 flex flex-col justify-end gap-3 p-5 pb-10 sm:p-8 lg:p-10">
               <span className="inline-flex w-fit items-center rounded-full border border-gold/30 bg-gold/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-gold backdrop-blur-sm">
                 {slide.eyebrow}
               </span>
@@ -137,7 +137,7 @@ export function FeaturedCarousel({ slides }: { slides: CarouselSlide[] }) {
 
       {/* Dots */}
       {count > 1 && (
-        <div className="absolute bottom-5 end-6 flex items-center gap-2 lg:start-10 lg:end-auto">
+        <div className="absolute bottom-3 end-4 flex items-center gap-2 lg:bottom-5 lg:start-10 lg:end-auto">
           {slides.map((slide, i) => (
             <button
               key={slide.id}

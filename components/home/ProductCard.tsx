@@ -145,8 +145,8 @@ export function ProductCard({
         </div>
 
         {/* Price + rating */}
-        <div className="mt-auto flex items-end justify-between gap-3 border-t border-border pt-3">
-          <div className="flex items-baseline gap-2" dir="ltr">
+        <div className="mt-auto flex flex-wrap items-end justify-between gap-x-3 gap-y-1 border-t border-border pt-3">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-2" dir="ltr">
             {product.oldPrice > product.price && (
               <span className="text-xs text-muted line-through">
                 {formatMoney(product.oldPrice, product.currency)}

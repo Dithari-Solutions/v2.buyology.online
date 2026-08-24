@@ -23,7 +23,7 @@ export function Logo({ className = "" }: { className?: string }) {
         width={318}
         height={70}
         priority
-        className="block h-7 w-auto sm:h-9 dark:hidden"
+        className="block h-6 w-auto sm:h-9 dark:hidden"
       />
       {/* Dark theme (transparent, white wordmark) */}
       <Image
@@ -32,7 +32,7 @@ export function Logo({ className = "" }: { className?: string }) {
         width={318}
         height={70}
         priority
-        className="hidden h-7 w-auto sm:h-9 dark:block"
+        className="hidden h-6 w-auto sm:h-9 dark:block"
       />
     </Link>
   );

@@ -352,7 +352,7 @@ export function RepairDetail({ repairId }: { repairId: string }) {
             {repair.description && (
               <>
                 <h3 className="mt-4 text-sm font-semibold text-foreground">{d.problem}</h3>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{repair.description}</p>
+                <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted">{repair.description}</p>
               </>
             )}
             {(repair.imageUrls?.length ?? 0) > 0 && (

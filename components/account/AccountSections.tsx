@@ -252,7 +252,7 @@ export function OrdersSection() {
             return (
               <li key={order.id} className="rounded-2xl border border-border bg-surface p-4">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <div className="min-w-0 flex-1">
+                  <div className="w-full min-w-0 sm:w-auto sm:flex-1">
                     <Link
                       href={`/account/orders/${order.id}`}
                       className="font-semibold text-foreground hover:text-brand-icon hover:underline"
@@ -265,7 +265,7 @@ export function OrdersSection() {
                       {order.city ? ` · ${order.city}` : ""}
                     </p>
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusTone(order.status)}`}>
+                  <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${statusTone(order.status)}`}>
                     {statusLabel}
                   </span>
                   <span className="text-sm font-bold text-foreground" dir="ltr">
@@ -286,7 +286,7 @@ export function OrdersSection() {
                           {o.track}
                         </a>
                       ) : (
-                        <span className="text-sm text-muted" dir="ltr">
+                        <span className="break-all text-sm text-muted" dir="ltr">
                           {order.carrierName ? `${order.carrierName}: ` : ""}
                           {order.trackingCode}
                         </span>
@@ -501,7 +501,7 @@ export function AddressesSection() {
                       <p className="text-sm text-muted" dir="ltr">{addr.phoneNumber}</p>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 text-sm">
+                  <div className="flex w-full shrink-0 items-center gap-3 text-sm sm:w-auto">
                     {!addr.isDefault && (
                       <button
                         type="button"
@@ -513,7 +513,7 @@ export function AddressesSection() {
                       </button>
                     )}
                     {confirmDelete === addr.id ? (
-                      <span className="flex items-center gap-2">
+                      <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
                         <span className="text-muted">{ad.deleteConfirm}</span>
                         <button
                           type="button"
@@ -847,7 +847,7 @@ export function SecuritySection() {
       ) : (
         <form onSubmit={onSubmit} className="max-w-sm space-y-4">
           <p className="text-sm text-muted">
-            {sec.codeSentTo} <span className="font-medium text-foreground">{email}</span>
+            {sec.codeSentTo} <span className="break-all font-medium text-foreground">{email}</span>
           </p>
           <OtpInput value={otp} onChange={setOtp} />
           <Field label={sec.newPass} name="newPass" type="password" autoComplete="new-password" required />

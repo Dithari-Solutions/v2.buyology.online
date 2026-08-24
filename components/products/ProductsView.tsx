@@ -314,8 +314,8 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
       </div>
 
       {/* Toolbar */}
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <p className="text-sm text-muted">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <p className="min-w-0 text-sm text-muted">
           <span className="font-semibold text-foreground">{filtered.length}</span>{" "}
           {t.shop.results}
         </p>
@@ -342,7 +342,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
                 setVisible(PAGE);
               }}
               aria-label={t.shop.sortBy}
-              className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className="max-w-[11rem] truncate rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               {SORT_KEYS.map((k) => (
                 <option key={k} value={k}>

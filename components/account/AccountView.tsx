@@ -123,7 +123,7 @@ function AccountViewInner() {
 
           <nav
             aria-label={t.account.title}
-            className="mt-3 flex gap-1 overflow-x-auto rounded-2xl border border-border bg-surface p-2 lg:flex-col lg:overflow-visible"
+            className="mt-3 grid grid-cols-2 gap-1 rounded-2xl border border-border bg-surface p-2 sm:grid-cols-3 lg:flex lg:flex-col"
           >
             {TABS.map(({ key, icon: Icon, danger }) => {
               const on = tab === key;
@@ -135,7 +135,7 @@ function AccountViewInner() {
                     window.location.hash = key;
                   }}
                   aria-current={on ? "page" : undefined}
-                  className={`flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:w-full ${
+                  className={`flex min-w-0 items-center gap-2 rounded-xl px-2.5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-2.5 sm:px-3 lg:w-full ${
                     on
                       ? danger
                         ? "bg-red-500/10 text-red-600 dark:text-red-400"
@@ -146,7 +146,7 @@ function AccountViewInner() {
                   }`}
                 >
                   <Icon className="h-[18px] w-[18px] shrink-0" />
-                  {t.account.nav[key]}
+                  <span className="min-w-0 truncate">{t.account.nav[key]}</span>
                 </button>
               );
             })}
@@ -166,7 +166,7 @@ function AccountViewInner() {
         </aside>
 
         {/* Content */}
-        <div>{active.render()}</div>
+        <div className="min-w-0">{active.render()}</div>
       </div>
     </div>
   );

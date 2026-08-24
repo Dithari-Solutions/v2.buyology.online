@@ -52,10 +52,10 @@ function OrderItemRow({
         <img
           src={image}
           alt=""
-          className="h-20 w-20 shrink-0 rounded-xl border border-border bg-white object-contain p-1.5"
+          className="h-16 w-16 shrink-0 rounded-xl border border-border bg-white object-contain p-1.5 sm:h-20 sm:w-20"
         />
       ) : (
-        <span className="h-20 w-20 shrink-0 rounded-xl border border-border bg-surface-2" />
+        <span className="h-16 w-16 shrink-0 rounded-xl border border-border bg-surface-2 sm:h-20 sm:w-20" />
       )}
       <div className="min-w-0 flex-1">
         {detail?.category && (
@@ -65,13 +65,13 @@ function OrderItemRow({
         )}
         <p className="truncate font-medium text-foreground">{name}</p>
         {sku && (
-          <p className="text-xs text-muted" dir="ltr">
+          <p className="truncate text-xs text-muted" dir="ltr">
             {sku}
           </p>
         )}
         {detail && detail.reviews > 0 && (
-          <span className="mt-0.5 flex items-center gap-1 text-xs text-muted">
-            <span className="flex items-center gap-0.5" aria-hidden="true">
+          <span className="mt-0.5 flex flex-wrap items-center gap-1 text-xs text-muted">
+            <span className="flex shrink-0 items-center gap-0.5" aria-hidden="true">
               {Array.from({ length: 5 }).map((_, i) => (
                 <StarIcon
                   key={i}
@@ -454,7 +454,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               <>
                 <p className="mt-3 text-xs uppercase tracking-wide text-muted">{d.contact}</p>
                 {order.customerEmail && (
-                  <p className="mt-1 text-muted" dir="ltr">{order.customerEmail}</p>
+                  <p className="mt-1 break-all text-muted" dir="ltr">{order.customerEmail}</p>
                 )}
                 {order.customerPhone && (
                   <p className="text-muted" dir="ltr">{order.customerPhone}</p>
@@ -491,7 +491,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                   {o.track}
                 </a>
               ) : (
-                <p className="mt-3 text-muted" dir="ltr">
+                <p className="mt-3 break-all text-muted" dir="ltr">
                   {order.carrierName ? `${order.carrierName}: ` : ""}
                   {order.trackingCode}
                 </p>

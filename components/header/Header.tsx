@@ -39,7 +39,7 @@ function CountBadge({ count, bump }: { count: number; bump?: boolean }) {
 
 /** Shared premium styling for the round icon actions (Buyology purple). */
 const actionButton =
-  "relative inline-flex h-10 w-10 items-center justify-center rounded-xl text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "relative inline-flex h-9 w-9 items-center justify-center rounded-xl text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-10 sm:w-10";
 
 const mobileServices = [...services, buyobot];
 
@@ -75,15 +75,15 @@ export function Header() {
       >
         {/* Main row: logo left · search centered · actions right (desktop) */}
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-3 py-3 lg:grid lg:grid-cols-[1fr_minmax(0,42rem)_1fr] lg:gap-4">
-            <div className="order-1 flex items-center gap-2 lg:justify-self-start">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-3 py-3 sm:gap-x-4 lg:grid lg:grid-cols-[1fr_minmax(0,42rem)_1fr] lg:gap-4">
+            <div className="order-1 flex items-center gap-1.5 sm:gap-2 lg:justify-self-start">
               <button
                 type="button"
                 onClick={() => setMobileOpen((v) => !v)}
                 aria-label={mobileOpen ? t.header.closeMenu : t.header.openMenu}
                 aria-expanded={mobileOpen}
                 aria-controls="mobile-menu"
-                className="-ms-1 inline-flex h-10 w-10 items-center justify-center rounded-xl text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+                className="-ms-1 inline-flex h-9 w-9 items-center justify-center rounded-xl text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-10 sm:w-10 lg:hidden"
               >
                 {mobileOpen ? (
                   <CloseIcon className="h-5 w-5" />
@@ -98,14 +98,15 @@ export function Header() {
             <SearchBar className="order-3 w-full lg:order-2 lg:w-full" />
 
             {/* Actions */}
-            <div className="order-2 ms-auto flex items-center gap-1 lg:order-3 lg:ms-0 lg:justify-self-end">
-              <AccountButton className="inline-flex items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-medium text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+            <div className="order-2 ms-auto flex shrink-0 items-center gap-0 sm:gap-1 lg:order-3 lg:ms-0 lg:justify-self-end">
+              <AccountButton className="inline-flex items-center gap-2 rounded-xl px-1.5 py-2 text-sm font-medium text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-2.5" />
 
+              {/* Hidden only on ultra-narrow screens — the mobile menu still links the wishlist. */}
               <Link
                 id="header-wishlist"
                 href="/wishlist"
                 aria-label={`${t.header.wishlist}, ${wishlistCount} ${t.header.itemsSuffix}`}
-                className={actionButton}
+                className={`${actionButton} hidden min-[380px]:inline-flex`}
               >
                 <HeartIcon className="h-[22px] w-[22px]" />
                 <CountBadge count={wishlistCount} bump />

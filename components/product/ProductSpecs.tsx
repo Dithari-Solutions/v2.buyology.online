@@ -44,10 +44,10 @@ export function ProductSpecs() {
               i % 2 === 0 ? "bg-surface" : "bg-surface-2"
             }`}
           >
-            <dt className="w-full text-sm font-medium text-muted sm:w-48 sm:shrink-0">
+            <dt className="w-full break-words text-sm font-medium text-muted sm:w-48 sm:shrink-0">
               {row.label}
             </dt>
-            <dd className="text-sm text-foreground">{row.value}</dd>
+            <dd className="break-words text-sm text-foreground">{row.value}</dd>
           </div>
         ))}
       </dl>

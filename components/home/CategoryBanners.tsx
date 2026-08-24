@@ -52,10 +52,10 @@ export async function CategoryBanners() {
                 <li key={c.href}>
                   <Link
                     href={c.href}
-                    className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface-2 hover:text-brand-icon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface-2 hover:text-brand-icon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-3"
                   >
                     <Icon className="h-[18px] w-[18px] shrink-0 text-brand-icon" />
-                    <span className="truncate">{t.items[c.key].label}</span>
+                    <span className="min-w-0 truncate">{t.items[c.key].label}</span>
                   </Link>
                 </li>
               );
@@ -71,7 +71,7 @@ export async function CategoryBanners() {
         </nav>
 
         {/* Center — Featured carousel */}
-        <div className="relative order-1 aspect-[16/10] sm:aspect-[21/9] lg:order-2 lg:aspect-auto lg:h-full">
+        <div className="relative order-1 min-h-[16rem] sm:aspect-[21/9] sm:min-h-0 lg:order-2 lg:aspect-auto lg:h-full">
           <FeaturedCarousel slides={slides} />
         </div>
 
@@ -83,7 +83,7 @@ export async function CategoryBanners() {
               <Link
                 key={tile.id}
                 href={tile.href}
-                className="group relative aspect-[16/10] overflow-hidden rounded-2xl border border-border shadow-[var(--shadow-elevation)] transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:aspect-[2/1] lg:aspect-auto"
+                className="group relative aspect-[4/3] overflow-hidden rounded-2xl border border-border shadow-[var(--shadow-elevation)] transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:aspect-[2/1] lg:aspect-auto"
               >
                 <Image
                   src={tile.image}
@@ -93,11 +93,11 @@ export async function CategoryBanners() {
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-deep/70 via-brand-deep/15 to-transparent rtl:bg-gradient-to-bl" />
-                <div className="absolute inset-0 flex flex-col items-start p-4 sm:p-5">
+                <div className="absolute inset-0 flex flex-col items-start p-3 sm:p-5">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-gold">
                     {tr.eyebrow}
                   </p>
-                  <h3 className="mt-1 text-lg font-semibold text-white">
+                  <h3 className="mt-1 text-base font-semibold text-white sm:text-lg">
                     {tr.title}
                   </h3>
                   <span className="mt-1.5 inline-flex items-center gap-1 text-sm font-medium text-white/80 transition-colors group-hover:text-white">

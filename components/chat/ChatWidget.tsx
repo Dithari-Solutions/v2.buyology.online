@@ -270,7 +270,7 @@ export function ChatWidget() {
                   <p
                     // Model-generated plain text: rendered as a string child,
                     // never as HTML. Line breaks come from CSS, not markup.
-                    className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2 text-sm ${
+                    className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm ${
                       mine
                         ? "bg-primary text-primary-fg"
                         : "inline-block border border-border bg-surface text-foreground"

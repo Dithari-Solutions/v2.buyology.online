@@ -108,7 +108,7 @@ export function TicketDetail({ ticketId }: { ticketId: string }) {
             <p className="text-sm text-muted" dir="ltr">
               {ticket.reference ?? ticket.id.slice(0, 8)}
             </p>
-            <h1 className="mt-0.5 text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+            <h1 className="mt-0.5 break-words text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
               {ticket.subject}
             </h1>
           </div>
@@ -136,7 +136,7 @@ export function TicketDetail({ ticketId }: { ticketId: string }) {
           )}
         </dl>
 
-        <p className="mt-4 whitespace-pre-wrap rounded-xl bg-surface-2 p-4 text-sm leading-relaxed text-foreground">
+        <p className="mt-4 whitespace-pre-wrap break-words rounded-xl bg-surface-2 p-4 text-sm leading-relaxed text-foreground">
           {ticket.description}
         </p>
 
@@ -178,7 +178,7 @@ export function TicketDetail({ ticketId }: { ticketId: string }) {
                     <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted">
                       {mine ? s.detail.you : s.detail.team}
                     </p>
-                    <p className="whitespace-pre-wrap">{m.body}</p>
+                    <p className="whitespace-pre-wrap break-words">{m.body}</p>
                     {m.createdAt && (
                       <p className="mt-1.5 text-[11px] text-muted">
                         {dateFmt.format(new Date(m.createdAt))}

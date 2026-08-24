@@ -362,7 +362,7 @@ export function SellDetail({ sellId }: { sellId: string }) {
             {sell.description && (
               <>
                 <h3 className="mt-4 text-sm font-semibold text-foreground">{d.problem}</h3>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{sell.description}</p>
+                <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted">{sell.description}</p>
               </>
             )}
             {(sell.imageUrls?.length ?? 0) > 0 && (

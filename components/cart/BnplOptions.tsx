@@ -46,7 +46,7 @@ export function BnplOptions({
   return (
     <div>
       <p className="mb-2 text-xs font-medium text-muted">{t.cart.bnpl}</p>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
         <Option logo={<TabbyLogo className="h-[18px] w-auto" />} per={per} />
         <Option logo={<TamaraLogo className="h-[18px] w-auto" />} per={per} />
       </div>

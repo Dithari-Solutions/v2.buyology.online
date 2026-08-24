@@ -51,7 +51,7 @@ export const site = {
   },
   social: {
     x: "https://x.com/buyology",
-    instagram: "https://instagram.com/buyologyuae",
+    instagram: "https://instagram.com/buyology.online",
     discord: "https://discord.gg/buyology",
   },
 } as const;

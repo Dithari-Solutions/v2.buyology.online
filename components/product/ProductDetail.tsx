@@ -232,7 +232,7 @@ export function ProductDetail() {
         </a>
 
         {/* Price */}
-        <div className="mt-4 flex items-baseline gap-3" dir="ltr">
+        <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1" dir="ltr">
           <span className="text-3xl font-bold tracking-tight text-foreground">
             {formatMoney(unit, currency)}
           </span>

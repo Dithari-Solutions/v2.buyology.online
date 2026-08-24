@@ -344,7 +344,7 @@ export function ProductReviews() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span className="font-semibold text-foreground">
+                        <span className="break-words font-semibold text-foreground">
                           {review.reviewerName ?? "—"}
                         </span>
                         {review.createdAt && (
@@ -357,7 +357,7 @@ export function ProductReviews() {
                         <Stars rating={review.rating} className="h-3.5 w-3.5" />
                       </div>
                       {review.comment && (
-                        <p className="mt-1 text-sm text-muted">{review.comment}</p>
+                        <p className="mt-1 break-words text-sm text-muted">{review.comment}</p>
                       )}
                     </div>
                   </div>

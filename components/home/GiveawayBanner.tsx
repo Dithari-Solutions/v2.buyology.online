@@ -63,6 +63,23 @@ export async function GiveawayBanner() {
         </div>
 
         <div className="grid gap-8 p-6 sm:p-9 lg:min-h-[600px] lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center lg:gap-10 lg:p-12">
+          {/* ── Prize artwork, phone-sized (desktop uses the right column below) ── */}
+          <div className="pointer-events-none relative mx-auto h-56 w-44 sm:h-72 sm:w-56 lg:hidden">
+            <div
+              aria-hidden="true"
+              className="absolute start-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/20 blur-[60px]"
+            />
+            <div className="buyo-float relative h-full w-full">
+              <Image
+                src="/mock/iphone-18-pro.png"
+                alt={t.giveaway.prize}
+                fill
+                sizes="(min-width: 640px) 224px, 176px"
+                className="rotate-[12deg] object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.55)] rtl:-rotate-[12deg]"
+              />
+            </div>
+          </div>
+
           {/* ── Copy ─────────────────────────────────────────────── */}
           <div>
             <p className="inline-flex items-center gap-2 rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-primary-fg">
@@ -72,7 +89,7 @@ export async function GiveawayBanner() {
 
             <h2
               id="giveaway-heading"
-              className="mt-5 text-4xl font-extrabold leading-[0.95] tracking-[-0.035em] sm:text-5xl lg:text-6xl"
+              className="mt-5 text-3xl font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-5xl sm:leading-[0.95] lg:text-6xl"
             >
               {t.giveaway.title}{" "}
               <span className="text-gold">{t.giveaway.prize}</span>
