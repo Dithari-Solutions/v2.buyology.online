@@ -1,9 +1,8 @@
-import Link from "next/link";
 import Image from "next/image";
 import { getDict } from "@/lib/i18n/server";
+import { GiveawayEntry } from "@/components/home/GiveawayEntry";
 import { site } from "@/lib/site";
 import {
-  ArrowRightShortIcon,
   InstagramIcon,
   SparklesIcon,
   UserIcon,
@@ -124,19 +123,13 @@ export async function GiveawayBanner() {
               })}
             </ol>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link
-                href="/signup"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-              >
-                {t.giveaway.cta}
-                <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />
-              </Link>
+            <div className="mt-7">
+              <GiveawayEntry />
               <a
                 href={site.social.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                className="mt-3 inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
                 <InstagramIcon className="h-4 w-4" />
                 {t.giveaway.instagram}

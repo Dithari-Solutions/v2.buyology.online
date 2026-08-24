@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import type { CarouselSlide } from "@/lib/category-banners";
+import type { Banner } from "@/lib/banners";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import {
   ArrowRightShortIcon,
@@ -14,23 +14,31 @@ import {
 const AUTOPLAY_MS = 5000;
 
 /**
- * Auto-rotating promotional carousel — the only interactive piece of the
- * departments region. Autoplay pauses on hover/focus and is disabled under
- * reduced-motion; dots + arrow keys provide manual control.
+ * Auto-rotating promotional carousel over the REAL banners managed in the dashboard.
+ * Autoplay pauses on hover/focus and is disabled under reduced-motion; dots + arrow keys
+ * provide manual control.
+ *
+ * Today's live banners are finished artwork with the copy baked into the image and no
+ * text/button fields set, so this renders image-first: the overlay text, the CTA and the
+ * darkening scrim appear ONLY when the admin actually wrote copy. A scrim over artwork
+ * that already carries its own headline just muddies it, and inventing an eyebrow or a
+ * "Shop now" the admin never typed would put words in their mouth.
  */
-export function FeaturedCarousel({ slides }: { slides: CarouselSlide[] }) {
+export function FeaturedCarousel({
+  banners,
+  label,
+}: {
+  banners: Banner[];
+  label: string;
+}) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const reduced = usePrefersReducedMotion();
-  const liveRef = useRef<HTMLParagraphElement>(null);
-  const count = slides.length;
+  const count = banners.length;
 
   useEffect(() => {
     if (paused || reduced || count <= 1) return;
-    const id = setInterval(
-      () => setIndex((i) => (i + 1) % count),
-      AUTOPLAY_MS,
-    );
+    const id = setInterval(() => setIndex((i) => (i + 1) % count), AUTOPLAY_MS);
     return () => clearInterval(id);
   }, [paused, reduced, count]);
 
@@ -46,10 +54,12 @@ export function FeaturedCarousel({ slides }: { slides: CarouselSlide[] }) {
     }
   }
 
+  if (count === 0) return null;
+
   return (
     <section
       aria-roledescription="carousel"
-      aria-label="Featured promotions"
+      aria-label={label}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -57,63 +67,81 @@ export function FeaturedCarousel({ slides }: { slides: CarouselSlide[] }) {
       onKeyDown={onKeyDown}
       className="group relative h-full w-full overflow-hidden rounded-2xl border border-border"
     >
-      {slides.map((slide, i) => {
+      {banners.map((banner, i) => {
         const active = i === index;
-        return (
-          <div
-            key={slide.id}
-            role="group"
-            aria-roledescription="slide"
-            aria-label={`${i + 1} of ${count}: ${slide.headline}`}
-            aria-hidden={!active}
-            inert={!active}
-            className={`absolute inset-0 transition-opacity duration-700 ${
-              active ? "opacity-100" : "opacity-0"
-            }`}
-          >
+        const headline = banner.text?.trim();
+        const ctaLabel = banner.buttonLabel?.trim();
+        const href = banner.buttonUrl?.trim();
+        const linkWholeBanner = !!href && !ctaLabel;
+
+        const artwork = (
+          <>
             <Image
-              src={slide.image}
-              alt={slide.alt}
+              src={banner.backgroundImageUrl!}
+              alt={headline ?? ""}
               fill
               priority={i === 0}
-              sizes="(max-width: 1024px) 100vw, 60vw"
+              quality={90}
+              sizes="(min-width: 1024px) 760px, 100vw"
               className="object-cover"
             />
-            {/* Scrims: brand-purple diagonal + bottom darken for legibility */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-brand-deep/90 via-brand-deep/30 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            {/* Scrims only exist to make OUR overlay copy legible. */}
+            {headline && (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-tr from-brand-deep/90 via-brand-deep/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              </>
+            )}
 
-            <div className="absolute inset-0 flex flex-col justify-end gap-3 p-5 pb-10 sm:p-8 lg:p-10">
-              <span className="inline-flex w-fit items-center rounded-full border border-gold/30 bg-gold/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-gold backdrop-blur-sm">
-                {slide.eyebrow}
-              </span>
-              <h3 className="max-w-md text-2xl font-semibold leading-tight text-white sm:text-3xl lg:text-4xl">
-                {slide.headline}
-              </h3>
-              <p className="max-w-sm text-sm text-white/80 sm:text-base">
-                {slide.subline}
-              </p>
-              <div className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-3">
-                <Link
-                  href={slide.cta.href}
-                  className="inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
-                >
-                  {slide.cta.label}
-                </Link>
-                <Link
-                  href={slide.link.href}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-white/90 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                >
-                  {slide.link.label}
-                  <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />
-                </Link>
+            {(headline || (ctaLabel && href)) && (
+              <div className="absolute inset-0 flex flex-col justify-end gap-3 p-5 pb-10 sm:p-8 lg:p-10">
+                {headline && (
+                  <h3 className="max-w-md break-words text-2xl font-semibold leading-tight text-white sm:text-3xl lg:text-4xl">
+                    {headline}
+                  </h3>
+                )}
+                {ctaLabel && href && (
+                  <Link
+                    href={href}
+                    className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
+                  >
+                    {ctaLabel}
+                    <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />
+                  </Link>
+                )}
               </div>
-            </div>
+            )}
+          </>
+        );
+
+        return (
+          <div
+            key={banner.id}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${i + 1} / ${count}`}
+            aria-hidden={!active}
+            className={`absolute inset-0 transition-opacity duration-700 ${
+              active ? "opacity-100" : "pointer-events-none opacity-0"
+            }`}
+          >
+            {linkWholeBanner ? (
+              <Link
+                href={href}
+                tabIndex={active ? 0 : -1}
+                aria-label={headline ?? label}
+                className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-inset"
+              >
+                {artwork}
+              </Link>
+            ) : (
+              artwork
+            )}
           </div>
         );
       })}
 
-      {/* Prev / next (subtle; hidden on small screens) */}
+      {/* Prev / next — pointer affordances, revealed on hover (keyboard uses arrow keys) */}
       {count > 1 && (
         <>
           <button
@@ -138,24 +166,20 @@ export function FeaturedCarousel({ slides }: { slides: CarouselSlide[] }) {
       {/* Dots */}
       {count > 1 && (
         <div className="absolute bottom-3 end-4 flex items-center gap-2 lg:bottom-5 lg:start-10 lg:end-auto">
-          {slides.map((slide, i) => (
+          {banners.map((banner, i) => (
             <button
-              key={slide.id}
+              key={banner.id}
               type="button"
               onClick={() => go(i)}
-              aria-label={`Go to slide ${i + 1}: ${slide.headline}`}
+              aria-label={`${i + 1} / ${count}`}
               aria-current={i === index}
-              className={`h-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                i === index ? "w-6 bg-gold" : "w-2 bg-white/50 hover:bg-white/80"
+              className={`h-1.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                i === index ? "w-6 bg-gold" : "w-1.5 bg-white/50 hover:bg-white/80"
               }`}
             />
           ))}
         </div>
       )}
-
-      <p ref={liveRef} className="sr-only" aria-live="polite">
-        {`Slide ${index + 1} of ${count}: ${slides[index]?.headline}`}
-      </p>
     </section>
   );
 }

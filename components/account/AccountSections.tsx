@@ -9,6 +9,7 @@ import { lockBodyScroll } from "@/lib/scroll-lock";
 import { useAccountData } from "@/components/account/account-data";
 import { updateProfile, uploadAvatar, AuthError, forgotPassword, resetPassword } from "@/lib/auth/client";
 import { useAuth } from "@/components/auth/auth-provider";
+import { GiveawayProfileCard } from "@/components/account/GiveawayBadge";
 import {
   cancelOrder,
   deleteAddress,
@@ -145,6 +146,7 @@ export function ProfileSection() {
           )}
         </div>
       </form>
+      <GiveawayProfileCard />
     </Panel>
   );
 }

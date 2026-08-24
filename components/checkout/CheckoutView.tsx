@@ -402,6 +402,8 @@ export function CheckoutView() {
         billingName:
           [profile.firstName, profile.lastName].filter(Boolean).join(" ") || (profile.email ?? "-"),
         redirectionUrl: `${window.location.origin}/payment/callback`,
+        // Paymob's page showed "NA" for every address line without this.
+        addressId: fulfilment === "DELIVERY" ? addressId ?? undefined : undefined,
       });
       if (!pay.checkoutUrl) throw new Error("no checkout url");
       try {

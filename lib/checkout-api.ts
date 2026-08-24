@@ -168,6 +168,8 @@ export function initiatePayment(body: {
   customerPhone?: string;
   billingName: string;
   redirectionUrl: string;
+  /** The delivery address, so Paymob's hosted page shows a real billing address. */
+  addressId?: string;
 }): Promise<PaymentInitiated> {
   return authedJson<PaymentInitiated>(`/api/payments/initiate`, {
     method: "POST",

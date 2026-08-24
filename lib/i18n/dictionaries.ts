@@ -174,6 +174,14 @@ export interface Dict {
     trackTitle: string;
     trackIntro: string;
     trackCta: string;
+    trackSignIn: string;
+    trackCodeLabel: string;
+    trackCodePlaceholder: string;
+    trackCodeHint: string;
+    trackSubmit: string;
+    trackSearching: string;
+    trackNotFound: string;
+    trackFailed: string;
     shipTitle: string;
     shipIntro: string;
     shipStandardH: string;
@@ -1008,6 +1016,20 @@ export interface Dict {
     step2Body: string;
     cta: string;
     instagram: string;
+    /** Entry flow (per-account, one Instagram handle each). */
+    signInFirst: string;
+    handleLabel: string;
+    handlePlaceholder: string;
+    handleHint: string;
+    submit: string;
+    submitting: string;
+    enterError: string;
+    enteredTitle: string;
+    enteredAs: string;
+    needPhone: string;
+    notEligible: string;
+    goToAccount: string;
+    entrantBadge: string;
     note: string;
   };
   notFound: {
@@ -1217,6 +1239,16 @@ const en: Dict = {
     trackTitle: "Track your order",
     trackIntro: "Every order's live status — from payment to your door, including courier photo proof — lives in your order history. Orders shipped with a carrier include their tracking link there too.",
     trackCta: "View my orders",
+    trackSignIn:
+      "Sign in to track an order. Your orders are tied to your account, so we only ever look inside your own.",
+    trackCodeLabel: "Order code",
+    trackCodePlaceholder: "BUY-1A2B3C4D",
+    trackCodeHint: "The code from your confirmation email or your order list. The 'BUY-' part is optional.",
+    trackSubmit: "Track order",
+    trackSearching: "Looking…",
+    trackNotFound: "We couldn't find an order with that code on your account. Check the code, or open your order list below.",
+    trackFailed: "We couldn't check that just now. Please try again.",
+
     shipTitle: "Shipping & delivery",
     shipIntro: "What to expect from each delivery option. The exact fee for your basket is always shown at checkout before you pay.",
     shipStandardH: "Standard delivery",
@@ -2299,6 +2331,21 @@ const en: Dict = {
     step2Body: "Follow the Buyology page and keep notifications on. We announce the winner there.",
     cta: "Enter the giveaway",
     instagram: "Follow on Instagram",
+    signInFirst: "Sign in first — one entry per account.",
+    handleLabel: "Your Instagram username",
+    handlePlaceholder: "yourusername",
+    handleHint:
+      "One entry per account, and each Instagram username can be entered once. Make sure you follow @buyology.online so we can reach you if you win.",
+    submit: "Enter the giveaway",
+    submitting: "Entering…",
+    enterError: "We couldn't enter you just now. Please try again.",
+    enteredTitle: "You're in the giveaway",
+    enteredAs: "Entered as",
+    needPhone:
+      "Verify your phone number on your account to enter — it keeps the draw to one entry per person.",
+    notEligible: "This account can't enter the giveaway yet.",
+    goToAccount: "Go to my account",
+    entrantBadge: "Giveaway entrant",
     note: "The iPhone 18 Pro will be given away in the first week of its release date.",
   },
   notFound: {
@@ -2508,6 +2555,16 @@ const az: Dict = {
     trackTitle: "Sifarişinizi izləyin",
     trackIntro: "Hər sifarişin canlı statusu — ödənişdən qapınıza qədər, kuryerin foto sübutu daxil olmaqla — sifariş tarixçənizdədir. Daşıyıcı ilə göndərilən sifarişlərin izləmə linki də oradadır.",
     trackCta: "Sifarişlərimə bax",
+    trackSignIn:
+      "Sifarişi izləmək üçün daxil olun. Sifarişlər hesabınıza bağlıdır, biz yalnız sizin öz sifarişlərinizə baxırıq.",
+    trackCodeLabel: "Sifariş kodu",
+    trackCodePlaceholder: "BUY-1A2B3C4D",
+    trackCodeHint: "Təsdiq e-poçtunuzdaki və ya sifariş siyahınızdaki kod. 'BUY-' hissəsi məcburi deyil.",
+    trackSubmit: "Sifarişi izlə",
+    trackSearching: "Axtarılır…",
+    trackNotFound: "Hesabınızda bu koda uyğun sifariş tapılmadı. Kodu yoxlayın və ya aşağıdaki sifariş siyahınızı açın.",
+    trackFailed: "Hazırda yoxlaya bilmədik. Yenidən cəhd edin.",
+
     shipTitle: "Çatdırılma",
     shipIntro: "Hər çatdırılma seçimindən nə gözləmək olar. Səbətiniz üçün dəqiq haqq ödənişdən əvvəl həmişə checkout-da göstərilir.",
     shipStandardH: "Standart çatdırılma",
@@ -3605,6 +3662,21 @@ const az: Dict = {
     step2Body: "Buyology səhifəsini izləyin və bildirişləri aktiv saxlayın. Qalibi orada elan edirik.",
     cta: "Kampaniyaya qoşul",
     instagram: "Instagram-da izlə",
+    signInFirst: "Əvvəlcə hesabınıza daxil olun — hər hesab bir dəfə iştirak edir.",
+    handleLabel: "Instagram istifadəçi adınız",
+    handlePlaceholder: "istifadeciadi",
+    handleHint:
+      "Hər hesab bir dəfə, hər Instagram istifadəçi adı isə yalnız bir dəfə iştirak edə bilər. Qazandığınız halda sizinlə əlaqə saxlaya bilməyimiz üçün @buyology.online səhifəsini izlədiyinizə əmin olun.",
+    submit: "Püşkatmada iştirak et",
+    submitting: "Göndərilir…",
+    enterError: "Hazırda iştirakınızı qeydə ala bilmədik. Yenidən cəhd edin.",
+    enteredTitle: "Püşkatmada iştirak edirsiniz",
+    enteredAs: "İştirakçı:",
+    needPhone:
+      "İştirak etmək üçün hesabınızda telefon nömrənizi təsdiqləyin — bu, hər şəxsin yalnız bir dəfə iştirakını təmin edir.",
+    notEligible: "Bu hesab hələ püşkatmada iştirak edə bilmir.",
+    goToAccount: "Hesabıma keç",
+    entrantBadge: "Püşkatma iştirakçısı",
     note: "iPhone 18 Pro təqdimat tarixindən sonrakı ilk həftə ərzində hədiyyə ediləcək.",
   },
   notFound: {
@@ -3814,6 +3886,16 @@ const ar: Dict = {
     trackTitle: "تتبّع طلبك",
     trackIntro: "الحالة الحية لكل طلب — من الدفع حتى بابك، بما في ذلك إثبات الصور من المندوب — موجودة في سجل طلباتك. الطلبات المشحونة عبر ناقل تتضمن رابط التتبع هناك أيضًا.",
     trackCta: "عرض طلباتي",
+    trackSignIn:
+      "سجّل الدخول لتتبع طلبك. الطلبات مرتبطة بحسابك، ولا نبحث إلا داخل طلباتك الخاصة.",
+    trackCodeLabel: "رمز الطلب",
+    trackCodePlaceholder: "BUY-1A2B3C4D",
+    trackCodeHint: "الرمز الموجود في بريد التأكيد أو في قائمة طلباتك. الجزء 'BUY-' اختياري.",
+    trackSubmit: "تتبع الطلب",
+    trackSearching: "جارٍ البحث…",
+    trackNotFound: "لم نجد طلباً بهذا الرمز في حسابك. تحقق من الرمز أو افتح قائمة طلباتك أدناه.",
+    trackFailed: "تعذّر التحقق الآن. حاول مرة أخرى.",
+
     shipTitle: "الشحن والتوصيل",
     shipIntro: "ما يمكن توقعه من كل خيار توصيل. الرسوم الدقيقة لسلتك تظهر دائمًا عند إتمام الشراء قبل الدفع.",
     shipStandardH: "توصيل عادي",
@@ -4894,6 +4976,21 @@ const ar: Dict = {
     step2Body: "تابع صفحة Buyology وفعّل الإشعارات. نعلن اسم الفائز هناك.",
     cta: "شارك في السحب",
     instagram: "تابعنا على إنستغرام",
+    signInFirst: "سجّل الدخول أولاً — مشاركة واحدة لكل حساب.",
+    handleLabel: "اسم المستخدم على إنستغرام",
+    handlePlaceholder: "اسم_المستخدم",
+    handleHint:
+      "مشاركة واحدة لكل حساب، ولكل اسم مستخدم على إنستغرام مشاركة واحدة فقط. تأكد من متابعة @buyology.online حتى نتمكن من الوصول إليك إذا فزت.",
+    submit: "شارك في السحب",
+    submitting: "جارٍ التسجيل…",
+    enterError: "تعذّر تسجيل مشاركتك الآن. حاول مرة أخرى.",
+    enteredTitle: "أنت مشارك في السحب",
+    enteredAs: "مشارك باسم",
+    needPhone:
+      "وثّق رقم هاتفك في حسابك للمشاركة — هذا يضمن مشاركة واحدة لكل شخص.",
+    notEligible: "لا يمكن لهذا الحساب المشاركة في السحب بعد.",
+    goToAccount: "الانتقال إلى حسابي",
+    entrantBadge: "مشارك في السحب",
     note: "سيتم تسليم iPhone 18 Pro خلال الأسبوع الأول من تاريخ إطلاقه.",
   },
   notFound: {

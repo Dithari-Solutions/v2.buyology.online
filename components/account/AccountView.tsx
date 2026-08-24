@@ -27,6 +27,7 @@ import {
   SecuritySection,
 } from "@/components/account/AccountSections";
 import { MyTickets } from "@/components/support/MyTickets";
+import { GiveawayBadge } from "@/components/account/GiveawayBadge";
 
 type Tab = {
   key: string;
@@ -117,6 +118,7 @@ function AccountViewInner() {
             )}
             <div className="min-w-0">
               <p className="truncate font-semibold text-foreground">{displayName}</p>
+              <GiveawayBadge />
               <p className="truncate text-xs text-muted">{email}</p>
             </div>
           </div>
