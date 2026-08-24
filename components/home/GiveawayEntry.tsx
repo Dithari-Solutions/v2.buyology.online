@@ -9,13 +9,15 @@ import {
   enterGiveaway,
   fetchGiveawayStatus,
   instagramUrl,
-  REASON_PHONE_UNVERIFIED,
   type GiveawayStatus,
 } from "@/lib/giveaway-api";
 import { ArrowRightShortIcon, CheckIcon, InstagramIcon } from "@/components/icons";
 
 const cta =
   "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent";
+/** Where a half-typed handle waits while the customer completes their account. */
+const DRAFT_KEY = "buyo_giveaway_handle";
+
 const ghost =
   "inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent";
 
@@ -32,7 +34,14 @@ export function GiveawayEntry() {
   const { status: authStatus } = useAuth();
 
   const [state, setState] = useState<GiveawayStatus | null>(null);
-  const [handle, setHandle] = useState("");
+  // Survives the trip to the account and back, so a half-finished entry is never retyped.
+  const [handle, setHandle] = useState(() => {
+    try {
+      return sessionStorage.getItem(DRAFT_KEY) ?? "";
+    } catch {
+      return "";
+    }
+  });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,6 +70,11 @@ export function GiveawayEntry() {
     try {
       setState(await enterGiveaway(value));
       setHandle("");
+      try {
+        sessionStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* nothing to clear */
+      }
     } catch (err) {
       // 400/409 carry a business reason worth reading (bad handle, already entered,
       // handle taken, phone unverified); anything else gets the generic line.
@@ -111,12 +125,22 @@ export function GiveawayEntry() {
   }
 
   if (!state.eligible) {
+    const missing = state.missing ?? [];
     return (
       <div className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 backdrop-blur-sm">
-        <p className="text-sm text-white/80">
-          {state.reason === REASON_PHONE_UNVERIFIED ? g.needPhone : g.notEligible}
-        </p>
-        <Link href="/account" className={`${ghost} mt-3`}>
+        <p className="text-sm text-white/80">{g.needDetails}</p>
+        {missing.length > 0 && (
+          <ul className="mt-2 space-y-1 text-sm text-white/70">
+            {missing.map((field) => (
+              <li key={field} className="flex items-start gap-2">
+                <span aria-hidden="true" className="mt-1.5 block h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
+                {g.fields[field] ?? field}
+              </li>
+            ))}
+          </ul>
+        )}
+        {/* returnTo brings them back here the moment the account is complete. */}
+        <Link href="/account?returnTo=giveaway" className={`${ghost} mt-3`}>
           {g.goToAccount}
         </Link>
       </div>
@@ -139,7 +163,14 @@ export function GiveawayEntry() {
           <input
             id="giveaway-handle"
             value={handle}
-            onChange={(e) => setHandle(e.target.value)}
+            onChange={(e) => {
+              setHandle(e.target.value);
+              try {
+                sessionStorage.setItem(DRAFT_KEY, e.target.value);
+              } catch {
+                /* private mode: the draft simply is not kept */
+              }
+            }}
             placeholder={g.handlePlaceholder}
             autoComplete="off"
             spellCheck={false}

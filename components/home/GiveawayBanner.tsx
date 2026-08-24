@@ -37,6 +37,7 @@ export async function GiveawayBanner() {
 
   return (
     <section
+      id="giveaway"
       aria-labelledby="giveaway-heading"
       className="mx-auto w-full max-w-[1400px] px-4 pt-6 sm:px-6 sm:pt-8"
     >

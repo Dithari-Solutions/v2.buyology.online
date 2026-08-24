@@ -10,14 +10,12 @@ export type GiveawayStatus = {
   entered: boolean;
   instagramHandle?: string | null;
   enteredAt?: string | null;
-  /** False when the account cannot enter yet; `reason` names the gate. */
+  /** False while the account still lacks something a prize delivery needs. */
   eligible: boolean;
-  reason?: string | null;
+  /** Field names still to fill, e.g. ["phoneVerification", "deliveryAddress"]. */
+  missing?: string[] | null;
   totalEntries?: number;
 };
-
-/** Reasons the backend can send for `eligible: false`. */
-export const REASON_PHONE_UNVERIFIED = "PHONE_UNVERIFIED";
 
 export function fetchGiveawayStatus(): Promise<GiveawayStatus> {
   return authedJson<GiveawayStatus>(`/api/giveaway/me`);

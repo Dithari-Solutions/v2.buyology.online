@@ -192,6 +192,10 @@ export type Profile = {
   lastName?: string | null;
   phoneNumber?: string | null;
   phoneVerified?: boolean;
+  /** Server-computed: everything an order (or a prize delivery) needs is on file. */
+  paymentReady?: boolean;
+  /** What is still missing: firstName | phoneNumber | phoneVerification | deliveryAddress. */
+  missingFields?: string[] | null;
   pendingDeletion?: boolean;
   dateOfBirth?: string | null;
   avatarUrl?: string | null;

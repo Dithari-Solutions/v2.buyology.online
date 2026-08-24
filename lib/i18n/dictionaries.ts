@@ -664,6 +664,13 @@ export interface Dict {
     points: string;
     tierMember: string;
     signOut: string;
+    /** The "back to where you left off" bar. */
+    returnTo: {
+      ready: string;
+      pending: string;
+      back: { giveaway: string; checkout: string };
+      fields: Record<string, string>;
+    };
     nav: Record<string, string>;
     common: {
       save: string;
@@ -1029,8 +1036,9 @@ export interface Dict {
     enterError: string;
     enteredTitle: string;
     enteredAs: string;
-    needPhone: string;
-    notEligible: string;
+    needDetails: string;
+    /** missingFields name → label. */
+    fields: Record<string, string>;
     goToAccount: string;
     entrantBadge: string;
     note: string;
@@ -1934,6 +1942,17 @@ const en: Dict = {
     points: "points",
     tierMember: "member",
     signOut: "Sign out",
+    returnTo: {
+      ready: "You're all set — back to what you were doing.",
+      pending: "Finish these to continue:",
+      back: { giveaway: "Back to the giveaway", checkout: "Return to checkout" },
+      fields: {
+        firstName: "your name",
+        phoneNumber: "a phone number",
+        phoneVerification: "phone verification",
+        deliveryAddress: "a delivery address",
+      },
+    },
     nav: {
       profile: "Profile",
       orders: "Orders",
@@ -2347,9 +2366,13 @@ const en: Dict = {
     enterError: "We couldn't enter you just now. Please try again.",
     enteredTitle: "You're in the giveaway",
     enteredAs: "Entered as",
-    needPhone:
-      "Verify your phone number on your account to enter — it keeps the draw to one entry per person.",
-    notEligible: "This account can't enter the giveaway yet.",
+    needDetails:
+      "Add these to your account first, so we can reach you and deliver the prize if you win:",
+    fields: {
+      phoneNumber: "A phone number",
+      phoneVerification: "Verify your phone number",
+      deliveryAddress: "A delivery address",
+    },
     goToAccount: "Go to my account",
     entrantBadge: "Giveaway entrant",
     note: "The iPhone 18 Pro will be given away in the first week of its release date.",
@@ -3268,6 +3291,17 @@ const az: Dict = {
     points: "xal",
     tierMember: "üzv",
     signOut: "Çıxış",
+    returnTo: {
+      ready: "Hər şey hazırdır — qaldığınız yerə qayıdın.",
+      pending: "Davam etmək üçün bunları tamamlayın:",
+      back: { giveaway: "Püşkatmaya qayıt", checkout: "Ödənişə qayıt" },
+      fields: {
+        firstName: "adınız",
+        phoneNumber: "telefon nömrəsi",
+        phoneVerification: "telefonun təsdiqi",
+        deliveryAddress: "çatdırılma ünvanı",
+      },
+    },
     nav: {
       profile: "Profil",
       orders: "Sifarişlər",
@@ -3681,9 +3715,13 @@ const az: Dict = {
     enterError: "Hazırda iştirakınızı qeydə ala bilmədik. Yenidən cəhd edin.",
     enteredTitle: "Püşkatmada iştirak edirsiniz",
     enteredAs: "İştirakçı:",
-    needPhone:
-      "İştirak etmək üçün hesabınızda telefon nömrənizi təsdiqləyin — bu, hər şəxsin yalnız bir dəfə iştirakını təmin edir.",
-    notEligible: "Bu hesab hələ püşkatmada iştirak edə bilmir.",
+    needDetails:
+      "Əvvəlcə bunları hesabınıza əlavə edin ki, qazandığınız halda sizinlə əlaqə saxlayıb hədiyyəni çatdıra bilək:",
+    fields: {
+      phoneNumber: "Telefon nömrəsi",
+      phoneVerification: "Telefon nömrənizi təsdiqləyin",
+      deliveryAddress: "Çatdırılma ünvanı",
+    },
     goToAccount: "Hesabıma keç",
     entrantBadge: "Püşkatma iştirakçısı",
     note: "iPhone 18 Pro təqdimat tarixindən sonrakı ilk həftə ərzində hədiyyə ediləcək.",
@@ -4585,6 +4623,17 @@ const ar: Dict = {
     points: "نقطة",
     tierMember: "عضو",
     signOut: "تسجيل الخروج",
+    returnTo: {
+      ready: "كل شيء جاهز — عُد إلى ما كنت تفعله.",
+      pending: "أكمل هذه للمتابعة:",
+      back: { giveaway: "العودة إلى السحب", checkout: "العودة إلى الدفع" },
+      fields: {
+        firstName: "اسمك",
+        phoneNumber: "رقم هاتف",
+        phoneVerification: "توثيق الهاتف",
+        deliveryAddress: "عنوان للتوصيل",
+      },
+    },
     nav: {
       profile: "الملف الشخصي",
       orders: "الطلبات",
@@ -4998,9 +5047,13 @@ const ar: Dict = {
     enterError: "تعذّر تسجيل مشاركتك الآن. حاول مرة أخرى.",
     enteredTitle: "أنت مشارك في السحب",
     enteredAs: "مشارك باسم",
-    needPhone:
-      "وثّق رقم هاتفك في حسابك للمشاركة — هذا يضمن مشاركة واحدة لكل شخص.",
-    notEligible: "لا يمكن لهذا الحساب المشاركة في السحب بعد.",
+    needDetails:
+      "أضف هذه إلى حسابك أولاً حتى نتمكن من الوصول إليك وتسليم الجائزة إذا فزت:",
+    fields: {
+      phoneNumber: "رقم هاتف",
+      phoneVerification: "وثّق رقم هاتفك",
+      deliveryAddress: "عنوان للتوصيل",
+    },
     goToAccount: "الانتقال إلى حسابي",
     entrantBadge: "مشارك في السحب",
     note: "سيتم تسليم iPhone 18 Pro خلال الأسبوع الأول من تاريخ إطلاقه.",

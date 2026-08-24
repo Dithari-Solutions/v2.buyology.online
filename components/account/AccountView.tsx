@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { Suspense, useSyncExternalStore } from "react";
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useRouter } from "next/navigation";
@@ -28,6 +28,7 @@ import {
 } from "@/components/account/AccountSections";
 import { MyTickets } from "@/components/support/MyTickets";
 import { GiveawayBadge } from "@/components/account/GiveawayBadge";
+import { ReturnTo } from "@/components/account/ReturnTo";
 
 type Tab = {
   key: string;
@@ -170,6 +171,11 @@ function AccountViewInner() {
         {/* Content */}
         <div className="min-w-0">{active.render()}</div>
       </div>
+
+      {/* Sent here mid-action? Track what's left and hand them the way back. */}
+      <Suspense fallback={null}>
+        <ReturnTo />
+      </Suspense>
     </div>
   );
 }
