@@ -7,7 +7,7 @@ import { getLocale } from "@/lib/i18n/server";
 import { serverMarket } from "@/lib/market-server";
 import { site } from "@/lib/site";
 import { getDict } from "@/lib/i18n/server";
-import { jsonLdScript, productSchema } from "@/lib/structured-data";
+import { breadcrumbSchema, jsonLdScript, productSchema } from "@/lib/structured-data";
 import { ProductDetail } from "@/components/product/ProductDetail";
 import { ProductSpecs } from "@/components/product/ProductSpecs";
 import { ProductReviews } from "@/components/product/ProductReviews";
@@ -44,6 +44,9 @@ export async function generateMetadata({
   const loaded = await loadProduct(id);
   if (!loaded) return { title: "Product not found" };
   const { product } = loaded;
+  // The catalogue photo is the strongest share/preview image this page has; the site-wide
+  // opengraph-image only stands in when a product has none.
+  const image = product.image?.startsWith("http") ? product.image : undefined;
   return {
     title: product.name,
     description: product.description,
@@ -53,7 +56,9 @@ export async function generateMetadata({
       description: product.description,
       type: "website",
       url: `${site.url}/product/${product.id}`,
+      ...(image ? { images: [{ url: image, alt: product.name }] } : {}),
     },
+    ...(image ? { twitter: { card: "summary_large_image" as const, images: [image] } } : {}),
   };
 }
 
@@ -72,10 +77,34 @@ export default async function ProductPage({
   return (
     <>
       <Header />
+      {/* Product + the same breadcrumb trail the page renders visibly, so Google shows the
+          path under the result instead of a bare URL. */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: jsonLdScript(productSchema(product)),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScript(
+            breadcrumbSchema([
+              { name: t.pdp.home, path: "/" },
+              { name: t.shop.title, path: "/products" },
+              ...(product.category
+                ? [
+                    {
+                      name: product.category,
+                      path: loaded.api.categoryId
+                        ? `/products?category=${loaded.api.categoryId}`
+                        : "/products",
+                    },
+                  ]
+                : []),
+              { name: product.name, path: `/product/${product.id}` },
+            ]),
+          ),
         }}
       />
       <main className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 sm:py-8">

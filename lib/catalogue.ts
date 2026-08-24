@@ -187,6 +187,7 @@ export function toProduct(api: ApiProduct, categoryName?: string): Product {
     reviews: api.totalReviews ?? 0,
     bestseller: api.isSuperDeal ?? false,
     currency: api.currency ?? currentMarket().currency,
+    brand: api.brandName ?? undefined,
     storeId: api.storeId ?? undefined,
     stock: api.stockQuantity ?? undefined,
     inStock: api.availabilityStatus !== "OUT_OF_STOCK",

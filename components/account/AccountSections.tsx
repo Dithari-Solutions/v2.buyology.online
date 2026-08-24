@@ -7,6 +7,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { formatInt } from "@/lib/format";
 import { lockBodyScroll } from "@/lib/scroll-lock";
 import { useAccountData } from "@/components/account/account-data";
+import { currentMarket } from "@/lib/market";
 import { updateProfile, uploadAvatar, AuthError, forgotPassword, resetPassword } from "@/lib/auth/client";
 import { useAuth } from "@/components/auth/auth-provider";
 import { GiveawayProfileCard } from "@/components/account/GiveawayBadge";
@@ -651,7 +652,6 @@ const LOCALES = [
 export function PreferencesSection() {
   const { t, locale, setLocale } = useI18n();
   const pf = t.account.preferences;
-  const [currency, setCurrency] = useState("AED");
   const [prefs, setPrefs] = useState({
     email: true,
     sms: false,
@@ -685,25 +685,15 @@ export function PreferencesSection() {
           </div>
         </div>
 
+        {/* Currency is READ-ONLY: it belongs to the region this storefront serves, and every
+            price, cart total and charge is computed server-side in it. The old AED/USD toggle
+            changed nothing but local state, so it promised a conversion that never happened. */}
         <div>
           <p className="mb-2 text-sm font-medium text-foreground">{pf.currency}</p>
-          <div className="flex flex-wrap gap-2">
-            {["AED", "USD"].map((cur) => (
-              <button
-                key={cur}
-                type="button"
-                onClick={() => setCurrency(cur)}
-                aria-pressed={currency === cur}
-                className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                  currency === cur
-                    ? "border-brand bg-brand-soft text-brand-icon"
-                    : "border-border text-foreground hover:border-border-strong"
-                }`}
-              >
-                {cur}
-              </button>
-            ))}
-          </div>
+          <p className="inline-flex items-center rounded-full border border-border bg-surface-2 px-4 py-2 text-sm font-semibold text-foreground" dir="ltr">
+            {currentMarket().currency}
+          </p>
+          <p className="mt-2 text-xs text-muted">{pf.currencyNote}</p>
         </div>
 
         <div className="border-t border-border pt-5">

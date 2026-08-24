@@ -821,6 +821,7 @@ export interface Dict {
       subtitle: string;
       language: string;
       currency: string;
+      currencyNote: string;
       notifications: string;
       channelEmail: string;
       channelSms: string;
@@ -2131,6 +2132,7 @@ const en: Dict = {
       subtitle: "Language, currency and how we reach you.",
       language: "Language",
       currency: "Currency",
+      currencyNote: "Set by the Buyology store you are shopping in — every price and charge uses it.",
       notifications: "Notifications",
       channelEmail: "Email",
       channelSms: "SMS",
@@ -3480,6 +3482,7 @@ const az: Dict = {
       subtitle: "Dil, valyuta və sizinlə əlaqə üsulu.",
       language: "Dil",
       currency: "Valyuta",
+      currencyNote: "Alış-veriş etdiyiniz Buyology mağazasına görə təyin olunur — bütün qiymətlər və ödənişlər bu valyutadadır.",
       notifications: "Bildirişlər",
       channelEmail: "E-poçt",
       channelSms: "SMS",
@@ -4812,6 +4815,7 @@ const ar: Dict = {
       subtitle: "اللغة والعملة وكيفية تواصلنا معك.",
       language: "اللغة",
       currency: "العملة",
+      currencyNote: "تُحدَّد حسب متجر Buyology الذي تتسوق فيه — وتُستخدم في كل الأسعار والمدفوعات.",
       notifications: "الإشعارات",
       channelEmail: "البريد",
       channelSms: "رسالة نصية",

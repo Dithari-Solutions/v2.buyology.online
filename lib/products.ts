@@ -33,6 +33,8 @@ export type Product = {
    * $-styled display); present on everything served by lib/catalogue.
    */
   currency?: string;
+  /** Manufacturer name from the catalogue (Apple, Dell, …) — the brand in Product schema. */
+  brand?: string;
   /** The store the price came from — required by the cart payload once checkout migrates. */
   storeId?: string;
   stock?: number;

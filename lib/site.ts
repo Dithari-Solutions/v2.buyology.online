@@ -11,19 +11,28 @@ export const site = {
   // Primary tagline (Brand Identity Guidelines, Tagline 2).
   tagline: "Buy the why",
   description:
-    "Buyology is a premium futuristic marketplace for electronics, audio, gaming, computing, wearables and home tech — with voice search, an AI shopping assistant, and complimentary orbital delivery.",
+    "Buy certified refurbished laptops in the UAE with warranty included. Fast delivery across the UAE. MacBooks, Dell, HP, Lenovo & more — inspected & tested.",
   keywords: [
+    "refurbished laptops Dubai",
+    "certified refurbished laptops UAE",
+    "used laptops Dubai",
+    "refurbished MacBook UAE",
+    "refurbished Dell laptop Dubai",
+    "refurbished HP laptop UAE",
+    "refurbished Lenovo laptop Dubai",
+    "second hand laptops UAE with warranty",
+    "buy laptops online UAE",
     "Buyology",
-    "futuristic marketplace",
-    "premium electronics store",
-    "AI shopping assistant",
-    "voice search shopping",
-    "audio",
-    "gaming",
-    "computing",
-    "wearables",
-    "smart home",
   ],
+  /**
+   * Where the business trades — the locality signal behind "in Dubai" queries and the
+   * Organization schema's address. Only what is actually known: no street line is invented.
+   */
+  place: {
+    locality: "Dubai",
+    country: "AE",
+    countryName: "United Arab Emirates",
+  },
   // Brand palette — kept in sync with globals.css theme tokens.
   // Names and hexes come from the Brand Identity Guidelines (Color 4–6):
   // Mikado Yellow is primary, American Blue secondary, Black tertiary.
