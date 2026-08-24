@@ -70,6 +70,10 @@ export type Category = {
   parentId?: string | null;
   name: string;
   slug: string;
+  /** Predefined icon key chosen in the dashboard (laptop/phone/audio/…), may be absent. */
+  icon?: string | null;
+  /** ACTIVE | INACTIVE — deletion is a soft delete, so clients must honour this. */
+  status?: string | null;
 };
 
 export type Review = {

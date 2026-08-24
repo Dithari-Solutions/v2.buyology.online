@@ -8,7 +8,8 @@ import { AccountButton } from "@/components/header/AccountButton";
 import { NotificationBell } from "@/components/header/NotificationBell";
 import { PrimaryNav } from "@/components/header/PrimaryNav";
 import { AnnouncementBar } from "@/components/header/AnnouncementBar";
-import { buyobot, productCategories, services } from "@/lib/nav-data";
+import { buyobot, services } from "@/lib/nav-data";
+import { categoryHref, useLiveCategories } from "@/lib/live-categories";
 import { WHO_WE_ARE_URL } from "@/lib/site";
 import {
   ArrowRightShortIcon,
@@ -48,6 +49,7 @@ export function Header() {
   const { count: wishlistCount } = useWishlist();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const liveCategories = useLiveCategories();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -176,22 +178,26 @@ export function Header() {
                 })}
               </ul>
 
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-                {t.palette.categories}
-              </p>
-              <ul className="grid grid-cols-2 gap-1">
-                {productCategories.map((c) => (
-                  <li key={c.href}>
-                    <Link
-                      href={c.href}
-                      onClick={close}
-                      className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-2"
-                    >
-                      {t.items[c.key].label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              {(liveCategories?.length ?? 0) > 0 && (
+                <>
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                    {t.palette.categories}
+                  </p>
+                  <ul className="grid grid-cols-2 gap-1">
+                    {liveCategories!.map((c) => (
+                      <li key={c.id}>
+                        <Link
+                          href={categoryHref(c)}
+                          onClick={close}
+                          className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-2"
+                        >
+                          {c.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
 
             <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-5 gap-y-2 border-t border-border px-4 py-3 text-sm text-muted sm:px-6">

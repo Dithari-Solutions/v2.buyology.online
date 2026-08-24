@@ -57,6 +57,12 @@ export interface Dict {
   nav: { allCategories: string; shopByCategory: string; menu: string };
   palette: {
     placeholder: string;
+    products: string;
+    searching: string;
+    voiceStart: string;
+    voiceStop: string;
+    closeSearch: string;
+    resultsLabel: string;
     trending: string;
     services: string;
     categories: string;
@@ -1090,6 +1096,12 @@ const en: Dict = {
   },
   palette: {
     placeholder: "Search orders, pages, or actions…",
+    products: "Products",
+    searching: "Searching the catalogue…",
+    voiceStart: "Search by voice",
+    voiceStop: "Stop voice search",
+    closeSearch: "Close search",
+    resultsLabel: "Search results",
     trending: "Trending",
     services: "Services",
     categories: "Categories",
@@ -2375,6 +2387,12 @@ const az: Dict = {
   },
   palette: {
     placeholder: "Sifariş, səhifə və ya əməliyyat axtar…",
+    products: "Məhsullar",
+    searching: "Kataloqda axtarılır…",
+    voiceStart: "Səslə axtarış",
+    voiceStop: "Səsli axtarışı dayandır",
+    closeSearch: "Axtarışı bağla",
+    resultsLabel: "Axtarış nəticələri",
     trending: "Trenddə",
     services: "Xidmətlər",
     categories: "Kateqoriyalar",
@@ -3675,6 +3693,12 @@ const ar: Dict = {
   },
   palette: {
     placeholder: "ابحث عن الطلبات أو الصفحات أو الإجراءات…",
+    products: "المنتجات",
+    searching: "جارٍ البحث في الكتالوج…",
+    voiceStart: "البحث الصوتي",
+    voiceStop: "إيقاف البحث الصوتي",
+    closeSearch: "إغلاق البحث",
+    resultsLabel: "نتائج البحث",
     trending: "الأكثر رواجًا",
     services: "الخدمات",
     categories: "الفئات",

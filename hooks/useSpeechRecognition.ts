@@ -96,15 +96,16 @@ export interface UseSpeechRecognition {
 
 /**
  * Encapsulates browser voice recognition. Configured per spec:
- * continuous=false, interimResults=true, lang="en-US". Never throws — every
- * failure surfaces via `error` / `isSupported`.
+ * continuous=false, interimResults=true; the recognition language follows the
+ * caller (site locale), defaulting to en-US. Never throws — every failure
+ * surfaces via `error` / `isSupported`.
  */
 // Support never changes at runtime, so a no-op subscription is enough. Returns
 // false on the server so SSR and first client render agree (no hydration flash
 // that crashes), then resolves to the real value after hydration.
 const noopSubscribe = () => () => {};
 
-export function useSpeechRecognition(): UseSpeechRecognition {
+export function useSpeechRecognition(lang: string = "en-US"): UseSpeechRecognition {
   const isSupported = useSyncExternalStore(
     noopSubscribe,
     () => getCtor() !== null,
@@ -132,7 +133,7 @@ export function useSpeechRecognition(): UseSpeechRecognition {
     if (!Ctor) return;
 
     const recognition = new Ctor();
-    recognition.lang = "en-US";
+    recognition.lang = lang;
     recognition.continuous = false;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
@@ -188,6 +189,10 @@ export function useSpeechRecognition(): UseSpeechRecognition {
     return () => {
       mountedRef.current = false;
       if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+      // The instance is being torn down (unmount or lang change mid-listen); onend is
+      // detached below, so the listening flag must be lowered here or it sticks true.
+      setIsListening(false);
+      setInterim("");
       recognition.onstart = null;
       recognition.onresult = null;
       recognition.onerror = null;
@@ -199,7 +204,7 @@ export function useSpeechRecognition(): UseSpeechRecognition {
       }
       recognitionRef.current = null;
     };
-  }, []);
+  }, [lang]);
 
   const start = useCallback(() => {
     const recognition = recognitionRef.current;

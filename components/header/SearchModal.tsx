@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import type { ComponentType, SVGProps } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { searchGroups } from "@/lib/search-data";
+import { searchProducts } from "@/lib/catalogue";
+import { categoryHref, categoryIcon, useLiveCategories } from "@/lib/live-categories";
+import { formatMoney } from "@/lib/format";
+import type { Product } from "@/lib/products";
 import {
   ArrowRightIcon,
   EnterKeyIcon,
@@ -13,6 +19,23 @@ import {
 } from "@/components/icons";
 import { useI18n } from "@/components/i18n/language-provider";
 import { lockBodyScroll } from "@/lib/scroll-lock";
+
+type IconType = ComponentType<SVGProps<SVGSVGElement>>;
+
+/** One selectable row, whatever its source (live product, live category, static page). */
+type Option = {
+  id: string;
+  href: string;
+  label: string;
+  hint?: string;
+  icon?: IconType;
+  imageUrl?: string | null;
+  priceLabel?: string;
+};
+type OptionGroup = { heading: string; options: Option[] };
+
+/** Web Speech recognition language per site locale — az/ar speech was decoded as English before. */
+const SPEECH_LANG: Record<string, string> = { en: "en-US", az: "az-AZ", ar: "ar-AE" };
 
 /** Animated gold equalizer shown in place of the mic while listening. */
 function Equalizer() {
@@ -42,9 +65,15 @@ function KeyHint({ children }: { children: React.ReactNode }) {
  * Command-palette search overlay. Rendered only while open (parent conditionally
  * mounts it) so state resets naturally on each open — no state-syncing effects.
  *
+ * Search is REAL: typing (or speaking) two or more characters queries the live
+ * catalogue (debounced) and the matching products lead the list, followed by the
+ * live category taxonomy and the static service/page shortcuts; "Search for X"
+ * always closes the list as the door to the full results page.
+ *
  * Keyboard model: focus stays on the combobox input (aria-activedescendant);
  * options are not tab stops. ↑/↓/↵ on the INPUT drive selection; Esc/Tab are
- * handled at the panel. Voice transcribes into the field (no auto-navigation).
+ * handled at the panel. Voice transcribes into the field (no auto-navigation) —
+ * the transcript triggers the same live product search as typing.
  */
 export function SearchModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
@@ -53,13 +82,15 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
   const listRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const [voiceCommitted, setVoiceCommitted] = useState("");
+  const [hitState, setHitState] = useState<{ forQ: string; list: Product[] } | null>(null);
 
+  const liveCategories = useLiveCategories();
   const { isListening, transcript, interim, isSupported, error, start, stop } =
-    useSpeechRecognition();
+    useSpeechRecognition(SPEECH_LANG[locale] ?? "en-US");
 
   // Voice → text only: commit a final transcript into the field (render-time
   // adjustment, not an effect). No navigation is triggered by voice.
@@ -69,33 +100,103 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
     setActive(0);
   }
 
+  // When a debounced product batch lands, the Products group prepends and shifts every
+  // index — snap the highlight back to the top (same render-time idiom as above).
+  const [hitsSeen, setHitsSeen] = useState<string | null>(null);
+  const hitsKey = hitState ? hitState.forQ : null;
+  if (hitsKey !== hitsSeen) {
+    setHitsSeen(hitsKey);
+    setActive(0);
+  }
+
   const displayValue = isListening && interim ? interim : query;
   const q = query.trim().toLowerCase();
 
-  const filteredGroups = useMemo(() => {
-    if (!q) return searchGroups;
-    return searchGroups
-      .map((g) => ({
-        key: g.key,
-        items: g.items.filter((it) => {
-          const tr = t.items[it.key];
-          return `${tr.label} ${tr.hint} ${it.keywords ?? ""}`
-            .toLowerCase()
-            .includes(q);
-        }),
-      }))
-      .filter((g) => g.items.length > 0);
-  }, [q, t]);
+  // Live catalogue search, debounced. Hits are stamped with the query they answer,
+  // so "searching" is derived state and stale responses can never win a race.
+  useEffect(() => {
+    if (q.length < 2) return;
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      searchProducts(locale, q)
+        .then((list) => {
+          if (!cancelled) setHitState({ forQ: q, list: list.slice(0, 6) });
+        })
+        .catch(() => {
+          if (!cancelled) setHitState({ forQ: q, list: [] });
+        });
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [q, locale]);
 
-  const flatItems = useMemo(
-    () => filteredGroups.flatMap((g) => g.items),
-    [filteredGroups],
-  );
+  const hits = hitState && hitState.forQ === q && q.length >= 2 ? hitState.list : null;
+  const searching = q.length >= 2 && hits === null;
 
-  const showFallback = q.length > 0 && flatItems.length === 0;
-  const total = showFallback ? 1 : flatItems.length;
+  const groups = useMemo<OptionGroup[]>(() => {
+    const out: OptionGroup[] = [];
+    if (hits && hits.length > 0) {
+      out.push({
+        heading: t.palette.products,
+        options: hits.map((p) => ({
+          id: `prod-${p.id}`,
+          href: `/product/${p.id}`,
+          label: p.name,
+          imageUrl: p.image?.startsWith("http") ? p.image : null,
+          priceLabel: formatMoney(p.price, p.currency),
+        })),
+      });
+    }
+    for (const g of searchGroups) {
+      if (g.key === "categories") {
+        // Live taxonomy, not the static list — those slugs never existed backend-side.
+        // Locale-aware folding: root-locale toLowerCase mangles Azerbaijani İ/ı.
+        const qLocale = query.trim().toLocaleLowerCase(locale);
+        const cats = (liveCategories ?? []).filter(
+          (c) => !qLocale || c.name.toLocaleLowerCase(locale).includes(qLocale),
+        );
+        if (cats.length > 0) {
+          out.push({
+            heading: t.palette.categories,
+            options: cats.map((c) => ({
+              id: `cat-${c.id}`,
+              href: categoryHref(c),
+              label: c.name,
+              icon: categoryIcon(c.icon),
+            })),
+          });
+        }
+        continue;
+      }
+      const items = g.items.filter((it) => {
+        const tr = t.items[it.key];
+        return !q || `${tr.label} ${tr.hint} ${it.keywords ?? ""}`.toLowerCase().includes(q);
+      });
+      if (items.length > 0) {
+        out.push({
+          heading: t.palette[g.key],
+          options: items.map((it) => ({
+            id: it.key,
+            href: it.href,
+            label: t.items[it.key].label,
+            hint: t.items[it.key].hint,
+            icon: it.icon,
+          })),
+        });
+      }
+    }
+    return out;
+  }, [hits, liveCategories, q, query, locale, t]);
+
+  const flatOptions = useMemo(() => groups.flatMap((g) => g.options), [groups]);
+  // "Search for X" is always the final door out whenever there is a query.
+  const hasFallback = q.length > 0;
+  const total = flatOptions.length + (hasFallback ? 1 : 0);
   const activeIndex = total > 0 ? Math.min(active, total - 1) : 0;
   const activeId = `cmd-opt-${activeIndex}`;
+  const fallbackIndex = flatOptions.length;
 
   // Focus the field, lock body scroll, and restore focus on close.
   useEffect(() => {
@@ -122,12 +223,12 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
   }
 
   function selectIndex(index: number) {
-    if (showFallback) {
+    if (hasFallback && index >= flatOptions.length) {
       navigate(`/search?q=${encodeURIComponent(query.trim())}`);
       return;
     }
-    const item = flatItems[index];
-    if (item) navigate(item.href);
+    const option = flatOptions[index];
+    if (option) navigate(option.href);
   }
 
   function toggleVoice() {
@@ -153,7 +254,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
         setActive((i) => (Math.min(i, total - 1) - 1 + total) % total);
     } else if (e.key === "Enter") {
       e.preventDefault();
-      selectIndex(activeIndex);
+      if (total > 0) selectIndex(activeIndex);
     }
   }
 
@@ -165,7 +266,9 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
       onClose();
     } else if (e.key === "Tab") {
       const focusables = panelRef.current?.querySelectorAll<HTMLElement>(
-        'button, input, [href], [tabindex]:not([tabindex="-1"])',
+        // Option rows are <button tabIndex={-1}> — without the :not() on the button term
+        // the trap's "last" lands on a row Tab can never reach and focus escapes the dialog.
+        'button:not([tabindex="-1"]), input, [href], [tabindex]:not([tabindex="-1"])',
       );
       if (!focusables || focusables.length === 0) return;
       const first = focusables[0];
@@ -232,7 +335,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
                 type="button"
                 onClick={toggleVoice}
                 aria-pressed={isListening}
-                aria-label={isListening ? "Stop voice search" : "Search by voice"}
+                aria-label={isListening ? t.palette.voiceStop : t.palette.voiceStart}
                 className={`relative flex h-9 w-9 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   isListening
                     ? "text-gold"
@@ -247,7 +350,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close search"
+            aria-label={t.palette.closeSearch}
             className="hidden shrink-0 items-center rounded-md border border-border bg-surface-2 px-2 py-1 text-[11px] font-medium text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
           >
             esc
@@ -259,19 +362,96 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
           ref={listRef}
           id="cmd-list"
           role="listbox"
-          aria-label="Search results"
+          aria-label={t.palette.resultsLabel}
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2"
         >
-          {showFallback ? (
+          {groups.map((group, gi) => {
+            const headingId = `${headingBaseId}-${gi}`;
+            return (
+              <div key={group.heading} role="group" aria-labelledby={headingId} className="mb-1">
+                <p
+                  id={headingId}
+                  className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted"
+                >
+                  {group.heading}
+                </p>
+                {group.options.map((option) => {
+                  runningIndex += 1;
+                  const index = runningIndex;
+                  const isActive = index === activeIndex;
+                  const OptionIcon = option.icon;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      id={`cmd-opt-${index}`}
+                      role="option"
+                      aria-selected={isActive}
+                      tabIndex={-1}
+                      onMouseMove={() => setActive(index)}
+                      onClick={() => selectIndex(index)}
+                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors ${
+                        isActive ? "bg-brand-soft" : "hover:bg-surface-2"
+                      }`}
+                    >
+                      {option.imageUrl ? (
+                        <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border bg-white">
+                          <Image
+                            src={option.imageUrl}
+                            alt=""
+                            fill
+                            quality={75}
+                            sizes="40px"
+                            className="object-contain p-0.5"
+                          />
+                        </span>
+                      ) : (
+                        <span
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                            isActive
+                              ? "bg-primary text-primary-fg"
+                              : "bg-brand-soft text-brand-icon"
+                          }`}
+                        >
+                          {OptionIcon ? (
+                            <OptionIcon className="h-5 w-5" />
+                          ) : (
+                            <SearchIcon className="h-5 w-5" />
+                          )}
+                        </span>
+                      )}
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium text-foreground">
+                          {option.label}
+                        </span>
+                        {(option.priceLabel ?? option.hint) && (
+                          <span className="block truncate text-xs text-muted" dir={option.priceLabel ? "ltr" : undefined}>
+                            {option.priceLabel ?? option.hint}
+                          </span>
+                        )}
+                      </span>
+                      {isActive && (
+                        <ArrowRightIcon className="h-4 w-4 shrink-0 text-brand-icon rtl:-scale-x-100" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
+
+          {hasFallback && (
             <button
               type="button"
-              id="cmd-opt-0"
+              id={`cmd-opt-${fallbackIndex}`}
               role="option"
-              aria-selected="true"
+              aria-selected={fallbackIndex === activeIndex}
               tabIndex={-1}
-              onMouseMove={() => setActive(0)}
-              onClick={() => selectIndex(0)}
-              className="flex w-full items-center gap-3 rounded-xl bg-brand-soft px-3 py-2.5 text-start"
+              onMouseMove={() => setActive(fallbackIndex)}
+              onClick={() => selectIndex(fallbackIndex)}
+              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors ${
+                fallbackIndex === activeIndex ? "bg-brand-soft" : "hover:bg-surface-2"
+              }`}
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand-icon">
                 <SearchIcon className="h-5 w-5" />
@@ -281,72 +461,11 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
                   {t.palette.searchFor} “{query.trim()}”
                 </span>
                 <span className="block truncate text-xs text-muted">
-                  {t.palette.seeAll}
+                  {searching ? t.palette.searching : t.palette.seeAll}
                 </span>
               </span>
               <ArrowRightIcon className="h-4 w-4 shrink-0 text-brand-icon rtl:-scale-x-100" />
             </button>
-          ) : (
-            filteredGroups.map((group, gi) => {
-              const headingId = `${headingBaseId}-${gi}`;
-              return (
-                <div
-                  key={group.key}
-                  role="group"
-                  aria-labelledby={headingId}
-                  className="mb-1"
-                >
-                  <p
-                    id={headingId}
-                    className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted"
-                  >
-                    {t.palette[group.key]}
-                  </p>
-                  {group.items.map((item) => {
-                    runningIndex += 1;
-                    const index = runningIndex;
-                    const isActive = index === activeIndex;
-                    const ItemIcon = item.icon;
-                    return (
-                      <button
-                        key={item.href}
-                        type="button"
-                        id={`cmd-opt-${index}`}
-                        role="option"
-                        aria-selected={isActive}
-                        tabIndex={-1}
-                        onMouseMove={() => setActive(index)}
-                        onClick={() => selectIndex(index)}
-                        className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors ${
-                          isActive ? "bg-brand-soft" : "hover:bg-surface-2"
-                        }`}
-                      >
-                        <span
-                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                            isActive
-                              ? "bg-primary text-primary-fg"
-                              : "bg-brand-soft text-brand-icon"
-                          }`}
-                        >
-                          <ItemIcon className="h-5 w-5" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-medium text-foreground">
-                            {t.items[item.key].label}
-                          </span>
-                          <span className="block truncate text-xs text-muted">
-                            {t.items[item.key].hint}
-                          </span>
-                        </span>
-                        {isActive && (
-                          <ArrowRightIcon className="h-4 w-4 shrink-0 text-brand-icon rtl:-scale-x-100" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })
           )}
         </div>
 
@@ -370,6 +489,8 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
               <span className="text-warn">{error}</span>
             ) : isListening ? (
               <span className="text-warn">{t.palette.listening}</span>
+            ) : searching ? (
+              <span>{t.palette.searching}</span>
             ) : (
               <>
                 <KeyHint>esc</KeyHint>

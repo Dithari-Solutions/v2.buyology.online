@@ -2,12 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  allCategories,
-  buyobot,
-  productCategories,
-  services,
-} from "@/lib/nav-data";
+import { allCategories, buyobot, services } from "@/lib/nav-data";
+import { categoryHref, categoryIcon, useLiveCategories } from "@/lib/live-categories";
 import {
   ArrowRightShortIcon,
   ChevronDownIcon,
@@ -25,6 +21,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 export function PrimaryNav() {
   const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
+  const liveCategories = useLiveCategories();
   const wrapRef = useRef<HTMLLIElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -82,29 +79,32 @@ export function PrimaryNav() {
                   {t.nav.shopByCategory}
                 </p>
                 <div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
-                  {productCategories.map((c) => {
-                    const Icon = c.icon;
-                    return (
-                      <Link
-                        key={c.href}
-                        href={c.href}
-                        onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-3 rounded-xl px-2.5 py-2 transition-colors hover:bg-surface-2"
-                      >
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand-icon">
-                          <Icon className="h-[18px] w-[18px]" />
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-medium text-foreground">
-                            {t.items[c.key].label}
-                          </span>
-                          <span className="block truncate text-xs text-muted">
-                            {t.items[c.key].hint}
-                          </span>
-                        </span>
-                      </Link>
-                    );
-                  })}
+                  {liveCategories === null
+                    ? Array.from({ length: 6 }, (_, i) => (
+                        <div
+                          key={i}
+                          className="h-[52px] animate-pulse rounded-xl bg-surface-2 motion-reduce:animate-none"
+                          aria-hidden="true"
+                        />
+                      ))
+                    : liveCategories.map((c) => {
+                        const Icon = categoryIcon(c.icon);
+                        return (
+                          <Link
+                            key={c.id}
+                            href={categoryHref(c)}
+                            onClick={() => setMenuOpen(false)}
+                            className="flex items-center gap-3 rounded-xl px-2.5 py-2 transition-colors hover:bg-surface-2"
+                          >
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand-icon">
+                              <Icon className="h-[18px] w-[18px]" />
+                            </span>
+                            <span className="min-w-0 truncate text-sm font-medium text-foreground">
+                              {c.name}
+                            </span>
+                          </Link>
+                        );
+                      })}
                 </div>
                 <Link
                   href="/products"
