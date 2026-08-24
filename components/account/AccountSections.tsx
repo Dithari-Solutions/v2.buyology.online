@@ -27,7 +27,7 @@ import {
   recoverAccount,
 } from "@/lib/account-api";
 import { OtpInput } from "@/components/auth/OtpInput";
-import { reverseGeocode, countryFieldValue } from "@/lib/geocode";
+import { reverseGeocode, countryFieldValue, normalizeCountryInput } from "@/lib/geocode";
 import { Field, Panel, SectionHead, Toggle } from "@/components/account/account-ui";
 import { PhoneField } from "@/components/account/PhoneField";
 import { AvatarUpload } from "@/components/account/AvatarUpload";
@@ -429,7 +429,7 @@ export function AddressesSection() {
         addressLine2: String(fd.get("line2") ?? "").trim() || undefined,
         city: String(fd.get("city") ?? "").trim() || undefined,
         state: String(fd.get("state") ?? "").trim() || undefined,
-        country: String(fd.get("country") ?? "").trim(),
+        country: normalizeCountryInput(String(fd.get("country") ?? "")),
         postalCode: String(fd.get("postalCode") ?? "").trim() || undefined,
         isDefault: fd.get("isDefault") === "on",
       });
