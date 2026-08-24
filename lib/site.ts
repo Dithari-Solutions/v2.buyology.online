@@ -29,9 +29,16 @@ export const site = {
    * Organization schema's address. Only what is actually known: no street line is invented.
    */
   place: {
-    locality: "Dubai",
+    // The registered trading address, from the Google Business Profile — SHARJAH, not Dubai.
+    // The storefront targets Dubai as a market it delivers to, which is `areaServed`; claiming
+    // Dubai as the address would contradict GBP, and Google reconciles the two.
+    street: "Industrial Area 17 - Industrial Area",
+    locality: "Sharjah",
+    region: "Sharjah",
     country: "AE",
     countryName: "United Arab Emirates",
+    /** Cities the storefront actively delivers to and targets in search. */
+    serves: ["Dubai", "Sharjah", "Abu Dhabi"],
   },
   // Brand palette — kept in sync with globals.css theme tokens.
   // Names and hexes come from the Brand Identity Guidelines (Color 4–6):
@@ -56,7 +63,11 @@ export const site = {
   },
   contact: {
     email: "support@buyology.online",
-    phone: "+1-000-000-0000",
+    // The real trading number, as published on the Buyology Factory Outlet Google Business
+    // Profile. It must match GBP exactly: Google cross-checks the two, and an audit flagged
+    // the site for showing no phone at all.
+    phone: "+971 52 708 5203",
+    phoneE164: "+971527085203",
   },
   social: {
     x: "https://x.com/buyology",

@@ -491,6 +491,16 @@ main {
 }
 
 /* ── Powerbank coming-soon: the battery slowly filling (components respect reduced motion) ── */
+/* Giveaway banner ground + dot texture. Lived as inline style attributes until an SEO audit
+   flagged them; they are static art direction, so a class is the right home. */
+.buyo-giveaway-ground {
+  background: radial-gradient(120% 130% at 82% -20%, #402f75 0%, #392a67 42%, #2f2255 72%, #1e1639 100%);
+}
+.buyo-dot-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.75) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
 @keyframes buyo-charge {
   0% { transform: scaleX(0.08); }
   75% { transform: scaleX(0.86); }

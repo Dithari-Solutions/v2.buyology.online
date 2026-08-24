@@ -59,7 +59,7 @@ export function ProductCard({
           // too — a photo's own background does not theme.
           <Image
             src={product.image}
-            alt=""
+            alt={product.name}
             fill
             quality={75}
             sizes="(min-width: 1024px) 300px, (min-width: 640px) 33vw, 50vw"

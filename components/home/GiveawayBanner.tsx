@@ -41,25 +41,12 @@ export async function GiveawayBanner() {
       aria-labelledby="giveaway-heading"
       className="mx-auto w-full max-w-[1400px] px-4 pt-6 sm:px-6 sm:pt-8"
     >
-      <div
-        className="relative isolate overflow-hidden rounded-3xl border border-border text-white"
-        style={{
-          background:
-            "radial-gradient(120% 130% at 82% -20%, #402f75 0%, #392a67 42%, #2f2255 72%, #1e1639 100%)",
-        }}
-      >
+      <div className="buyo-giveaway-ground relative isolate overflow-hidden rounded-3xl border border-border text-white">
         {/* Ambient brand light */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -end-16 -top-24 h-80 w-80 rounded-full bg-gold/25 blur-[90px]" />
           <div className="absolute -bottom-28 start-1/4 h-72 w-72 rounded-full bg-brand/45 blur-[100px]" />
-          <div
-            className="absolute inset-0 opacity-[0.12]"
-            style={{
-              backgroundImage:
-                "radial-gradient(rgba(255,255,255,0.75) 1px, transparent 1px)",
-              backgroundSize: "26px 26px",
-            }}
-          />
+          <div className="buyo-dot-grid absolute inset-0 opacity-[0.12]" />
         </div>
 
         <div className="grid gap-8 p-6 sm:p-9 lg:min-h-[600px] lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center lg:gap-10 lg:p-12">

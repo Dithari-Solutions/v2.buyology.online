@@ -78,7 +78,7 @@ export function FeaturedCarousel({
           <>
             <Image
               src={banner.backgroundImageUrl!}
-              alt={headline ?? ""}
+              alt={headline ?? `${label} ${i + 1}`}
               fill
               priority={i === 0}
               quality={90}

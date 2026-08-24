@@ -14,9 +14,11 @@ type JsonLd = Record<string, unknown>;
 export function organizationSchema(): JsonLd {
   return {
     "@context": "https://schema.org",
-    // Both types: "Organization" anchors the brand, "OnlineStore" tells search engines and
-    // shopping agents this entity actually sells — which is what the storefront is.
-    "@type": ["Organization", "OnlineStore"],
+    // A PLAIN STRING, not ["Organization","OnlineStore"]. The array is valid schema.org, but
+    // many crawlers and audit tools match @type as a string and report "no Organization schema
+    // identified" — which is exactly what happened. The store-ness is expressed by the separate
+    // Store node below instead, where it costs nothing.
+    "@type": "Organization",
     "@id": `${site.url}/#organization`,
     name: site.name,
     legalName: site.legalName,
@@ -33,22 +35,60 @@ export function organizationSchema(): JsonLd {
     // Only what is known. No street line and no telephone: site.contact.phone is still a
     // placeholder, and a fabricated number in structured data would be published straight
     // into search results.
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: site.place.locality,
-      addressCountry: site.place.country,
-    },
-    areaServed: {
-      "@type": "Country",
-      name: site.place.countryName,
-    },
+    telephone: site.contact.phoneE164,
+    address: postalAddress(),
+    areaServed: [
+      { "@type": "Country", name: site.place.countryName },
+      ...site.place.serves.map((city) => ({ "@type": "City", name: city })),
+    ],
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer support",
       email: site.contact.email,
+      telephone: site.contact.phoneE164,
       areaServed: site.place.country,
       availableLanguage: ["English", "Arabic"],
     },
+  };
+}
+
+/** The trading address, shared by the Organization and Store nodes. */
+function postalAddress(): JsonLd {
+  return {
+    "@type": "PostalAddress",
+    streetAddress: site.place.street,
+    addressLocality: site.place.locality,
+    addressRegion: site.place.region,
+    addressCountry: site.place.country,
+  };
+}
+
+/**
+ * The physical outlet, as a Store.
+ *
+ * This is what local packs and map results are built from, and it is why the audit's "add
+ * Local Business Schema" item exists. Everything here matches the Google Business Profile
+ * exactly — a schema that disagrees with GBP is worse than none, because Google reconciles
+ * the two and trusts neither.
+ *
+ * No aggregateRating: the 4.9/132 belongs to Google's own review corpus, and marking up
+ * reviews collected elsewhere as your own is against their structured-data guidelines.
+ * No openingHours either — they are not known here, and inventing them sends real customers
+ * to a closed door.
+ */
+export function storeSchema(): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "@id": `${site.url}/#store`,
+    name: "Buyology Factory Outlet",
+    url: site.url,
+    telephone: site.contact.phoneE164,
+    email: site.contact.email,
+    image: `${site.url}/buyology-logo.png`,
+    address: postalAddress(),
+    parentOrganization: { "@id": `${site.url}/#organization` },
+    areaServed: site.place.serves.map((city) => ({ "@type": "City", name: city })),
   };
 }
 
@@ -151,7 +191,7 @@ export function productSchema(p: Product): JsonLd {
 export function siteJsonLd(): JsonLd {
   return {
     "@context": "https://schema.org",
-    "@graph": [organizationSchema(), webSiteSchema()],
+    "@graph": [organizationSchema(), webSiteSchema(), storeSchema()],
   };
 }
 

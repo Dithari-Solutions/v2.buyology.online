@@ -1015,6 +1015,20 @@ export interface Dict {
       another: string;
     };
   };
+  /** Home page's H1 section — the plain statement of what this shop sells. */
+  refurbished: {
+    h1: string;
+    lead: string;
+    body: string;
+    point1Title: string;
+    point1Body: string;
+    point2Title: string;
+    point2Body: string;
+    point3Title: string;
+    point3Body: string;
+    cta: string;
+    warrantyCta: string;
+  };
   giveaway: {
     eyebrow: string;
     title: string;
@@ -2344,6 +2358,21 @@ const en: Dict = {
       sentBody: "Thanks for reaching out. Our team will get back to you shortly.",
       another: "Send another",
     },
+  },
+  refurbished: {
+    h1: "Certified Refurbished Laptops in Dubai & Across the UAE",
+    lead:
+      "Buyology sells certified refurbished laptops — MacBook, Dell, HP, Lenovo and more — each one inspected, tested and covered by warranty, with fast delivery across the UAE.",
+    body:
+      "Every laptop is professionally refurbished before it is listed: components are checked, the battery is tested, the machine is cleaned and wiped, and the software is reinstalled. You get the specification you paid for at a fraction of new-device pricing, and if something is not right, the warranty and our returns policy stand behind it.",
+    point1Title: "Warranty included",
+    point1Body: "Every refurbished laptop ships with warranty cover — not sold as-is.",
+    point2Title: "Inspected & tested",
+    point2Body: "Battery health, ports, screen and keyboard checked before a device is listed.",
+    point3Title: "Fast UAE delivery",
+    point3Body: "Delivered across Dubai, Sharjah and Abu Dhabi, with tracking from dispatch.",
+    cta: "Shop refurbished laptops",
+    warrantyCta: "How the warranty works",
   },
   giveaway: {
     eyebrow: "Giveaway",
@@ -3695,6 +3724,21 @@ const az: Dict = {
       another: "Yenisini göndər",
     },
   },
+  refurbished: {
+    h1: "Dubay və bütün BƏƏ-də sertifikatlı bərpa olunmuş noutbuklar",
+    lead:
+      "Buyology sertifikatlı bərpa olunmuş noutbuklar satır — MacBook, Dell, HP, Lenovo və daha çox. Hər biri yoxlanılır, test edilir, zəmanətlə təmin olunur və BƏƏ üzrə sürətlə çatdırılır.",
+    body:
+      "Hər noutbuk siyahıya salınmadan əvvəl peşəkar şəkildə bərpa olunur: komponentlər yoxlanılır, batareya test edilir, cihaz təmizlənib məlumatlardan tam silinir və proqram təminatı yenidən quraşdırılır. Yeni cihaz qiymətinin bir hissəsinə ödədiyiniz konfiqurasiyanı alırsınız; nəsə düz gəlməsə, zəmanət və qaytarma siyasətimiz arxanızdadır.",
+    point1Title: "Zəmanət daxildir",
+    point1Body: "Hər bərpa olunmuş noutbuk zəmanət əhatəsi ilə göndərilir — \"olduğu kimi\" satılmır.",
+    point2Title: "Yoxlanılıb və test edilib",
+    point2Body: "Batareya vəziyyəti, portlar, ekran və klaviatura siyahıya salınmadan əvvəl yoxlanılır.",
+    point3Title: "BƏƏ üzrə sürətli çatdırılma",
+    point3Body: "Dubay, Şarja və Əbu-Dabiyə çatdırılır, göndərişdən etibarən izləmə ilə.",
+    cta: "Bərpa olunmuş noutbuklara bax",
+    warrantyCta: "Zəmanət necə işləyir",
+  },
   giveaway: {
     eyebrow: "Hədiyyə kampaniyası",
     title: "Qazan",
@@ -5027,6 +5071,21 @@ const ar: Dict = {
       sentBody: "شكرًا لتواصلك. سيعود إليك فريقنا قريبًا.",
       another: "إرسال رسالة أخرى",
     },
+  },
+  refurbished: {
+    h1: "لابتوبات مجددة معتمدة في دبي وجميع أنحاء الإمارات",
+    lead:
+      "تبيع Buyology لابتوبات مجددة معتمدة — MacBook وDell وHP وLenovo وغيرها — كل جهاز مفحوص ومُختبر ومشمول بالضمان، مع توصيل سريع في جميع أنحاء الإمارات.",
+    body:
+      "يُجدَّد كل لابتوب باحتراف قبل عرضه: تُفحص المكوّنات، وتُختبر البطارية، ويُنظَّف الجهاز وتُمحى بياناته بالكامل، ويُعاد تثبيت النظام. تحصل على المواصفات التي دفعت مقابلها بجزء من سعر الجهاز الجديد، وإن لم يكن هناك ما يرضيك فالضمان وسياسة الإرجاع تحميانك.",
+    point1Title: "الضمان مشمول",
+    point1Body: "كل لابتوب مجدد يُشحن مع تغطية ضمان — وليس بيعاً «كما هو».",
+    point2Title: "مفحوص ومُختبر",
+    point2Body: "تُفحص صحة البطارية والمنافذ والشاشة ولوحة المفاتيح قبل عرض أي جهاز.",
+    point3Title: "توصيل سريع داخل الإمارات",
+    point3Body: "توصيل إلى دبي والشارقة وأبوظبي مع تتبّع من لحظة الشحن.",
+    cta: "تسوّق اللابتوبات المجددة",
+    warrantyCta: "كيف يعمل الضمان",
   },
   giveaway: {
     eyebrow: "سحب وجوائز",

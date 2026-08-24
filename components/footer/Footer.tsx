@@ -6,7 +6,7 @@ import { footerColumns, socialLinks } from "@/lib/footer";
 import { NewsletterForm } from "@/components/footer/NewsletterForm";
 import { FooterShopLinks } from "@/components/footer/FooterShopLinks";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
-import { CreditCardIcon, MailIcon } from "@/components/icons";
+import { CreditCardIcon, MailIcon, MapPinIcon, PhoneIcon } from "@/components/icons";
 
 /**
  * Site footer — a deep-purple, always-dark band (consistent in light and dark
@@ -76,13 +76,29 @@ export async function Footer() {
             ))}
           </ul>
 
-          <a
-            href={`mailto:${site.contact.email}`}
-            className="mt-5 inline-flex items-center gap-2 text-sm text-white/70 transition-colors hover:text-white"
-          >
-            <MailIcon className="h-4 w-4" />
-            {site.contact.email}
-          </a>
+          <address className="mt-5 space-y-2 not-italic">
+            <a
+              href={`mailto:${site.contact.email}`}
+              className="flex items-center gap-2 text-sm text-white/70 transition-colors hover:text-white"
+            >
+              <MailIcon className="h-4 w-4 shrink-0" />
+              {site.contact.email}
+            </a>
+            <a
+              href={`tel:${site.contact.phoneE164}`}
+              className="flex items-center gap-2 text-sm text-white/70 transition-colors hover:text-white"
+              dir="ltr"
+            >
+              <PhoneIcon className="h-4 w-4 shrink-0" />
+              {site.contact.phone}
+            </a>
+            <p className="flex items-start gap-2 text-sm text-white/60">
+              <MapPinIcon className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                {site.place.street}, {site.place.locality}, {site.place.countryName}
+              </span>
+            </p>
+          </address>
         </div>
 
         {/* Link columns */}

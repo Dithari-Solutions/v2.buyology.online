@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { site } from "@/lib/site";
 import { buyobot, services } from "@/lib/nav-data";
 import { fetchCategories, fetchProducts } from "@/lib/catalogue";
-import { renderableRoots } from "@/lib/category-nav";
+import { categoryHref, renderableRoots } from "@/lib/category-nav";
 
 /**
  * The sitemap is built from the LIVE catalogue, not from a hardcoded list.
@@ -59,8 +59,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let categoryRoutes: MetadataRoute.Sitemap = [];
   try {
+    // English taxonomy on purpose: the sitemap is the canonical set of URLs, and an English
+    // slug reads the same to a crawler whatever language a visitor browses in.
     categoryRoutes = renderableRoots(await fetchCategories("en")).map((c) => ({
-      url: `${site.url}/products?category=${c.id}`,
+      url: `${site.url}${categoryHref(c)}`,
       lastModified,
       changeFrequency: "weekly",
       priority: 0.7,

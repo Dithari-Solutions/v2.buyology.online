@@ -191,7 +191,7 @@ export function ProductDetail() {
               >
                 <Image
                   src={m.thumbnailUrl ?? m.url!}
-                  alt=""
+                  alt={`${product.name} — ${i + 1}`}
                   fill
                   quality={75}
                   sizes="80px"

@@ -39,8 +39,16 @@ export function categoryIcon(key?: string | null): IconType {
   return (key && CATEGORY_ICONS[key]) || TagIcon;
 }
 
+/**
+ * A category link a human can read: `/products?category=laptops` rather than a raw UUID, which
+ * an SEO audit flagged as an unfriendly URL. ProductsView resolves a slug against both the
+ * localized and the English taxonomy, so either form works — but a non-ASCII slug (an Arabic
+ * one, percent-encoded into noise) is worse than the id, so those keep the id.
+ */
 export function categoryHref(c: Category): string {
-  return `/products?category=${c.id}`;
+  const slug = c.slug?.trim().toLowerCase();
+  const readable = slug && /^[a-z0-9][a-z0-9-]*$/.test(slug) ? slug : c.id;
+  return `/products?category=${readable}`;
 }
 
 /**

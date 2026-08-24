@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Header } from "@/components/header/Header";
 import { Stories } from "@/components/home/Stories";
 import { GiveawayBanner } from "@/components/home/GiveawayBanner";
+import { RefurbishedIntro } from "@/components/home/RefurbishedIntro";
 import { CategoryBanners } from "@/components/home/CategoryBanners";
 import { FeatureStrip } from "@/components/home/FeatureStrip";
 // Flash-sale rail: mock data — parked until a real flash-sale feed exists.
@@ -43,6 +44,8 @@ export default function Home() {
       <Header />
       <main>
         <Stories />
+        {/* The page's H1 and subject, before the promotional furniture. */}
+        <RefurbishedIntro />
         <GiveawayBanner />
         <CategoryBanners />
         <FeatureStrip />

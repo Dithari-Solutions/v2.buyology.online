@@ -48,7 +48,7 @@ function RecCard({ product }: { product: Product }) {
           // Catalogue photo through next/image — contained on white so the whole product shows.
           <Image
             src={product.image}
-            alt=""
+            alt={product.name}
             fill
             quality={75}
             sizes="200px"
