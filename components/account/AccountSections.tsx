@@ -12,6 +12,7 @@ import { updateProfile, uploadAvatar, AuthError, forgotPassword, resetPassword }
 import { useAuth } from "@/components/auth/auth-provider";
 import { GiveawayProfileCard } from "@/components/account/GiveawayBadge";
 import { PhoneVerification } from "@/components/account/PhoneVerification";
+import { MapPicker } from "@/components/account/MapPicker";
 import {
   cancelOrder,
   deleteAddress,
@@ -369,6 +370,25 @@ export function AddressesSection() {
 
   const load = async () => setRows(await fetchAddresses(uid));
 
+  /**
+   * Apply a point chosen on the map: the coordinates are what the courier actually routes on,
+   * and the written lines are filled in from them so the customer does not type an address that
+   * disagrees with their own pin.
+   */
+  async function pickOnMap(next: { lat: number; lng: number }) {
+    setCoords(next);
+    setLocationNote(null);
+    const g = await reverseGeocode(next.lat, next.lng);
+    if (!g) return; // The pin still counts; the lines just stay as typed.
+    setPrefill({
+      line1: g.line || undefined,
+      city: g.city ?? undefined,
+      state: g.state ?? undefined,
+      postalCode: g.postalCode ?? undefined,
+      country: countryFieldValue(g) || undefined,
+    });
+  }
+
   function useMyLocation() {
     if (!navigator.geolocation) {
       setLocationNote(ad.locationFailed);
@@ -565,6 +585,9 @@ export function AddressesSection() {
                 </button>
                 {locationNote && <span className="text-xs text-muted">{locationNote}</span>}
               </div>
+
+              {/* Pin first, then the written lines it fills in. */}
+              <MapPicker value={coords} onChange={pickOnMap} label={ad.mapLabel} />
 
               <Field key={`l1-${prefill.line1 ?? ""}`} label={ad.street} name="line1" defaultValue={prefill.line1} required />
               <Field label={ad.line2} name="line2" />

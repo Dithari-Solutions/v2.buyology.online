@@ -805,6 +805,8 @@ export interface Dict {
       deleteConfirm: string;
       noEditNote: string;
       useMyLocation: string;
+      mapLabel: string;
+      mapHint: string;
       locating: string;
       locationFailed: string;
       customName: string;
@@ -2131,6 +2133,8 @@ const en: Dict = {
       deleteConfirm: "Delete this address?",
       noEditNote: "To change an address, delete it and add the corrected one.",
       useMyLocation: "Use my location",
+      mapLabel: "Pick the exact spot on the map",
+      mapHint: "Drag the pin or tap the map. Couriers navigate to this point, so it matters more than the written address.",
       locating: "Finding your location…",
       locationFailed: "We couldn't detect your location — fill the address in manually.",
       customName: "Name this address",
@@ -3497,6 +3501,8 @@ const az: Dict = {
       deleteConfirm: "Bu ünvan silinsin?",
       noEditNote: "Ünvanı dəyişmək üçün onu silib düzəlişlə yenidən əlavə edin.",
       useMyLocation: "Məkanımı istifadə et",
+      mapLabel: "Dəqiq yeri xəritədə seçin",
+      mapHint: "Nişanı sürüşdürün və ya xəritəyə toxunun. Kuryerlər məhz bu nöqtəyə gəlir, ona görə yazılı ünvandan daha vacibdir.",
       locating: "Məkanınız tapılır…",
       locationFailed: "Məkanınızı təyin edə bilmədik — ünvanı əl ilə doldurun.",
       customName: "Bu ünvanı adlandırın",
@@ -4846,6 +4852,8 @@ const ar: Dict = {
       deleteConfirm: "هل تريد حذف هذا العنوان؟",
       noEditNote: "لتغيير عنوان، احذفه ثم أضِفه من جديد مصحّحًا.",
       useMyLocation: "استخدم موقعي",
+      mapLabel: "حدد الموقع بدقة على الخريطة",
+      mapHint: "اسحب المؤشر أو انقر على الخريطة. مندوبو التوصيل يتجهون إلى هذه النقطة، لذا فهي أهم من العنوان المكتوب.",
       locating: "جارٍ تحديد موقعك…",
       locationFailed: "تعذّر تحديد موقعك — املأ العنوان يدويًا.",
       customName: "سمِّ هذا العنوان",

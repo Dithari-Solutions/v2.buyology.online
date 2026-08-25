@@ -624,7 +624,7 @@ export function CheckoutView() {
                   </p>
                 )}
                 <Link
-                  href="/account"
+                  href="/account?returnTo=checkout"
                   className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand-icon hover:underline"
                 >
                   <MapPinIcon className="h-4 w-4" />

@@ -1,4 +1,8 @@
 @import "tailwindcss";
+/* Leaflet's own stylesheet — required for the OpenStreetMap address picker to lay its tiles
+   out at all (without it every tile stacks at the origin). Imported here rather than in the
+   component so it is part of the one CSS bundle. */
+@import "leaflet/dist/leaflet.css";
 
 /*
   Theme is driven by a `.dark` class on <html> (set before first paint by the
