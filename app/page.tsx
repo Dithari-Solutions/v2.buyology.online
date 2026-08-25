@@ -44,8 +44,6 @@ export default function Home() {
       <Header />
       <main>
         <Stories />
-        {/* The page's H1 and subject, before the promotional furniture. */}
-        <RefurbishedIntro />
         <GiveawayBanner />
         <CategoryBanners />
         <FeatureStrip />
@@ -53,6 +51,9 @@ export default function Home() {
         <BuyologyAI />
         <Metrics />
         <BuyologyServices />
+        {/* Closing statement: what this shop actually sells, in the words people search for.
+            It carries the page's H1, so it stays in the document even at the end. */}
+        <RefurbishedIntro />
       </main>
     </>
   );

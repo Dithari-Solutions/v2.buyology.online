@@ -88,13 +88,6 @@ export function ProductCard({
           </span>
         ) : null}
 
-        {/* Product link (transparent overlay) */}
-        <Link
-          href={product.href}
-          aria-label={product.name}
-          className="absolute inset-0 z-[2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-        />
-
         {/* Wishlist (end) */}
         <button
           type="button"
@@ -118,26 +111,36 @@ export function ProductCard({
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col px-1 pt-3.5">
+      <div className="flex flex-1 flex-col px-0.5 pt-3 sm:px-1 sm:pt-3.5">
         {/* Every block below reserves its height even when its content is short or absent, so the
             price row and the button sit at identical positions on every card in a row — a card
             with no specs must not be shorter than its neighbours. */}
         <p className="min-h-4 text-[11px] font-semibold uppercase tracking-wider text-warn dark:text-gold">
           {product.category || "\u00a0"}
         </p>
-        <h3 className="mt-1 line-clamp-2 min-h-[2.8rem] text-base font-semibold leading-snug text-foreground">
-          {product.name}
+        {/* The link lives on the name and stretches over the whole card (::after), so clicking
+            the name, the description or the photo all open the product. Controls that do
+            something else — wishlist, add to cart — sit above it on a higher layer. */}
+        <h3 className="mt-1 line-clamp-2 min-h-[2.4rem] text-sm font-semibold leading-snug text-foreground sm:min-h-[2.8rem] sm:text-base">
+          <Link
+            href={product.href}
+            className="after:absolute after:inset-0 after:z-[2] after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {product.name}
+          </Link>
         </h3>
-        <p className="mt-1 line-clamp-2 min-h-10 text-sm text-muted">
+        <p className="mt-1 line-clamp-2 min-h-8 text-xs text-muted sm:min-h-10 sm:text-sm">
           {product.description}
         </p>
 
         {/* Feature chips — the row keeps its height when a product has none */}
-        <div className="mt-3 flex min-h-[38px] flex-wrap gap-1.5 overflow-hidden pb-3">
-          {product.tags.map((tag) => (
+        <div className="mt-2.5 flex min-h-[30px] flex-wrap gap-1 overflow-hidden pb-2.5 sm:mt-3 sm:min-h-[38px] sm:gap-1.5 sm:pb-3">
+          {product.tags.map((tag, i) => (
             <span
               key={tag}
-              className="rounded-md bg-brand-soft px-2 py-1 text-xs font-medium text-brand-icon"
+              className={`rounded-md bg-brand-soft px-1.5 py-0.5 text-[11px] font-medium text-brand-icon sm:px-2 sm:py-1 sm:text-xs ${
+                i > 0 ? "hidden sm:inline-block" : ""
+              }`}
             >
               {tag}
             </span>
@@ -152,27 +155,32 @@ export function ProductCard({
                 {formatMoney(product.oldPrice, product.currency)}
               </span>
             )}
-            <span className="text-xl font-bold tracking-tight text-foreground">
+            <span className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
               {formatMoney(product.price, product.currency)}
             </span>
           </div>
-          <div className="flex shrink-0 items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
             <span className="flex items-center gap-0.5" aria-hidden="true">
-              {Array.from({ length: 5 }).map((_, i) => (
+              <StarIcon className="h-3.5 w-3.5 text-gold" />
+              {Array.from({ length: 4 }).map((_, i) => (
                 <StarIcon
                   key={i}
-                  className={`h-3.5 w-3.5 ${i < filled ? "text-gold" : "text-border-strong"}`}
+                  className={`hidden h-3.5 w-3.5 sm:block ${
+                    i + 1 < filled ? "text-gold" : "text-border-strong"
+                  }`}
                 />
               ))}
             </span>
-            <span className="text-sm font-medium text-foreground">
+            <span className="text-xs font-medium text-foreground sm:text-sm">
               {product.rating.toFixed(1)}
             </span>
           </div>
         </div>
 
-        {/* Add to cart */}
-        <AddToCartButton product={product} />
+        {/* Above the card-wide product link, or it would just open the product. */}
+        <div className="relative z-[3]">
+          <AddToCartButton product={product} />
+        </div>
       </div>
     </article>
   );

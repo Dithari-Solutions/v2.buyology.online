@@ -30,7 +30,7 @@ export function AnnouncementBar() {
 
         <div className="flex shrink-0 items-center gap-1 text-xs">
           <Link
-            href="/orders/track"
+            href="/track"
             className="hidden rounded px-2 py-1 text-white/80 transition-colors hover:text-white sm:inline-block"
           >
             {t.announcement.trackOrder}

@@ -59,7 +59,7 @@ const quickActions: NavItem[] = [
     key: "quick-track",
     label: "Track an order",
     hint: "Where's my delivery",
-    href: "/orders/track",
+    href: "/track",
     icon: TruckIcon,
     keywords: "shipping delivery status izlə تتبع",
   },
