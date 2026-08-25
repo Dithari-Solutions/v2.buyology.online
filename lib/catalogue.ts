@@ -176,7 +176,7 @@ export function toProduct(api: ApiProduct, categoryName?: string): Product {
     category: categoryName ?? "",
     description: api.description ?? "",
     tags: specChips(api.specs),
-    href: `/product/${api.id}`,
+    href: productHref({ id: api.id, slug: api.slug ?? undefined }),
     image: primaryImage(api.media) ?? "",
     alt: api.title ?? "",
     icon: undefined,
@@ -278,6 +278,35 @@ export async function searchCatalogue(locale: Locale, q: CatalogueQuery): Promis
     }
   }
   return withCategoryNames(locale, rows);
+}
+
+/**
+ * A product's URL, by NAME rather than by UUID.
+ *
+ * `/product/dell-latitude-7430` says what the page is — to a shopper reading the link before
+ * clicking it, to anyone scanning it in search results, and to a crawler weighing the words in
+ * the URL. `/product/3f2a1b4c-5d6e-...` says nothing to any of them.
+ *
+ * The id remains the fallback for anything without a slug, and the detail route accepts both
+ * forms, so every UUID link already shared, indexed, or sitting in someone's history keeps
+ * working rather than turning into a 404.
+ */
+export function productHref(p: { id: string; slug?: string | null }): string {
+  const slug = p.slug?.trim();
+  return `/product/${slug && slug.length > 0 ? slug : p.id}`;
+}
+
+/** Whether a route param is a product id rather than a slug. */
+export function isProductId(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.trim());
+}
+
+export function fetchProductBySlug(
+  locale: Locale,
+  slug: string,
+  market?: Market,
+): Promise<ApiProduct> {
+  return get<ApiProduct>(`/api/product/by-slug`, params(locale, { slug }, market));
 }
 
 export async function fetchProductDetail(

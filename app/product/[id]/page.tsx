@@ -2,7 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header/Header";
-import { fetchProductDetail, fetchCategories, toProduct } from "@/lib/catalogue";
+import {
+  fetchCategories,
+  fetchProductBySlug,
+  fetchProductDetail,
+  isProductId,
+  productHref,
+  toProduct,
+} from "@/lib/catalogue";
 import { getLocale } from "@/lib/i18n/server";
 import { serverMarket } from "@/lib/market-server";
 import { site } from "@/lib/site";
@@ -18,11 +25,18 @@ import { ChevronLeftIcon } from "@/components/icons";
 // Product ids are live catalogue UUIDs — rendered on demand, never enumerated at build time.
 export const dynamic = "force-dynamic";
 
-async function loadProduct(id: string) {
+/**
+ * Loads by slug or by id. The route param is whichever form the link used: new links carry the
+ * product's name, but UUID links are already indexed and shared, so both must resolve — a URL
+ * that worked yesterday must not 404 today.
+ */
+async function loadProduct(idOrSlug: string) {
   const locale = await getLocale();
   const market = await serverMarket();
   try {
-    const api = await fetchProductDetail(locale, id, market);
+    const api = isProductId(idOrSlug)
+      ? await fetchProductDetail(locale, idOrSlug, market)
+      : await fetchProductBySlug(locale, idOrSlug, market);
     let categoryName: string | undefined;
     try {
       categoryName = (await fetchCategories(locale, market)).find((c) => c.id === api.categoryId)?.name;
@@ -50,12 +64,14 @@ export async function generateMetadata({
   return {
     title: product.name,
     description: product.description,
-    alternates: { canonical: `/product/${product.id}` },
+    // Canonical is always the slug URL, so an id link consolidates onto the readable one
+    // instead of competing with it as a duplicate.
+    alternates: { canonical: productHref(product) },
     openGraph: {
       title: product.name,
       description: product.description,
       type: "website",
-      url: `${site.url}/product/${product.id}`,
+      url: `${site.url}${productHref(product)}`,
       ...(image ? { images: [{ url: image, alt: product.name }] } : {}),
     },
     ...(image ? { twitter: { card: "summary_large_image" as const, images: [image] } } : {}),
@@ -102,7 +118,7 @@ export default async function ProductPage({
                     },
                   ]
                 : []),
-              { name: product.name, path: `/product/${product.id}` },
+              { name: product.name, path: productHref(product) },
             ]),
           ),
         }}

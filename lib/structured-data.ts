@@ -1,5 +1,6 @@
 import { site } from "@/lib/site";
 import type { Product } from "@/lib/products";
+import { productHref } from "@/lib/catalogue";
 
 /**
  * Typed Schema.org (JSON-LD) builders. Rendered server-side in the root layout
@@ -159,7 +160,7 @@ export function productSchema(p: Product): JsonLd {
     brand: { "@type": "Brand", name: p.brand?.trim() || site.name },
     offers: {
       "@type": "Offer",
-      url: `${site.url}/product/${p.id}`,
+      url: `${site.url}${productHref(p)}`,
       priceCurrency: p.currency ?? "AED",
       price: p.price,
       itemCondition: "https://schema.org/RefurbishedCondition",

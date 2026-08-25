@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { searchGroups } from "@/lib/search-data";
-import { searchProducts } from "@/lib/catalogue";
+import { productHref, searchProducts } from "@/lib/catalogue";
 import { categoryHref, categoryIcon, useLiveCategories } from "@/lib/live-categories";
 import { formatMoney } from "@/lib/format";
 import type { Product } from "@/lib/products";
@@ -142,7 +142,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
         heading: t.palette.products,
         options: hits.map((p) => ({
           id: `prod-${p.id}`,
-          href: `/product/${p.id}`,
+          href: productHref(p),
           label: p.name,
           imageUrl: p.image?.startsWith("http") ? p.image : null,
           priceLabel: formatMoney(p.price, p.currency),

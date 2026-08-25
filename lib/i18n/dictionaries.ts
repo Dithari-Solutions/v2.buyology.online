@@ -175,6 +175,7 @@ export interface Dict {
     trackIntro: string;
     trackCta: string;
     trackSignIn: string;
+    trackSignInTitle: string;
     trackCodeLabel: string;
     trackCodePlaceholder: string;
     trackCodeHint: string;
@@ -1266,7 +1267,8 @@ const en: Dict = {
     trackIntro: "Every order's live status — from payment to your door, including courier photo proof — lives in your order history. Orders shipped with a carrier include their tracking link there too.",
     trackCta: "View my orders",
     trackSignIn:
-      "Sign in to track an order. Your orders are tied to your account, so we only ever look inside your own.",
+      "Your orders are tied to your account, so we only ever look inside your own — sign in and enter the order code to see where it is.",
+    trackSignInTitle: "Sign in to track your order",
     trackCodeLabel: "Order code",
     trackCodePlaceholder: "BUY-1A2B3C4D",
     trackCodeHint: "The code from your confirmation email or your order list. The 'BUY-' part is optional.",
@@ -2616,7 +2618,8 @@ const az: Dict = {
     trackIntro: "Hər sifarişin canlı statusu — ödənişdən qapınıza qədər, kuryerin foto sübutu daxil olmaqla — sifariş tarixçənizdədir. Daşıyıcı ilə göndərilən sifarişlərin izləmə linki də oradadır.",
     trackCta: "Sifarişlərimə bax",
     trackSignIn:
-      "Sifarişi izləmək üçün daxil olun. Sifarişlər hesabınıza bağlıdır, biz yalnız sizin öz sifarişlərinizə baxırıq.",
+      "Sifarişlər hesabınıza bağlıdır, biz yalnız sizin öz sifarişlərinizə baxırıq — daxil olun və sifariş kodunu daxil edərək yerini görün.",
+    trackSignInTitle: "Sifarişi izləmək üçün daxil olun",
     trackCodeLabel: "Sifariş kodu",
     trackCodePlaceholder: "BUY-1A2B3C4D",
     trackCodeHint: "Təsdiq e-poçtunuzdaki və ya sifariş siyahınızdaki kod. 'BUY-' hissəsi məcburi deyil.",
@@ -3981,7 +3984,8 @@ const ar: Dict = {
     trackIntro: "الحالة الحية لكل طلب — من الدفع حتى بابك، بما في ذلك إثبات الصور من المندوب — موجودة في سجل طلباتك. الطلبات المشحونة عبر ناقل تتضمن رابط التتبع هناك أيضًا.",
     trackCta: "عرض طلباتي",
     trackSignIn:
-      "سجّل الدخول لتتبع طلبك. الطلبات مرتبطة بحسابك، ولا نبحث إلا داخل طلباتك الخاصة.",
+      "الطلبات مرتبطة بحسابك، ولا نبحث إلا داخل طلباتك — سجّل الدخول وأدخل رمز الطلب لمعرفة أين وصل.",
+    trackSignInTitle: "سجّل الدخول لتتبع طلبك",
     trackCodeLabel: "رمز الطلب",
     trackCodePlaceholder: "BUY-1A2B3C4D",
     trackCodeHint: "الرمز الموجود في بريد التأكيد أو في قائمة طلباتك. الجزء 'BUY-' اختياري.",

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useAuth } from "@/components/auth/auth-provider";
 import { fetchOrders } from "@/lib/account-api";
-import { PackageIcon, SearchIcon } from "@/components/icons";
+import { LockIcon, PackageIcon, SearchIcon } from "@/components/icons";
 
 const PAGE_SIZE = 50;
 const MAX_PAGES = 10;
@@ -76,16 +76,30 @@ export function TrackOrder() {
     );
   }
 
+  // Signed out: say plainly that tracking needs an account, and why — the lookup only ever
+  // searches the caller's own orders, which is what stops a stranger walking order codes.
   if (status === "guest") {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-6">
-        <p className="text-sm text-muted">{p.trackSignIn}</p>
-        <Link
-          href="/login?next=/track"
-          className="mt-4 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {t.auth.login.submit}
-        </Link>
+      <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface px-6 py-10 text-center">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-brand-icon">
+          <LockIcon className="h-6 w-6" />
+        </span>
+        <p className="text-lg font-semibold text-foreground">{p.trackSignInTitle}</p>
+        <p className="max-w-md text-sm text-muted">{p.trackSignIn}</p>
+        <div className="mt-1 flex flex-wrap justify-center gap-3">
+          <Link
+            href="/login?next=/track"
+            className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {t.auth.login.submit}
+          </Link>
+          <Link
+            href="/signup?next=/track"
+            className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {t.auth.signup.submit}
+          </Link>
+        </div>
       </div>
     );
   }

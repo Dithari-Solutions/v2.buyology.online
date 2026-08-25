@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/lib/site";
 import { buyobot, services } from "@/lib/nav-data";
-import { fetchCategories, fetchProducts } from "@/lib/catalogue";
+import { fetchCategories, fetchProducts, productHref } from "@/lib/catalogue";
 import { categoryHref, renderableRoots } from "@/lib/category-nav";
 
 /**
@@ -80,7 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!seen.has(row.id)) {
           seen.add(row.id);
           productRoutes.push({
-            url: `${site.url}/product/${row.id}`,
+            url: `${site.url}${productHref(row)}`,
             lastModified,
             changeFrequency: "weekly",
             priority: 0.8,
