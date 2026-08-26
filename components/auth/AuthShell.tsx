@@ -7,6 +7,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { Logo } from "@/components/header/Logo";
 import { REVIEW_COUNT, REVIEW_SCORE } from "@/lib/metrics";
 import { CheckIcon, ChevronLeftIcon, StarIcon } from "@/components/icons";
+import { AuthWaves } from "./AuthWaves";
 
 const compactReviews = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -18,10 +19,15 @@ const ROTATE_MS = 3500;
 /**
  * Split-screen auth layout.
  *
- * The brand panel is deliberately calm: one statement, one rotating perk, one line of real proof.
- * Its previous incarnation floated three miniature fake-UI "glass cards" over a dot grid — five
- * competing systems reading as template clutter. Everything shown now is real content the site
- * already ships (the translated perks, the review metrics); nothing is a mock screenshot.
+ * The brand panel carries one gesture: the gold wave Buyology already signs its emails with,
+ * layered into a drifting field (see AuthWaves). Everything over it is real content the site
+ * already ships — the translated perks, the review metrics; nothing is a mock screenshot.
+ *
+ * Two earlier versions are worth not repeating. The first floated miniature fake-UI "glass cards"
+ * over a dot grid. The second replaced them with a pair of blurred colour orbs, which is the house
+ * look of every generated auth page and had the brand backwards besides: the guidelines make
+ * Mikado Yellow dominant and American Blue the support, while the panel read as purple wall-to-wall
+ * with gold as a garnish. The waves put the gold back in charge without touching the copy.
  *
  * The rotating perk uses story-style progress segments — the same visual language as the story
  * feature on the home page. If a designer supplies a hero asset (3D render, illustration), it
@@ -46,14 +52,10 @@ export function AuthShell({ children }: { children: ReactNode }) {
         className="relative hidden overflow-hidden p-10 text-white lg:flex lg:flex-col xl:p-14"
         style={{
           background:
-            "linear-gradient(155deg, #665991 0%, #402f75 50%, #2b1f52 100%)",
+            "linear-gradient(160deg, #4a3a85 0%, #35275f 46%, #241a46 100%)",
         }}
       >
-        {/* Two calm auroras — the only decoration. */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute -end-24 -top-24 h-96 w-96 rounded-full bg-gold/20 blur-[100px]" />
-          <div className="absolute -bottom-32 -start-28 h-[28rem] w-[28rem] rounded-full bg-brand-400/40 blur-[110px]" />
-        </div>
+        <AuthWaves />
 
         {/* Logo */}
         <Link
@@ -110,16 +112,17 @@ export function AuthShell({ children }: { children: ReactNode }) {
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Real proof, one quiet line. */}
-        <div className="relative z-10 flex items-center gap-2 text-sm text-white/75" dir="ltr">
-          <StarIcon className="h-4 w-4 text-gold" />
-          <span className="font-semibold text-white">{REVIEW_SCORE.toFixed(1)}</span>
-          <span aria-hidden="true">·</span>
-          <span>
-            {compactReviews} {t.cart.reviews}
-          </span>
+          {/* Real proof, one quiet line. It closes the copy instead of being pinned to the bottom
+              edge, which is what leaves the whole bottom third free for the wave field. */}
+          <div className="mt-10 flex items-center gap-2 text-sm text-white/70" dir="ltr">
+            <StarIcon className="h-4 w-4 text-gold" />
+            <span className="font-semibold text-white">{REVIEW_SCORE.toFixed(1)}</span>
+            <span aria-hidden="true">·</span>
+            <span>
+              {compactReviews} {t.cart.reviews}
+            </span>
+          </div>
         </div>
       </div>
 
