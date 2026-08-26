@@ -18,6 +18,16 @@ const cta =
 /** Where a half-typed handle waits while the customer completes their account. */
 const DRAFT_KEY = "buyo_giveaway_handle";
 
+/**
+ * A floor as tall as the tallest state this component can render.
+ *
+ * It has four — signing in, the entry form, an ineligible account, and already entered — and it
+ * picks between them only after auth and a fetch resolve. Without a reserved height each of those
+ * swaps shoves the rest of the home page down, which is a layout shift charged against every
+ * visitor on the page that matters most.
+ */
+const RESERVED = "min-h-[13.5rem] sm:min-h-[8.5rem]";
+
 const ghost =
   "inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent";
 
@@ -91,7 +101,7 @@ export function GiveawayEntry() {
   // Guests (and any account whose state we could not read) get the sign-in path.
   if (authStatus !== "authed" || state === null) {
     return (
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className={`${RESERVED} flex flex-col gap-3 sm:flex-row sm:items-start`}>
         <Link href="/login?next=/" className={cta}>
           {g.cta}
           <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />
@@ -103,7 +113,7 @@ export function GiveawayEntry() {
 
   if (state.entered) {
     return (
-      <div className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 backdrop-blur-sm">
+      <div className={`${RESERVED} rounded-2xl border border-white/15 bg-white/[0.07] p-4 backdrop-blur-sm`}>
         <p className="flex items-center gap-2 text-sm font-semibold text-white">
           <CheckIcon className="h-5 w-5 shrink-0 text-gold" />
           {g.enteredTitle}
@@ -127,7 +137,7 @@ export function GiveawayEntry() {
   if (!state.eligible) {
     const missing = state.missing ?? [];
     return (
-      <div className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 backdrop-blur-sm">
+      <div className={`${RESERVED} rounded-2xl border border-white/15 bg-white/[0.07] p-4 backdrop-blur-sm`}>
         <p className="text-sm text-white/80">{g.needDetails}</p>
         {missing.length > 0 && (
           <ul className="mt-2 space-y-1 text-sm text-white/70">
@@ -148,7 +158,7 @@ export function GiveawayEntry() {
   }
 
   return (
-    <form onSubmit={submit} className="max-w-lg">
+    <form onSubmit={submit} className={`${RESERVED} max-w-lg`}>
       <label htmlFor="giveaway-handle" className="block text-sm font-semibold text-white">
         {g.handleLabel}
       </label>

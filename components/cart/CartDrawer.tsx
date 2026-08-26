@@ -170,7 +170,7 @@ function DrawerLine({ line }: { line: CartLine }) {
           // Catalogue photo through next/image — contained so the whole product shows.
           <Image
             src={detail.image}
-            alt=""
+            alt={detail.name}
             fill
             quality={75}
             sizes="64px"

@@ -3,6 +3,7 @@ import { Header } from "@/components/header/Header";
 import { Stories } from "@/components/home/Stories";
 import { GiveawayBanner } from "@/components/home/GiveawayBanner";
 import { RefurbishedIntro } from "@/components/home/RefurbishedIntro";
+import { HomeFaq } from "@/components/home/HomeFaq";
 import { CategoryBanners } from "@/components/home/CategoryBanners";
 import { FeatureStrip } from "@/components/home/FeatureStrip";
 // Flash-sale rail: mock data — parked until a real flash-sale feed exists.
@@ -54,6 +55,7 @@ export default function Home() {
         {/* Closing statement: what this shop actually sells, in the words people search for.
             It carries the page's H1, so it stays in the document even at the end. */}
         <RefurbishedIntro />
+        <HomeFaq />
       </main>
     </>
   );

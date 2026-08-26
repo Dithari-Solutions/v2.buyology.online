@@ -80,7 +80,11 @@ function postalAddress(): JsonLd {
 export function storeSchema(): JsonLd {
   return {
     "@context": "https://schema.org",
-    "@type": "Store",
+    // LocalBusiness rather than its subtype Store: both are correct, but tools that compare the
+    // type string do not walk the schema.org hierarchy, and the more precise word cost us the
+    // check. additionalType keeps the precision without relying on that resolution.
+    "@type": "LocalBusiness",
+    additionalType: "https://schema.org/Store",
     "@id": `${site.url}/#store`,
     name: "Buyology Factory Outlet",
     url: site.url,
@@ -186,6 +190,24 @@ export function productSchema(p: Product): JsonLd {
     };
   }
   return schema;
+}
+
+/**
+ * FAQPage — the markup behind an answer box.
+ *
+ * Google requires every question and answer here to be VISIBLE on the page, so this is built
+ * from the same array the section renders rather than a parallel copy that could drift.
+ */
+export function faqSchema(items: { q: string; a: string }[]): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
 }
 
 /** Convenience: everything the layout injects, as one @graph document. */

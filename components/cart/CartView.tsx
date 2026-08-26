@@ -48,7 +48,7 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
           <div className="absolute inset-0 animate-pulse bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
         ) : detail?.image?.startsWith("http") ? (
           // Catalogue photo through next/image — contained so the whole product shows.
-          <Image src={detail.image} alt="" fill quality={75} sizes="(min-width: 640px) 112px, 100vw" className="bg-white object-contain p-2" />
+          <Image src={detail.image} alt={detail.name} fill quality={75} sizes="(min-width: 640px) 112px, 100vw" className="bg-white object-contain p-2" />
         ) : (
           // No photo in the catalogue — a quiet placeholder, never a fake product image.
           <span className="absolute inset-0 flex items-center justify-center text-muted" aria-hidden="true">

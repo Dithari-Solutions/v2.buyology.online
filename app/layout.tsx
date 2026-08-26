@@ -135,6 +135,7 @@ export default async function RootLayout({
                   <GoogleAnalytics />
                   <ChatWidget />
                   <VisitTracker />
+                  <GoogleAnalytics />
                 </HideOnAuth>
                 <CartDrawer />
               </FlyProvider>

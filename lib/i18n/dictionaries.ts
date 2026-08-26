@@ -370,6 +370,19 @@ export interface Dict {
       error: string;
     };
   };
+  /** Home-page FAQ. Answers must match the pages they reference. */
+  faq: {
+    title: string;
+    subtitle: string;
+    q1: string; a1: string;
+    q2: string; a2: string;
+    q3: string; a3: string;
+    q4: string; a4: string;
+    q5: string; a5: string;
+    q6: string; a6: string;
+    helpCta: string;
+    contactCta: string;
+  };
   /** The header notification bell (signed-in customers). */
   notifications: {
     title: string;
@@ -1510,6 +1523,25 @@ const en: Dict = {
       closedNote: "This ticket is closed.",
       error: "Your reply didn't go through. Please try again.",
     },
+  },
+  faq: {
+    title: "Buying a refurbished laptop in the UAE",
+    subtitle:
+      "The questions worth asking before you buy refurbished — answered plainly.",
+    q1: "What does \u201Ccertified refurbished\u201D mean at Buyology?",
+    a1: "Every device is inspected and tested before it is listed, and graded on what it actually is rather than on a stock photo. You are buying a used machine that has been checked, not an unknown one.",
+    q2: "Is a refurbished laptop covered by warranty?",
+    a2: "Warranty cover depends on the product and its manufacturer, and the terms that apply are stated on the product page or included in the box. For a claim, contact support with your order number and we take it from there with the supplier or manufacturer.",
+    q3: "Which laptop brands do you sell?",
+    a3: "MacBooks, Dell, HP and Lenovo make up most of the catalogue, alongside other electronics. Availability changes as stock is inspected and listed, so the shop page is the accurate list.",
+    q4: "Do you deliver across the UAE?",
+    a4: "Yes — Dubai, Sharjah, Abu Dhabi and the rest of the Emirates, with delivery free over 100 AED. You pick the exact drop-off point on a map at checkout, because a pin gets a courier to a building when a written address often cannot.",
+    q5: "Can I pay in instalments?",
+    a5: "Yes. Alongside card payment you can split the cost with Tabby or Tamara, and the instalment amounts are shown on the product and cart pages before you commit.",
+    q6: "Can I see the laptops in person?",
+    a6: "Yes — Buyology Factory Outlet is at Industrial Area 17, Sharjah. You are welcome to inspect a device before buying it.",
+    helpCta: "Help centre",
+    contactCta: "Contact us",
   },
   notifications: {
     title: "Notifications",
@@ -2863,6 +2895,24 @@ const az: Dict = {
       closedNote: "Bu müraciət bağlanıb.",
       error: "Cavabınız göndərilmədi. Yenidən cəhd edin.",
     },
+  },
+  faq: {
+    title: "BƏS-də bərpa olunmuş noutbuk almaq",
+    subtitle: "Bərpa olunmuş cihaz almazdan əvvəl verilməli suallar — açıq cavablarla.",
+    q1: "Buyology-də \u201Csertifikatlı bərpa\u201D nə deməkdir?",
+    a1: "Hər cihaz siyahıya salınmazdan əvvəl yoxlanılır və test edilir, vəziyyəti isə şəkil üzrə deyil, real olduğu kimi qeyd olunur. Siz naməlum deyil, yoxlanılmış işlənmiş cihaz alırsınız.",
+    q2: "Bərpa olunmuş noutbuk zəmanətlə əhatə olunur?",
+    a2: "Zəmanət əhatəsi məhsuldan və istehsalçısından asılıdır; tətbiq olunan şərtlər məhsul səhifəsində və ya qutuda göstərilir. Müraciət üçün sifariş nömrənizlə dəstəyə yazın — qalanını təchizatçı və ya istehsalçı ilə biz həll edirik.",
+    q3: "Hansı noutbuk brendlərini satırsınız?",
+    a3: "Kataloqun böyük hissəsini MacBook, Dell, HP və Lenovo təşkil edir, digər elektronika ilə yanaşı. Mövcudluq anbara görə dəyişir, ona görə dəqiq siyahı mağaza səhifəsindədir.",
+    q4: "BƏS üzrə çatdırılma varmı?",
+    a4: "Bəli — Dubay, Şarja, Əbu-Dabi və digər əmirliklər; 100 AED-dən yuxarı sifarişlərdə çatdırılma pulsuzdur. Ödəniş zamanı dəqiq nöqtəni xəritədə seçirsiniz, çünki nişan kuryeri binaya yazılı ünvandan daha dəqiq aparır.",
+    q5: "Hissə-hissə ödəyə bilərəmmi?",
+    a5: "Bəli. Kart ödənişi ilə yanaşı Tabby və ya Tamara ilə bölə bilərsiniz; hissələrin məbləği məhsul və səbət səhifələrində əvvəlcədən göstərilir.",
+    q6: "Cihazları canlı görə bilərəmmi?",
+    a6: "Bəli — Buyology Factory Outlet Şarjada, Industrial Area 17 ünvanındadır. Almazdan əvvəl cihazı yoxlaya bilərsiniz.",
+    helpCta: "Yardım mərkəzi",
+    contactCta: "Bizimlə əlaqə",
   },
   notifications: {
     title: "Bildirişlər",
@@ -4230,6 +4280,24 @@ const ar: Dict = {
       closedNote: "هذه التذكرة مغلقة.",
       error: "لم يتم إرسال ردك. حاول مرة أخرى.",
     },
+  },
+  faq: {
+    title: "شراء لابتوب مجدد في الإمارات",
+    subtitle: "الأسئلة التي تستحق أن تُطرح قبل شراء جهاز مجدد — بإجابات واضحة.",
+    q1: "ماذا يعني \u201Cمجدد ومعتمد\u201D لدى Buyology؟",
+    a1: "يُفحص كل جهاز ويُختبر قبل عرضه، ويُصنّف بحسب حالته الفعلية لا بحسب صورة نمطية. أنت تشتري جهازاً مستعملاً تم فحصه، لا جهازاً مجهولاً.",
+    q2: "هل اللابتوب المجدد مشمول بضمان؟",
+    a2: "تعتمد تغطية الضمان على المنتج والشركة المصنّعة، والشروط المطبقة مذكورة في صفحة المنتج أو داخل العلبة. لأي مطالبة، تواصل مع الدعم برقم طلبك ونتولى الأمر مع المورّد أو المصنّع.",
+    q3: "ما ماركات اللابتوب التي تبيعونها؟",
+    a3: "يشكّل MacBook وDell وHP وLenovo معظم الكتالوج، إلى جانب إلكترونيات أخرى. يتغيّر التوفر مع فحص المخزون وعرضه، لذا صفحة المتجر هي القائمة الدقيقة.",
+    q4: "هل توصّلون إلى جميع أنحاء الإمارات؟",
+    a4: "نعم — دبي والشارقة وأبوظبي وبقية الإمارات، والتوصيل مجاني فوق 100 درهم. تحدد نقطة التسليم بدقة على الخريطة عند الدفع، لأن المؤشر يوصل المندوب إلى المبنى حين يعجز العنوان المكتوب.",
+    q5: "هل يمكنني الدفع على أقساط؟",
+    a5: "نعم. إلى جانب الدفع بالبطاقة يمكنك التقسيط عبر Tabby أو Tamara، وتظهر قيمة الأقساط في صفحة المنتج والسلة قبل الالتزام.",
+    q6: "هل يمكنني رؤية الأجهزة على الطبيعة؟",
+    a6: "نعم — Buyology Factory Outlet في المنطقة الصناعية 17، الشارقة. يمكنك فحص الجهاز قبل شرائه.",
+    helpCta: "مركز المساعدة",
+    contactCta: "اتصل بنا",
   },
   notifications: {
     title: "الإشعارات",

@@ -61,6 +61,7 @@ export async function GiveawayBanner() {
                 src="/mock/iphone-18-pro.png"
                 alt={t.giveaway.prize}
                 fill
+                priority
                 sizes="(min-width: 640px) 224px, 176px"
                 className="rotate-[12deg] object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.55)] rtl:-rotate-[12deg]"
               />
