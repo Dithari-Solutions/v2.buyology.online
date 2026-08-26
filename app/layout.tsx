@@ -13,6 +13,7 @@ import { WishlistProvider } from "@/components/wishlist/wishlist-provider";
 import { FlyProvider } from "@/components/fx/FlyProvider";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { VisitTracker } from "@/components/analytics/VisitTracker";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { Footer } from "@/components/footer/Footer";
 import { HideOnAuth } from "@/components/layout/HideOnAuth";
@@ -133,6 +134,7 @@ export default async function RootLayout({
                   <Footer />
                   <GoogleAnalytics />
                   <ChatWidget />
+                  <VisitTracker />
                 </HideOnAuth>
                 <CartDrawer />
               </FlyProvider>
