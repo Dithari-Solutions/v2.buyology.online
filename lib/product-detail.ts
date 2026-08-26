@@ -102,7 +102,7 @@ export const questions: Question[] = [
   {
     id: "q1",
     q: "Does it come with an international warranty?",
-    a: "Yes — every Buyology product includes a 2-year warranty that's valid across all our regions, plus 14-day free returns.",
+    a: "Yes — every Buyology product includes a 1-year warranty that's valid across all our regions, plus 14-day free returns.",
     asker: "Hassan",
     answerer: "Buyology",
     date: "3 weeks ago",
@@ -154,7 +154,7 @@ export function getSpecValues(p: Product) {
     brand: "Buyology",
     model: p.name,
     category: p.category,
-    warranty: "24 months",
+    warranty: "12 months",
     box: `${p.name}, USB-C cable, quick-start guide`,
     rating: `${p.rating.toFixed(1)} / 5`,
   };
