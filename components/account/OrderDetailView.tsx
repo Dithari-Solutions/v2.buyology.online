@@ -274,8 +274,16 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                       sessionStorage.setItem(PENDING_ORDER_KEY, order.id);
                     } catch { /* callback falls back to params */ }
                     window.location.href = pay.checkoutUrl;
-                  } catch {
-                    setError(t.checkout.placeFailed);
+                  } catch (err) {
+                    // The server says exactly why it refused — the address is incomplete, the
+                    // order already has a settled payment, the gateway rejected the request. The
+                    // old catch threw all of that away for "please try again", which is advice
+                    // that cannot work when the reason is something only the customer can fix.
+                    setError(
+                      err instanceof AuthError && err.message && err.status !== 0
+                        ? `${o.failed}: ${err.message}`
+                        : t.checkout.placeFailed,
+                    );
                     setBusy(false);
                   }
                 }}
