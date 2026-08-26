@@ -37,6 +37,9 @@ export function notificationRoute(type: string | null | undefined): string | nul
   switch (type) {
     case "ORDER_STATUS":
     case "REFUND_UPDATE":
+    // A payment that stalled — the message exists to get them back to the order's
+    // "complete payment" buttons, so an unroutable notification would defeat it.
+    case "PAYMENT_HELP":
       return "/account#orders";
     case "REPAIR_UPDATE":
       return "/repair/my";
