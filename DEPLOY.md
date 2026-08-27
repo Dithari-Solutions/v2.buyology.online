@@ -10,17 +10,17 @@ Build once, ship the same files to both servers, restart them close together.
 
 ```bash
 # On the build machine (or web-app-1), once:
-cd ~/v2.buyology.online
+cd ~/buyology-v2
 git pull
 npm ci                 # npm install only when dependencies actually changed
 npm run build
 
 # Merge the new assets in — see "Never delete the old static directory" below.
 cp -r .next/static/. .next/standalone/.next/static/
-cp -r public/.        .next/standalone/public/
+cp -r public/.        .next/standalone/public/     # trailing /. — see below
 
 # Ship the identical build to the other server, then restart both.
-rsync -a --delete .next/standalone/ web-app-2:~/v2.buyology.online/.next/standalone/
+rsync -a --delete .next/standalone/ web-app-2:~/buyology-v2/.next/standalone/
 pm2 restart buyology-v2                    # here
 ssh web-app-2 'pm2 restart buyology-v2'    # and there
 ```
@@ -50,6 +50,25 @@ Sweep the accumulation occasionally, well past any session that could still refe
 
 ```bash
 find .next/standalone/.next/static/chunks -type f -mtime +30 -delete
+```
+
+## The trailing `/.` is not a typo
+
+`cp -r public .next/standalone/public` copies the directory *into* the target when the target
+already exists, producing `.next/standalone/public/public` — and the site then serves none of it.
+It only looked correct because the old script deleted the destination first, so `cp` was always
+creating it fresh. Once we stop deleting, the form has to change with it:
+
+```bash
+cp -r public/. .next/standalone/public/                  # contents into the directory
+cp -r .next/static/. .next/standalone/.next/static/      # same rule
+```
+
+If a server has already been deployed with the old command, check for and remove the nested copy
+once:
+
+```bash
+rm -rf .next/standalone/public/public
 ```
 
 ## Why the gap between the two restarts matters
