@@ -6,6 +6,14 @@ import type { NextConfig } from "next";
 // chunks the other cannot serve → ChunkLoadError for every second visitor. Tying the
 // build ID to the commit keeps independent builds of the same commit consistent.
 // (Same fix, same reason, as the old storefront.)
+//
+// This is necessary but NOT sufficient, and it is worth being precise about why. Under Turbopack
+// the browser chunks are content-hashed straight into /_next/static/chunks/<hash>.js — the build
+// id namespaces the route and RSC manifests, not those files. So two things still break it:
+// deploying the servers one after another (each serves HTML the other cannot supply chunks for),
+// and a deploy step that removes the previous build's static directory instead of merging into it,
+// which strands every tab already holding older HTML. Both are properties of the deploy, not of
+// this config — see DEPLOY.md.
 function resolveBuildId(): string | null {
   if (process.env.NEXT_BUILD_ID) return process.env.NEXT_BUILD_ID;
   try {

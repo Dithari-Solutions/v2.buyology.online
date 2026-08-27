@@ -27,6 +27,32 @@ export default function AppError({
     console.error("[buyology] unhandled error", error);
   }, [error]);
 
+  // A chunk that 404s is not a broken page — it is a page whose HTML predates the build now on
+  // disk. Chunk filenames are content-hashed and NOT namespaced by build id, and each deploy
+  // replaces the static directory, so any tab holding older HTML asks for files that are gone.
+  // Reloading fetches current HTML and the matching chunks, which fixes it outright.
+  //
+  // Guarded by a timestamp rather than a bare flag: an unguarded reload loops forever when the
+  // asset is genuinely missing, while a permanent flag means the one self-heal a session gets is
+  // spent on the first occurrence and a deploy an hour later leaves the visitor stuck.
+  useEffect(() => {
+    const text = `${error.name} ${error.message}`;
+    const isChunkError =
+      /ChunkLoadError|Loading chunk|Failed to load chunk|dynamically imported module/i.test(text);
+    if (!isChunkError) return;
+
+    const KEY = "buyo_chunk_reload_at";
+    const COOLDOWN_MS = 10 * 60 * 1000;
+    try {
+      const last = Number(sessionStorage.getItem(KEY) ?? 0);
+      if (Number.isFinite(last) && Date.now() - last < COOLDOWN_MS) return;
+      sessionStorage.setItem(KEY, String(Date.now()));
+    } catch {
+      return; // no session storage (private mode) — never risk an unguarded reload loop
+    }
+    window.location.reload();
+  }, [error]);
+
   return (
     <main
       style={{ background: "var(--background)", color: "var(--foreground)" }}
