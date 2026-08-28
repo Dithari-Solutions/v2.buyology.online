@@ -9,6 +9,25 @@ import {
 const REGION_COOKIE = "buyo-region-choice";
 
 /**
+ * Search-engine and social crawlers, which are never geo-redirected.
+ *
+ * Googlebot crawls almost entirely from US IPs. Redirect it by IP and buyology.online serves it a
+ * 307 to the global landing on every request — Google then indexes a one-page welcome screen in
+ * place of the store, and the UAE site it was ranking disappears. Google's own guidance is not to
+ * redirect crawlers by location for exactly this reason.
+ *
+ * Matching on user-agent is spoofable, and deliberately so: the worst a forged bot string buys is
+ * a person abroad seeing the UAE storefront, which is the same thing the region-choice cookie
+ * already grants on request. Losing the search rankings is the incomparably larger risk.
+ */
+const CRAWLER_UA =
+  /(googlebot|bingbot|slurp|duckduckbot|baiduspider|yandex(bot|images)|applebot|petalbot|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|discordbot|embedly|quora link preview|pinterest|redditbot|slackbot|ia_archiver|ahrefsbot|semrushbot|screaming frog|lighthouse|chrome-lighthouse|gptbot|oai-searchbot|chatgpt-user|claudebot|perplexitybot|google-inspectiontool)/i;
+
+function isCrawler(req: NextRequest): boolean {
+  return CRAWLER_UA.test(req.headers.get("user-agent") ?? "");
+}
+
+/**
  * Region isolation at the door. nginx geolocates every visitor and forwards exactly two
  * headers — which it must SET unconditionally so clients cannot inject them:
  *   X-Geo-Country:   ISO alpha-2 of the visitor's IP country
@@ -26,6 +45,9 @@ const REGION_COOKIE = "buyo-region-choice";
 export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").toLowerCase();
   if (!isRoutedHost(host)) return NextResponse.next();
+
+  // Before any geo decision: a crawler is served whatever host it asked for. See CRAWLER_UA.
+  if (isCrawler(req)) return NextResponse.next();
 
   const geo = req.headers.get("x-geo-country");
   const anonymous = req.headers.get("x-geo-anonymous") === "1";
