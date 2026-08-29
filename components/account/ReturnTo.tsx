@@ -33,10 +33,13 @@ export function ReturnTo() {
   const target = DESTINATIONS[key];
   if (!target) return null;
 
-  // The giveaway needs to reach the winner; it does not need a billing name.
+  // The giveaway asks for a verified phone and nothing else — no billing name, and no address:
+  // entering is free, so every extra field at the door costs entries, and a winner can be asked
+  // for somewhere to send the prize once there is a winner. This list must stay in step with
+  // UserProfileService.missingForContactableAction, which is what actually gates the entry.
   const relevant =
     key === "giveaway"
-      ? ["phoneNumber", "phoneVerification", "deliveryAddress"]
+      ? ["phoneNumber", "phoneVerification"]
       : ["firstName", "phoneNumber", "phoneVerification", "deliveryAddress"];
   const missing = (profile?.missingFields ?? []).filter((f) => relevant.includes(f));
   const ready = profile != null && missing.length === 0;
