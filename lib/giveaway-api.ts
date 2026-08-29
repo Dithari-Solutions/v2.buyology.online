@@ -1,4 +1,5 @@
 import { authedJson } from "@/lib/auth/client";
+import { backendUrl } from "@/lib/backend";
 
 /**
  * The giveaway. Entry is per ACCOUNT (one entry per user, one per Instagram handle), so
@@ -15,7 +16,28 @@ export type GiveawayStatus = {
   /** Field names still to fill, e.g. ["phoneVerification", "deliveryAddress"]. */
   missing?: string[] | null;
   totalEntries?: number;
+  /** False once an admin closes the draw — every giveaway surface hides on this. */
+  open?: boolean;
 };
+
+/**
+ * Open/closed for anyone, signed in or not.
+ *
+ * <p>The home banner renders for guests, so the flag that hides it cannot itself require a
+ * token — a closed campaign would otherwise stay advertised to exactly the visitors who
+ * cannot be told it has ended.
+ */
+export async function fetchGiveawayCampaign(): Promise<GiveawayStatus | null> {
+  try {
+    const res = await fetch(backendUrl(`/api/giveaway/campaign`), { cache: "no-store" });
+    if (!res.ok) return null;
+    const envelope = await res.json();
+    return (envelope?.data ?? null) as GiveawayStatus | null;
+  } catch {
+    // Unreachable API: say nothing rather than guessing. Callers treat null as "don't render".
+    return null;
+  }
+}
 
 export function fetchGiveawayStatus(): Promise<GiveawayStatus> {
   return authedJson<GiveawayStatus>(`/api/giveaway/me`);

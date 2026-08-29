@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getDict } from "@/lib/i18n/server";
 import { GiveawayEntry } from "@/components/home/GiveawayEntry";
+import { fetchGiveawayCampaign } from "@/lib/giveaway-api";
 import { site } from "@/lib/site";
 import {
   InstagramIcon,
@@ -20,6 +21,13 @@ import {
  * (account first, so the follow can be matched to a winner).
  */
 export async function GiveawayBanner() {
+  // Checked before anything renders. A closed draw must not reach the page at all — hiding it in
+  // CSS would still ship the prize shot and the entry steps to every visitor, and this banner is
+  // the first thing on the home page. A null campaign (API unreachable) also renders nothing:
+  // silence is the safe answer when we cannot tell whether the draw is still running.
+  const campaign = await fetchGiveawayCampaign();
+  if (!campaign?.open) return null;
+
   const t = await getDict();
 
   const steps = [

@@ -38,6 +38,9 @@ function useGiveaway(): GiveawayStatus | null {
 export function GiveawayBadge() {
   const { t } = useI18n();
   const state = useGiveaway();
+  // A closed draw takes its surfaces with it, entered or not — the entry still stands and is in
+  // the admin entry list, but the storefront stops carrying a campaign that has ended.
+  if (state && state.open === false) return null;
   if (!state?.entered) return null;
   return (
     <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-0.5 text-[11px] font-semibold text-warn dark:text-gold">
@@ -55,6 +58,9 @@ export function GiveawayBadge() {
 export function GiveawayProfileCard() {
   const { t, locale } = useI18n();
   const state = useGiveaway();
+  // A closed draw takes its surfaces with it, entered or not — the entry still stands and is in
+  // the admin entry list, but the storefront stops carrying a campaign that has ended.
+  if (state && state.open === false) return null;
   if (!state?.entered || !state.instagramHandle) return null;
 
   const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
