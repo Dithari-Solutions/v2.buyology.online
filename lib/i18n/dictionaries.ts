@@ -1045,6 +1045,22 @@ export interface Dict {
     cta: string;
     warrantyCta: string;
   };
+  news: {
+    home: string;
+    eyebrow: string;
+    title: string;
+    intro: string;
+    metaTitle: string;
+    metaDescription: string;
+    empty: string;
+    readMore: string;
+    backToAll: string;
+    published: string;
+    notFound: string;
+    gallery: string;
+    subscribeTitle: string;
+    subscribeBody: string;
+  };
   giveaway: {
     eyebrow: string;
     title: string;
@@ -2411,6 +2427,22 @@ const en: Dict = {
     point3Body: "Delivered across Dubai, Sharjah and Abu Dhabi, with tracking from dispatch.",
     cta: "Shop refurbished laptops",
     warrantyCta: "How the warranty works",
+  },
+  news: {
+    home: "Home",
+    eyebrow: "Announcements",
+    title: "What's new at Buyology",
+    intro: "Giveaways, launches and service updates — the things worth telling you about, in one place.",
+    metaTitle: "Announcements — Buyology",
+    metaDescription: "Giveaways, product launches and service updates from Buyology in the UAE.",
+    empty: "Nothing announced yet. Check back soon.",
+    readMore: "Read the announcement",
+    backToAll: "All announcements",
+    published: "Published",
+    notFound: "That announcement doesn't exist, or hasn't been published yet.",
+    gallery: "More images",
+    subscribeTitle: "Get these by email",
+    subscribeBody: "Join the newsletter and we'll send new announcements as they go out.",
   },
   giveaway: {
     eyebrow: "Giveaway",
@@ -3798,6 +3830,22 @@ const az: Dict = {
     cta: "Bərpa olunmuş noutbuklara bax",
     warrantyCta: "Zəmanət necə işləyir",
   },
+  news: {
+    home: "Ana səhifə",
+    eyebrow: "Elanlar",
+    title: "Buyology-də nə var yeni",
+    intro: "Hədiyyə çəkilişləri, yeni məhsullar və xidmət yenilikləri — deməyə dəyən hər şey bir yerdə.",
+    metaTitle: "Elanlar — Buyology",
+    metaDescription: "BƏƏ-də Buyology-dən hədiyyə çəkilişləri, yeni məhsullar və xidmət yenilikləri.",
+    empty: "Hələ elan yoxdur. Bir azdan yenidən bax.",
+    readMore: "Elanı oxu",
+    backToAll: "Bütün elanlar",
+    published: "Dərc olunub",
+    notFound: "Belə bir elan yoxdur və ya hələ dərc olunmayıb.",
+    gallery: "Digər şəkillər",
+    subscribeTitle: "Bunları e-poçtla al",
+    subscribeBody: "Bültenə qoşul — yeni elanları dərc olunan kimi göndərəcəyik.",
+  },
   giveaway: {
     eyebrow: "Hədiyyə kampaniyası",
     title: "Qazan",
@@ -5166,6 +5214,22 @@ const ar: Dict = {
     point3Body: "توصيل إلى دبي والشارقة وأبوظبي مع تتبّع من لحظة الشحن.",
     cta: "تسوّق اللابتوبات المجددة",
     warrantyCta: "كيف يعمل الضمان",
+  },
+  news: {
+    home: "الرئيسية",
+    eyebrow: "الإعلانات",
+    title: "الجديد في Buyology",
+    intro: "سحوبات وإطلاقات وتحديثات الخدمة — كل ما يستحق أن نخبرك به، في مكان واحد.",
+    metaTitle: "الإعلانات — Buyology",
+    metaDescription: "سحوبات وإطلاقات منتجات وتحديثات خدمة من Buyology في الإمارات.",
+    empty: "لا توجد إعلانات بعد. عد قريبًا.",
+    readMore: "اقرأ الإعلان",
+    backToAll: "كل الإعلانات",
+    published: "نُشر",
+    notFound: "هذا الإعلان غير موجود أو لم يُنشر بعد.",
+    gallery: "صور إضافية",
+    subscribeTitle: "استلمها عبر البريد",
+    subscribeBody: "اشترك في النشرة وسنرسل الإعلانات الجديدة فور صدورها.",
   },
   giveaway: {
     eyebrow: "سحب وجوائز",
