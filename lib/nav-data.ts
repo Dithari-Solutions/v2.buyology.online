@@ -15,6 +15,7 @@ import {
   WalletIcon,
   WatchIcon,
   WrenchIcon,
+  MegaphoneIcon,
 } from "@/components/icons";
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;
@@ -52,6 +53,14 @@ export const services: NavItem[] = [
     icon: WalletIcon,
     hint: "Sell your device for cash",
     keywords: "sell trade cash buy-back device sat بيع",
+  },
+  {
+    key: "svc-announcements",
+    label: "Announcements",
+    href: "/news",
+    icon: MegaphoneIcon,
+    hint: "Giveaways, launches and updates",
+    keywords: "news blog announcement giveaway update launch elan خبر إعلان",
   },
   {
     key: "svc-rent",

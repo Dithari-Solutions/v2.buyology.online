@@ -12,6 +12,7 @@ import {
 } from "@/components/icons";
 import { WHO_WE_ARE_URL } from "@/lib/site";
 import { useI18n } from "@/components/i18n/language-provider";
+import { AnnouncementsBadge } from "@/components/header/AnnouncementsBadge";
 
 /**
  * Primary navigation (row 3): Buyology's signature services lead the bar, with
@@ -140,6 +141,9 @@ export function PrimaryNav() {
                 >
                   <Icon className="h-4 w-4 text-brand-icon" />
                   {t.items[s.key].label}
+                  {/* Only announcements carry a count — the other services have nothing to be
+                      "new" about. */}
+                  {s.key === "svc-announcements" && <AnnouncementsBadge />}
                 </Link>
               </li>
             );

@@ -192,6 +192,17 @@ export function TagIcon(props: IconProps) {
   );
 }
 
+/** Announcements. A megaphone, deliberately not a bell — the header already has one of those. */
+export function MegaphoneIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m3 11 15-6v14L3 13Z" />
+      <path d="M3 11v2a2 2 0 0 0 2 2h1v4a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-4" />
+      <path d="M18 9.5a2.5 2.5 0 0 1 0 5" />
+    </Icon>
+  );
+}
+
 export function HeadphonesIcon(props: IconProps) {
   return (
     <Icon {...props}>

@@ -9,6 +9,7 @@ import { NotificationBell } from "@/components/header/NotificationBell";
 import { PrimaryNav } from "@/components/header/PrimaryNav";
 import { AnnouncementBar } from "@/components/header/AnnouncementBar";
 import { buyobot, services } from "@/lib/nav-data";
+import { AnnouncementsBadge } from "@/components/header/AnnouncementsBadge";
 import { categoryHref, useLiveCategories } from "@/lib/live-categories";
 import { WHO_WE_ARE_URL } from "@/lib/site";
 import {
@@ -173,6 +174,7 @@ export function Header() {
                       >
                         <Icon className="h-[18px] w-[18px] text-brand-icon" />
                         {t.items[s.key].label}
+                        {s.key === "svc-announcements" && <AnnouncementsBadge />}
                       </Link>
                     </li>
                   );

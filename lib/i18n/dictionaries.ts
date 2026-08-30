@@ -1890,6 +1890,7 @@ const en: Dict = {
     "nav-all": { label: "All Categories", hint: "Browse the full catalogue" },
     "svc-repair": { label: "Repair", hint: "Book a device repair" },
     "svc-sell": { label: "Sell", hint: "Sell your device for cash" },
+    "svc-announcements": { label: "Announcements", hint: "Giveaways, launches and updates" },
     "svc-rent": { label: "Rent", hint: "Rent tech by the day" },
     "svc-powerbank": {
       label: "Powerbank Stations",
@@ -3280,6 +3281,7 @@ const az: Dict = {
     },
     "svc-repair": { label: "Təmir", hint: "Cihaz təmiri sifariş et" },
     "svc-sell": { label: "Sat", hint: "Cihazını nağd pula sat" },
+    "svc-announcements": { label: "Elanlar", hint: "Çəkilişlər, yeniliklər və məlumatlar" },
     "svc-rent": { label: "İcarə", hint: "Texnikanı günlük icarəyə götür" },
     "svc-powerbank": {
       label: "Powerbank Stansiyaları",
@@ -4677,6 +4679,7 @@ const ar: Dict = {
     "nav-all": { label: "كل الفئات", hint: "تصفّح الكتالوج بالكامل" },
     "svc-repair": { label: "إصلاح", hint: "احجز إصلاح جهاز" },
     "svc-sell": { label: "بيع", hint: "بِع جهازك نقدًا" },
+    "svc-announcements": { label: "الإعلانات", hint: "سحوبات وإطلاقات وتحديثات" },
     "svc-rent": { label: "تأجير", hint: "استأجر الأجهزة يوميًا" },
     "svc-powerbank": { label: "محطات الشحن", hint: "اعثر على محطة شحن" },
     "svc-diy": { label: "اصنعها بنفسك", hint: "أطقم وتجميع ذاتي" },
