@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useAuth } from "@/components/auth/auth-provider";
-import { AuthError, saveProfileNames } from "@/lib/auth/client";
+import { AuthError, saveProfileNames, updateProfile } from "@/lib/auth/client";
 import {
   AuthField,
   AuthPassword,
@@ -13,6 +13,8 @@ import {
   AuthSocial,
 } from "@/components/auth/auth-ui";
 import { OtpInput } from "@/components/auth/OtpInput";
+import { sendPhoneOtp, verifyPhone } from "@/lib/account-api";
+import { enterGiveaway, fetchGiveawayCampaign } from "@/lib/giveaway-api";
 import { FileUpload } from "@/components/auth/FileUpload";
 import { BuildingIcon, ChevronLeftIcon, UserIcon } from "@/components/icons";
 
@@ -50,6 +52,15 @@ export function SignupForm() {
   const [otp, setOtp] = useState("");
   const [resendIn, setResendIn] = useState(0);
   const [businessNotice, setBusinessNotice] = useState(false);
+  // Giveaway on sign-up. Collapsed by default: creating an account is the job of this form, and a
+  // prize draw must not be what stands between someone and doing it.
+  const [wantsGiveaway, setWantsGiveaway] = useState(false);
+  const [gPhone, setGPhone] = useState("");
+  const [gHandle, setGHandle] = useState("");
+  // The phone still has to be confirmed by SMS, and that cannot happen before an account exists —
+  // so sign-up records the intent and this step runs straight after the email code.
+  const [gStep, setGStep] = useState<null | { uid: string }>(null);
+  const [gOtp, setGOtp] = useState("");
   // Held in memory for the OTP step (verify + resend). Deliberately not persisted anywhere.
   const [pending, setPending] = useState<{
     firstName: string;
@@ -101,6 +112,10 @@ export function SignupForm() {
       email: String(fd.get("email") ?? "").trim(),
       password: String(fd.get("password") ?? ""),
     };
+    if (wantsGiveaway && (!gPhone.trim() || !gHandle.trim())) {
+      setError(t.giveaway.signupIncomplete);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -127,10 +142,53 @@ export function SignupForm() {
       if (claims.uid && (pending.firstName || pending.lastName)) {
         await saveProfileNames(claims.uid, pending.firstName, pending.lastName);
       }
+      // Entering needs a VERIFIED phone — that is the rule stopping one person entering from
+      // several accounts — so hold here for the code rather than navigating away.
+      if (claims.uid && wantsGiveaway && gPhone.trim() && gHandle.trim()) {
+        try {
+          await updateProfile(claims.uid, { phoneNumber: gPhone.trim() });
+          await sendPhoneOtp(claims.uid, gPhone.trim());
+          setGStep({ uid: claims.uid });
+          setBusy(false);
+          return;
+        } catch {
+          // The account is real and usable; only the draw entry failed. Carry on rather than
+          // stranding them on a form for something optional.
+          router.push(destination());
+          return;
+        }
+      }
       router.push(destination());
     } catch (err) {
       setError(otpErrorFor(err));
       setBusy(false);
+    }
+  }
+
+  // Only offered while a draw is actually running — a closed campaign must not be advertised.
+  const [giveawayOpen, setGiveawayOpen] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    fetchGiveawayCampaign()
+      .then((c) => { if (!cancelled) setGiveawayOpen(c?.open === true); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  async function onVerifyPhoneAndEnter(e: React.FormEvent) {
+    e.preventDefault();
+    if (!gStep || gOtp.length !== 6) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await verifyPhone(gStep.uid, gPhone.trim(), gOtp);
+      await enterGiveaway(gHandle.trim().replace(/^@/, ""));
+    } catch {
+      // Both the account and, by now, possibly the phone are real. A failed entry is not a failed
+      // sign-up, so it must not read like one — they land in the account either way.
+    } finally {
+      setBusy(false);
+      router.push(destination());
     }
   }
 
@@ -152,6 +210,41 @@ export function SignupForm() {
     `flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
       on ? "bg-surface text-foreground shadow-sm" : "text-muted hover:text-foreground"
     }`;
+
+  // ── Giveaway phone step: after the email code, before the account page ──
+  if (gStep) {
+    return (
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          {t.giveaway.verifyPhoneTitle}
+        </h1>
+        <p className="mt-1.5 text-sm text-muted">
+          {t.giveaway.verifyPhoneBody.replace("{{phone}}", gPhone)}
+        </p>
+        <form onSubmit={onVerifyPhoneAndEnter} className="mt-6 space-y-4">
+          <OtpInput value={gOtp} onChange={setGOtp} />
+          {error && (
+            <p role="alert" className="text-sm text-red-700 dark:text-red-400">{error}</p>
+          )}
+          <button
+            type="submit"
+            disabled={busy || gOtp.length !== 6}
+            className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy ? a.loading : t.giveaway.enterCta}
+          </button>
+          {/* Skipping leaves the account intact and simply unentered. */}
+          <button
+            type="button"
+            onClick={() => router.push(destination())}
+            className="w-full text-sm font-medium text-muted hover:text-foreground"
+          >
+            {t.giveaway.skipForNow}
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   // ── OTP step ──
   if (step === "otp" && pending) {
@@ -361,6 +454,61 @@ export function SignupForm() {
           <p role="alert" className="text-sm text-red-600 dark:text-red-400">
             {error}
           </p>
+        )}
+
+        {giveawayOpen && (
+          <div className="rounded-2xl border border-border bg-surface-2 p-3">
+            <button
+              type="button"
+              onClick={() => setWantsGiveaway((v) => !v)}
+              aria-expanded={wantsGiveaway}
+              className="flex w-full items-center justify-between gap-3 text-start"
+            >
+              <span>
+                <span className="block text-sm font-semibold text-brand-icon">
+                  {t.giveaway.signupCta}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted">{t.giveaway.signupHint}</span>
+              </span>
+              <span aria-hidden="true" className="text-brand-icon">{wantsGiveaway ? "−" : "+"}</span>
+            </button>
+
+            {wantsGiveaway && (
+              <div className="mt-3 space-y-3">
+                {/* Stated up front, not after they have entered: following is a condition of the
+                    draw, and finding that out later feels like a bait and switch. */}
+                <p className="rounded-xl bg-surface px-3 py-2 text-xs leading-relaxed text-muted">
+                  {t.giveaway.followRequirement}{" "}
+                  <a
+                    href="https://instagram.com/buyology.online"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-brand-icon underline"
+                  >
+                    @buyology.online
+                  </a>
+                </p>
+                <input
+                  type="tel"
+                  value={gPhone}
+                  onChange={(e) => setGPhone(e.target.value)}
+                  placeholder="+971 5X XXX XXXX"
+                  aria-label={t.giveaway.phoneLabel}
+                  className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                />
+                <input
+                  type="text"
+                  value={gHandle}
+                  onChange={(e) => setGHandle(e.target.value)}
+                  placeholder={t.giveaway.handleLabel}
+                  autoCapitalize="none"
+                  aria-label={t.giveaway.handleLabel}
+                  className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                />
+                <p className="text-xs text-muted">{t.giveaway.signupVerifyNote}</p>
+              </div>
+            )}
+          </div>
         )}
 
         <label className="flex items-start gap-2.5 text-sm text-muted">

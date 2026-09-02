@@ -1062,6 +1062,16 @@ export interface Dict {
     subscribeBody: string;
   };
   giveaway: {
+    signupCta: string;
+    signupHint: string;
+    signupIncomplete: string;
+    signupVerifyNote: string;
+    followRequirement: string;
+    phoneLabel: string;
+    verifyPhoneTitle: string;
+    verifyPhoneBody: string;
+    enterCta: string;
+    skipForNow: string;
     eyebrow: string;
     title: string;
     prize: string;
@@ -2446,6 +2456,16 @@ const en: Dict = {
     subscribeBody: "Join the newsletter and we'll send new announcements as they go out.",
   },
   giveaway: {
+    signupCta: "Enter the giveaway",
+    signupHint: "Add your phone and Instagram to join the draw",
+    signupIncomplete: "Enter both your phone number and your Instagram username, or close this section.",
+    signupVerifyNote: "We'll text you a code to confirm this number right after you verify your email.",
+    followRequirement: "One condition: follow us on Instagram at",
+    phoneLabel: "Phone number",
+    verifyPhoneTitle: "Confirm your phone",
+    verifyPhoneBody: "One last step to enter the giveaway — we sent a code to {{phone}}.",
+    enterCta: "Confirm and enter",
+    skipForNow: "Skip for now",
     eyebrow: "Giveaway",
     title: "Win the",
     prize: "iPhone 18 Pro",
@@ -3849,6 +3869,16 @@ const az: Dict = {
     subscribeBody: "Bültenə qoşul — yeni elanları dərc olunan kimi göndərəcəyik.",
   },
   giveaway: {
+    signupCta: "Çəkilişə qatıl",
+    signupHint: "Qatılmaq üçün nömrəni və Instagram hesabını əlavə et",
+    signupIncomplete: "Həm telefon nömrəni, həm Instagram adını yaz və ya bu bölməni bağla.",
+    signupVerifyNote: "E-poçtunu təsdiqlədikdən dərhal sonra bu nömrəyə kod göndərəcəyik.",
+    followRequirement: "Bir şərt: bizi Instagram-da izlə —",
+    phoneLabel: "Telefon nömrəsi",
+    verifyPhoneTitle: "Nömrəni təsdiqlə",
+    verifyPhoneBody: "Çəkilişə qatılmaq üçün son addım — {{phone}} nömrəsinə kod göndərdik.",
+    enterCta: "Təsdiqlə və qatıl",
+    skipForNow: "İndilik keç",
     eyebrow: "Hədiyyə kampaniyası",
     title: "Qazan",
     prize: "iPhone 18 Pro",
@@ -5235,6 +5265,16 @@ const ar: Dict = {
     subscribeBody: "اشترك في النشرة وسنرسل الإعلانات الجديدة فور صدورها.",
   },
   giveaway: {
+    signupCta: "ادخل السحب",
+    signupHint: "أضف رقمك وحساب إنستغرام للدخول في السحب",
+    signupIncomplete: "أدخل رقم هاتفك واسم إنستغرام معًا، أو أغلق هذا القسم.",
+    signupVerifyNote: "سنرسل لك رمزًا لتأكيد هذا الرقم مباشرة بعد تأكيد بريدك الإلكتروني.",
+    followRequirement: "شرط واحد: تابعنا على إنستغرام على",
+    phoneLabel: "رقم الهاتف",
+    verifyPhoneTitle: "أكّد رقم هاتفك",
+    verifyPhoneBody: "خطوة أخيرة لدخول السحب — أرسلنا رمزًا إلى {{phone}}.",
+    enterCta: "أكّد وادخل",
+    skipForNow: "تخطَّ الآن",
     eyebrow: "سحب وجوائز",
     title: "اربح",
     prize: "iPhone 18 Pro",
