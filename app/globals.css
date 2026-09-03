@@ -216,6 +216,29 @@ main {
   animation: buyo-panel-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Promo sheet: rises from the bottom edge on a phone, where it is docked there, and settles
+   in place on a wider screen, where it is a centred card and has no edge to rise from. */
+@keyframes buyo-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.buyo-sheet {
+  animation: buyo-sheet-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  .buyo-sheet {
+    animation: buyo-panel-in 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
 /* Cart drawer slide-in (anchored to the right). */
 @keyframes buyo-drawer-in {
   from {

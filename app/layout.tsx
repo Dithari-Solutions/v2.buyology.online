@@ -17,6 +17,7 @@ import { VisitTracker } from "@/components/analytics/VisitTracker";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { Footer } from "@/components/footer/Footer";
 import { HideOnAuth } from "@/components/layout/HideOnAuth";
+import { GiveawayPromo } from "@/components/home/GiveawayPromo";
 
 // Raleway is the site typeface, carrying both body and headings. This
 // supersedes the Brand Identity Guidelines (Biennale for display, Manrope for
@@ -132,11 +133,11 @@ export default async function RootLayout({
                 {children}
                 <HideOnAuth>
                   <Footer />
-                  <GoogleAnalytics />
                   <ChatWidget />
                   <VisitTracker />
                   <GoogleAnalytics />
                 </HideOnAuth>
+                <GiveawayPromo />
                 <CartDrawer />
               </FlyProvider>
             </WishlistProvider>

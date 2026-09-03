@@ -1098,6 +1098,8 @@ export interface Dict {
     fields: Record<string, string>;
     goToAccount: string;
     entrantBadge: string;
+    promoClose: string;
+    promoDismiss: string;
     note: string;
   };
   notFound: {
@@ -2497,6 +2499,8 @@ const en: Dict = {
     },
     goToAccount: "Go to my account",
     entrantBadge: "Giveaway entrant",
+    promoClose: "Close",
+    promoDismiss: "Maybe later",
     note: "The iPhone 18 Pro will be given away in the first week of its release date.",
   },
   notFound: {
@@ -3910,6 +3914,8 @@ const az: Dict = {
     },
     goToAccount: "Hesabıma keç",
     entrantBadge: "Püşkatma iştirakçısı",
+    promoClose: "Bağla",
+    promoDismiss: "Bəlkə sonra",
     note: "iPhone 18 Pro təqdimat tarixindən sonrakı ilk həftə ərzində hədiyyə ediləcək.",
   },
   notFound: {
@@ -5306,6 +5312,8 @@ const ar: Dict = {
     },
     goToAccount: "الانتقال إلى حسابي",
     entrantBadge: "مشارك في السحب",
+    promoClose: "إغلاق",
+    promoDismiss: "ربما لاحقًا",
     note: "سيتم تسليم iPhone 18 Pro خلال الأسبوع الأول من تاريخ إطلاقه.",
   },
   notFound: {
