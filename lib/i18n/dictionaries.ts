@@ -709,6 +709,7 @@ export interface Dict {
       phoneResultOne: string;
       phoneVerifiedLabel: string;
       phoneUnverifiedLabel: string;
+      phoneVerifyUnavailable: string;
       phoneVerifyCta: string;
       photo: string;
       photoHint: string;
@@ -2066,6 +2067,7 @@ const en: Dict = {
       phoneResultOne: "country",
       phoneVerifiedLabel: "Verified",
       phoneUnverifiedLabel: "Not verified",
+      phoneVerifyUnavailable: "SMS verification is paused right now. You do not need to do anything — we will confirm your number once it is back.",
       phoneVerifyCta: "Verify now",
       photo: "Profile photo",
       photoHint: "Optional. PNG, JPG or WebP, up to 5 MB.",
@@ -3481,6 +3483,7 @@ const az: Dict = {
       phoneResultOne: "ölkə",
       phoneVerifiedLabel: "Təsdiqlənib",
       phoneUnverifiedLabel: "Təsdiqlənməyib",
+      phoneVerifyUnavailable: "SMS təsdiqi hazırda dayandırılıb. Heç nə etməyinizə ehtiyac yoxdur — bərpa olunan kimi nömrənizi təsdiqləyəcəyik.",
       phoneVerifyCta: "İndi təsdiqlə",
       photo: "Profil şəkli",
       photoHint: "İstəyə bağlı. PNG, JPG və ya WebP, 5 MB-a qədər.",
@@ -4879,6 +4882,7 @@ const ar: Dict = {
       phoneResultOne: "دولة",
       phoneVerifiedLabel: "موثّق",
       phoneUnverifiedLabel: "غير موثّق",
+      phoneVerifyUnavailable: "تعذّر التحقق عبر الرسائل القصيرة حالياً. لا حاجة لأي إجراء منك — سنؤكّد رقمك فور عودة الخدمة.",
       phoneVerifyCta: "التوثيق الآن",
       photo: "صورة الملف الشخصي",
       photoHint: "اختياري. PNG أو JPG أو WebP، حتى 5 ميغابايت.",

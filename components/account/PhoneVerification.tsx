@@ -32,9 +32,26 @@ export function PhoneVerification() {
 
   const phone = profile?.phoneNumber?.trim() ?? "";
   const verified = profile?.phoneVerified === true;
+  // Absent on an older payload: assume verification works, which is the long-run normal.
+  const canVerify = profile?.phoneVerificationAvailable !== false;
 
   // Nothing to verify until a number is saved.
   if (!phone) return null;
+
+  // Unverified, and nothing the customer can do about it — say both plainly. Hiding the state
+  // would leave them wondering why the giveaway or checkout treats their number as unconfirmed;
+  // offering the button anyway would fail every time they pressed it.
+  if (!verified && !canVerify) {
+    return (
+      <div className="mt-2 rounded-xl border border-border bg-surface-2 p-3">
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-warn dark:text-gold">
+          <PhoneIcon className="h-3.5 w-3.5 shrink-0" />
+          {p.phoneUnverifiedLabel}
+        </p>
+        <p className="mt-1 text-xs text-muted">{p.phoneVerifyUnavailable}</p>
+      </div>
+    );
+  }
 
   if (verified) {
     return (

@@ -192,6 +192,12 @@ export type Profile = {
   lastName?: string | null;
   phoneNumber?: string | null;
   phoneVerified?: boolean;
+  /**
+   * Whether the customer can act on an unverified number right now. False while verification SMS
+   * is switched off — the number stays unverified and we still say so, but we do not offer a
+   * button that cannot succeed.
+   */
+  phoneVerificationAvailable?: boolean;
   /** Server-computed: everything an order (or a prize delivery) needs is on file. */
   paymentReady?: boolean;
   /** What is still missing: firstName | phoneNumber | phoneVerification | deliveryAddress. */
