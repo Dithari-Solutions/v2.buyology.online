@@ -44,6 +44,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "eu2.contabostorage.com", pathname: "/ecommerce-storage/**" },
       { protocol: "https", hostname: "usc1.contabostorage.com", pathname: "/buyology-dev/**" },
+      // Images are served through our own CDN hostname so the browser never negotiates TLS with
+      // contabostorage.com, whose chain roots in a CA that older Android and iOS do not carry —
+      // those devices were failing every image while the site itself loaded. Both origin hosts
+      // stay listed so anything still holding an old URL keeps working.
+      { protocol: "https", hostname: "cdn.buyology.online", pathname: "/**" },
     ],
     // Floor for upstream responses that carry no Cache-Control (non-product presigns).
     minimumCacheTTL: 3600,
