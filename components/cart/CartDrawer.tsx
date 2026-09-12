@@ -18,7 +18,7 @@ import { BagIcon, CloseIcon } from "@/components/icons";
  */
 export function CartDrawer() {
   const { t } = useI18n();
-  const { items, count, subtotal, currency, isOpen, close } = useCart();
+  const { items, count, subtotal, currency, isOpen, close, syncError, syncErrorMessage } = useCart();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -92,6 +92,19 @@ export function CartDrawer() {
             <CloseIcon className="h-5 w-5" />
           </button>
         </div>
+
+        {/* The drawer opens optimistically the moment something is added, so when the server
+            refuses — a store outside the shopper's country, a stock limit — the line simply
+            vanishes again on the re-sync. Silently removing it is what makes a working rule look
+            like a broken basket, so the reason is said here and not only on the cart page. */}
+        {syncError && (
+          <p
+            className="mx-4 mt-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm text-warn dark:text-gold"
+            role="status"
+          >
+            {syncErrorMessage ?? t.cart.syncErrorNote}
+          </p>
+        )}
 
         {items.length === 0 ? (
           /* Empty state */
