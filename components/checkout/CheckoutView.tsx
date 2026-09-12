@@ -28,6 +28,8 @@ import {
   fetchPickupStores,
   initiatePayment,
   validatePromo,
+  fetchCashOnDeliveryAvailability,
+  type CashOnDeliveryAvailability,
   type PaymentMethod,
   type PromoValidation,
   type PublicStore,
@@ -38,6 +40,7 @@ import { currentMarket } from "@/lib/market";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import {
+  BanknotesIcon,
   ChevronLeftIcon,
   CreditCardIcon,
   MapPinIcon,
@@ -92,7 +95,10 @@ export function CheckoutView() {
   const [addressId, setAddressId] = useState<string | null>(null);
   const [pickupStoreId, setPickupStoreId] = useState<string | null>(null);
   const [method, setMethod] = useState<Method>("REGULAR");
-  const [payMethod, setPayMethod] = useState<PaymentMethod>("CARD");
+  // "COD" is not a gateway method — it is the absence of one. Kept in the same radio group
+  // because to the customer it is simply another way to pay, and mapped back at submit time.
+  const [payMethod, setPayMethod] = useState<PaymentMethod | "COD">("CARD");
+  const [cod, setCod] = useState<CashOnDeliveryAvailability | null>(null);
 
   const [promoCode, setPromoCode] = useState("");
   const [promo, setPromo] = useState<(PromoValidation & { code: string }) | null>(null);
@@ -248,7 +254,38 @@ export function CheckoutView() {
   const discount = promo?.valid
     ? Math.min(promo.discountAmount ?? 0, subtotal + (shownFee ?? 0))
     : 0;
-  const total = Math.max(0, subtotal + (shownFee ?? 0) - discount);
+  const netTotal = Math.max(0, subtotal + (shownFee ?? 0) - discount);
+  // The rate is quoted by the server (the cart for a normal checkout, the delivery quote for Buy
+  // Now). The page only applies the arithmetic the server has already agreed to; where no rate
+  // came back, no VAT line is shown and no tax is added.
+  const vatRate = buyNow ? bnQuote?.vatRatePercent ?? null : cart.fees?.vatRatePercent ?? null;
+  const vatAmount = vatRate != null ? Math.round(netTotal * vatRate) / 100 : 0;
+  const total = netTotal + vatAmount;
+
+  // Is cash on offer for this exact checkout? Re-asked as the total moves, because the answer
+  // depends on it: the ceiling is per order. Selecting cash and then adding an item that pushes
+  // the basket over the limit must take the option away again rather than fail at submit.
+  const codCountry = effectiveFulfilment === "PICKUP" ? null : address?.country ?? null;
+  useEffect(() => {
+    if (authStatus !== "authed" || total <= 0 || !currency) return;
+    let cancelled = false;
+    fetchCashOnDeliveryAvailability(codCountry, total, currency)
+      .then((a) => {
+        if (cancelled) return;
+        setCod(a);
+        // Never leave the customer on an option that is no longer offered.
+        if (!a.available) setPayMethod((m) => (m === "COD" ? "CARD" : m));
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCod(null);
+          setPayMethod((m) => (m === "COD" ? "CARD" : m));
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [authStatus, total, currency, codCountry]);
 
   const bnCountry = address?.country ?? null;
   useEffect(() => {
@@ -343,7 +380,9 @@ export function CheckoutView() {
           const stored = JSON.parse(sessionStorage.getItem(BUYNOW_ORDER_KEY) ?? "null") as
             | { key: string; orderId: string }
             | null;
-          if (stored?.key === intentKey && stored.orderId) {
+          // Cash has no gateway leg to resume — a stranded cash order is left to the backend's
+          // supersede rather than pushed at a payment page that would charge for it twice.
+          if (payMethod !== "COD" && stored?.key === intentKey && stored.orderId) {
             const pay = await repayOrder(stored.orderId, {
               methodType: payMethod,
               redirectionUrl: `${window.location.origin}/payment/callback`,
@@ -371,6 +410,7 @@ export function CheckoutView() {
           addressId: addressId!,
           deliveryMethod: effectiveMethod,
           couponCode: coupon,
+          paymentMethod: payMethod === "COD" ? "CASH_ON_DELIVERY" : undefined,
         });
         try {
           sessionStorage.setItem(BUYNOW_ORDER_KEY, JSON.stringify({ key: intentKey, orderId: order.id }));
@@ -387,7 +427,25 @@ export function CheckoutView() {
           addressId: fulfilment === "DELIVERY" ? addressId ?? undefined : undefined,
           pickupStoreId: fulfilment === "PICKUP" ? pickupStoreId ?? undefined : undefined,
           couponCode: coupon,
+          paymentMethod: payMethod === "COD" ? "CASH_ON_DELIVERY" : undefined,
         });
+      }
+
+      // 4a. Cash on delivery has no gateway leg at all. The order is placed and the money is
+      //     collected at handover, so there is nothing to redirect to — send the customer to
+      //     their order. Returning here deliberately skips initiatePayment: calling it for a cash
+      //     order would charge them now AND leave a courier asking for the same money at the door
+      //     (the backend refuses it too, but the page must not try).
+      if (payMethod === "COD") {
+        try {
+          sessionStorage.removeItem(PENDING_TX_KEY);
+          sessionStorage.removeItem(PENDING_ORDER_KEY);
+        } catch {
+          /* ignore */
+        }
+        if (!buyNow) cart.refresh();
+        router.replace(`/orders/${order.id}`);
+        return;
       }
       // 4. Charge exactly the order's own total.
       const pay = await initiatePayment({
@@ -422,7 +480,7 @@ export function CheckoutView() {
       setPlacing(false);
       cart.refresh(); // stock errors may have changed what's orderable
     }
-  }, [credId, uid, profile, promo, subtotal, selectedLines, fulfilment, effectiveMethod, addressId, pickupStoreId, payMethod, cart, c, buyNow, bnProductId, bnStoreId, bnQty]);
+  }, [credId, uid, profile, promo, subtotal, selectedLines, fulfilment, effectiveMethod, addressId, pickupStoreId, payMethod, cart, c, buyNow, bnProductId, bnStoreId, bnQty, router]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   if (
@@ -749,6 +807,18 @@ export function CheckoutView() {
                   3 × {formatMoney(Math.round((total / 3) * 100) / 100, currency)}
                 </span>
               </label>
+              {/* Only offered when the server says this exact order qualifies — the switch, the
+                  market list and the order ceiling all live there. */}
+              {cod?.available && (
+                <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors ${payMethod === "COD" ? "border-brand bg-brand-soft/40" : "border-border hover:border-border-strong"}`}>
+                  <input type="radio" name="pay" checked={payMethod === "COD"} onChange={() => setPayMethod("COD")} className={`${radioCls} mt-0.5`} />
+                  <BanknotesIcon className="mt-0.5 h-5 w-5 shrink-0 text-brand-icon" />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-foreground">{c.cod}</span>
+                    <span className="block text-xs text-muted">{c.codHint}</span>
+                  </span>
+                </label>
+              )}
             </div>
           </section>
         </div>
@@ -815,6 +885,14 @@ export function CheckoutView() {
                   <dd className="text-muted">{t.cart.shippingAtCheckout}</dd>
                 )}
               </div>
+              {vatRate != null && (
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted">{c.vat.replace("{rate}", String(vatRate))}</dt>
+                  <dd className="font-medium text-foreground" dir="ltr">
+                    {formatMoney(vatAmount, currency)}
+                  </dd>
+                </div>
+              )}
             </dl>
             <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
               <span className="font-semibold text-foreground">{t.cart.total}</span>

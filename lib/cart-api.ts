@@ -49,6 +49,18 @@ export type ApiCart = {
   qualifiesForFreeShipping?: boolean | null;
   expressAvailable?: boolean | null;
   expressDeliveryFee?: number | null;
+  /** VAT the checkout will add on top of goods + delivery. Null means "unknown", not zero. */
+  vatAmount?: number | null;
+  /** The rate — 5 means 5%. Null where VAT does not apply to this cart's market. */
+  vatRatePercent?: number | null;
+  /**
+   * goods + delivery + VAT — what the customer will actually be asked for.
+   *
+   * Server-computed, and the page must SHOW this rather than adding the tax itself: the same
+   * VatPolicy decides the order's total, and a client that does its own arithmetic is a total
+   * that disagrees with the amount charged the moment a rate or a rounding rule changes.
+   */
+  estimatedTotal?: number | null;
 };
 
 export type AddCartItemInput = {

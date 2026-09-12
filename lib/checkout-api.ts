@@ -21,12 +21,17 @@ export function checkoutCart(credentialId: string): Promise<ApiCart> {
   return authedJson<ApiCart>(`/api/cart/${credentialId}/checkout`, { method: "POST" });
 }
 
+/** ONLINE settles at the gateway before fulfilment; CASH_ON_DELIVERY settles at handover. */
+export type OrderPaymentMethod = "ONLINE" | "CASH_ON_DELIVERY";
+
 export type CreateOrderBody = {
   cartId: string;
   deliveryMethod: "EXPRESS" | "REGULAR" | "PICKUP";
   addressId?: string;
   pickupStoreId?: string;
   couponCode?: string;
+  /** Omit for ONLINE. The server re-checks eligibility and refuses if cash is not on offer. */
+  paymentMethod?: OrderPaymentMethod;
 };
 
 export function createOrder(credentialId: string, body: CreateOrderBody): Promise<OrderDetail> {
@@ -41,10 +46,14 @@ export type BuyNowBody = {
   productId: string;
   storeId: string;
   quantity: number;
-  addressId: string;
-  /** EXPRESS/REGULAR; omit to let the server resolve from the address pin. Never PICKUP. */
-  deliveryMethod?: "EXPRESS" | "REGULAR";
+  /** Required for delivery; omit for PICKUP. */
+  addressId?: string;
+  /** Required for PICKUP. */
+  pickupStoreId?: string;
+  /** Omit to let the server resolve EXPRESS vs REGULAR from the address pin. */
+  deliveryMethod?: "EXPRESS" | "REGULAR" | "PICKUP";
   couponCode?: string;
+  paymentMethod?: OrderPaymentMethod;
 };
 
 /**
@@ -62,6 +71,33 @@ export function createBuyNowOrder(
     headers: { "X-Auth-Credential-Id": credentialId },
     body: JSON.stringify(body),
   });
+}
+
+// ── Cash on delivery ─────────────────────────────────────────────────────────
+
+export type CashOnDeliveryAvailability = {
+  available: boolean;
+  /** The customer-facing explanation when it is not on offer; null when it is. */
+  reason: string | null;
+  /** The single-order ceiling in AED, or null when there is none. */
+  maxOrderTotalAed: number | null;
+};
+
+/**
+ * Whether THIS checkout may be settled in cash.
+ *
+ * The answer is server-side configuration — a master switch, a market list and an order ceiling —
+ * so the page cannot work it out and must not guess. Offering the option where the order pipeline
+ * will refuse it means a customer chooses cash and is told no at the last step.
+ */
+export function fetchCashOnDeliveryAvailability(
+  country: string | null | undefined,
+  total: number,
+  currency: string,
+): Promise<CashOnDeliveryAvailability> {
+  const qs = new URLSearchParams({ total: String(total), currency });
+  if (country) qs.set("country", country);
+  return authedJson<CashOnDeliveryAvailability>(`/api/orders/cash-on-delivery?${qs}`);
 }
 
 // ── Promo ────────────────────────────────────────────────────────────────────
@@ -127,6 +163,8 @@ export type DeliveryQuote = {
   expressFee: number;
   freeShippingThreshold: number;
   qualifiesForFreeShipping: boolean;
+  /** The VAT rate this checkout is charged at — 5 means 5%; null where VAT does not apply. */
+  vatRatePercent?: number | null;
 };
 
 /**

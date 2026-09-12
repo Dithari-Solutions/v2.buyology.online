@@ -259,7 +259,14 @@ export function CartView() {
   const shippingFree =
     fees?.qualifiesForFreeShipping === true || (shippingKnown && fees.deliveryFee === 0);
   const shippingFee = shippingKnown && !shippingFree ? fees.deliveryFee! : 0;
-  const total = subtotal + shippingFee;
+  // VAT is shown only when the server actually quoted it. Rendering a computed 5% while the
+  // server's figures are unknown (guest mode, FX failure) would put a number on the page that
+  // nothing has agreed to charge.
+  const vatRate = fees?.vatRatePercent ?? null;
+  const vatAmount = fees?.vatAmount ?? null;
+  const vatKnown = vatRate != null && vatAmount != null;
+  // The server's own total wins whenever it sent one — it is the figure the order will carry.
+  const total = fees?.estimatedTotal ?? subtotal + shippingFee;
 
   return (
     <>
@@ -420,6 +427,14 @@ export function CartView() {
                 <dd className="text-muted">{t.cart.shippingAtCheckout}</dd>
               )}
             </div>
+            {vatKnown && (
+              <div className="flex items-center justify-between">
+                <dt className="text-muted">{t.cart.vat.replace("{rate}", String(vatRate))}</dt>
+                <dd className="font-medium text-foreground" dir="ltr">
+                  {formatMoney(vatAmount, currency)}
+                </dd>
+              </div>
+            )}
           </dl>
           <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
             <span className="font-semibold text-foreground">{t.cart.total}</span>

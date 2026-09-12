@@ -121,6 +121,8 @@ export interface Dict {
     noneSelected: string;
     selectItem: string;
     shippingAtCheckout: string;
+    /** "VAT ({rate}%)" — {rate} is substituted with the server-quoted rate. */
+    vat: string;
     syncErrorNote: string;
     paymentsSoon: string;
     reviews: string;
@@ -510,6 +512,10 @@ export interface Dict {
     expressUnavailable: string;
     payment: string;
     card: string;
+    cod: string;
+    codHint: string;
+    codUnavailable: string;
+    vat: string;
     discount: string;
     promoInvalid: string;
     totalNote: string;
@@ -1256,6 +1262,7 @@ const en: Dict = {
     noneSelected: "Select at least one item to check out",
     selectItem: "Select",
     shippingAtCheckout: "Calculated at checkout",
+    vat: "VAT ({rate}%)",
     syncErrorNote: "Something went wrong syncing your cart — it has been reloaded.",
     paymentsSoon: "Online payment isn't available in your region yet — it's coming soon.",
     saved: "Saved",
@@ -1713,6 +1720,10 @@ const en: Dict = {
     expressUnavailable: "Not available for these items at this address",
     payment: "Payment method",
     card: "Card",
+    cod: "Cash on delivery",
+    codHint: "Pay the courier in cash when your order arrives.",
+    codUnavailable: "Cash on delivery is not available for this order.",
+    vat: "VAT ({rate}%)",
     discount: "Discount",
     promoInvalid: "This promo code can't be applied.",
     totalNote: "The final amount is confirmed on the payment page.",
@@ -2658,6 +2669,7 @@ const az: Dict = {
     noneSelected: "Ödənişə keçmək üçün ən azı bir məhsul seçin",
     selectItem: "Seç",
     shippingAtCheckout: "Ödəniş zamanı hesablanır",
+    vat: "ƏDV ({rate}%)",
     syncErrorNote: "Səbətinizi sinxronlaşdırarkən xəta baş verdi — yenidən yükləndi.",
     paymentsSoon: "Regionunuzda onlayn ödəniş hələ mövcud deyil — tezliklə olacaq.",
     saved: "Saxlanıldı",
@@ -3114,6 +3126,10 @@ const az: Dict = {
     expressUnavailable: "Bu ünvanda bu məhsullar üçün mövcud deyil",
     payment: "Ödəniş üsulu",
     card: "Kart",
+    cod: "Çatdırılma zamanı nağd ödəniş",
+    codHint: "Sifarişiniz çatdırılanda kuryerə nağd ödəyin.",
+    codUnavailable: "Bu sifariş üçün nağd ödəniş mümkün deyil.",
+    vat: "ƏDV ({rate}%)",
     discount: "Endirim",
     promoInvalid: "Bu promo kod tətbiq oluna bilmir.",
     totalNote: "Yekun məbləğ ödəniş səhifəsində təsdiqlənir.",
@@ -4074,6 +4090,7 @@ const ar: Dict = {
     noneSelected: "حدد منتجًا واحدًا على الأقل لإتمام الشراء",
     selectItem: "تحديد",
     shippingAtCheckout: "يُحسب عند إتمام الشراء",
+    vat: "ضريبة القيمة المضافة ({rate}%)",
     syncErrorNote: "حدث خطأ أثناء مزامنة سلتك — تم إعادة تحميلها.",
     paymentsSoon: "الدفع الإلكتروني غير متاح في منطقتك بعد — قريبًا.",
     saved: "محفوظ",
@@ -4529,6 +4546,10 @@ const ar: Dict = {
     expressUnavailable: "غير متاح لهذه المنتجات على هذا العنوان",
     payment: "طريقة الدفع",
     card: "بطاقة",
+    cod: "الدفع عند الاستلام",
+    codHint: "ادفع نقدًا لمندوب التوصيل عند وصول طلبك.",
+    codUnavailable: "الدفع عند الاستلام غير متاح لهذا الطلب.",
+    vat: "ضريبة القيمة المضافة ({rate}%)",
     discount: "الخصم",
     promoInvalid: "لا يمكن تطبيق هذا الرمز الترويجي.",
     totalNote: "يتم تأكيد المبلغ النهائي في صفحة الدفع.",

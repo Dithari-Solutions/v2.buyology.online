@@ -60,6 +60,11 @@ type CartFees = {
   expressFee: number | null;
   freeShippingThreshold: number | null;
   qualifiesForFreeShipping: boolean | null;
+  vatAmount: number | null;
+  vatRatePercent: number | null;
+  /** What the server says the cart comes to, VAT included. Carried through untouched so the
+   *  summary quotes the server's figure instead of a total it derived itself. */
+  estimatedTotal: number | null;
 };
 
 type CartValue = {
@@ -262,6 +267,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       expressFee: cart.expressDeliveryFee ?? null,
       freeShippingThreshold: cart.freeShippingThreshold ?? null,
       qualifiesForFreeShipping: cart.qualifiesForFreeShipping ?? null,
+      vatAmount: cart.vatAmount ?? null,
+      vatRatePercent: cart.vatRatePercent ?? null,
+      estimatedTotal: cart.estimatedTotal ?? null,
     });
   }, []);
 

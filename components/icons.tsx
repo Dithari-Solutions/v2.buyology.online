@@ -678,6 +678,17 @@ export function CreditCardIcon(props: IconProps) {
   );
 }
 
+/** Cash — the payment option that is settled in notes at the door. */
+export function BanknotesIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect width="20" height="12" x="2" y="6" rx="2" />
+      <circle cx="12" cy="12" r="2.5" />
+      <path d="M6 12h.01M18 12h.01" />
+    </Icon>
+  );
+}
+
 export function XIcon(props: IconProps) {
   return (
     <Icon {...props}>
