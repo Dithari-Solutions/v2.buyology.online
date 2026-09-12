@@ -206,6 +206,7 @@ export function CartView() {
     syncing,
     ready,
     syncError,
+    syncErrorMessage,
   } = useCart();
 
   const trust = [
@@ -282,7 +283,10 @@ export function CartView() {
 
           {syncError && (
             <p className="mb-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm text-warn dark:text-gold" role="status">
-              {t.cart.syncErrorNote}
+              {/* The server's own wording when it gave one — a refused purchase is something the
+                  shopper can act on, and "something went wrong" tells them only that we will not
+                  say what. Falls back to the generic note for failures with nothing to report. */}
+              {syncErrorMessage ?? t.cart.syncErrorNote}
             </p>
           )}
           {items.length > 0 && (

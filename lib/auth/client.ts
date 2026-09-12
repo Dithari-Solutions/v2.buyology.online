@@ -143,12 +143,38 @@ export async function resetPassword(payload: {
 // ── Authenticated calls ──────────────────────────────────────────────────────
 
 /**
+ * Is this response an expired session, or the server refusing on the merits?
+ *
+ * A 401 is always the former. A 403 is genuinely ambiguous here: an expired access token does not
+ * produce a JSON 401 — the JWT filter continues unauthenticated and Spring's default entry point
+ * answers 403 with an EMPTY body — while a real refusal ("you can only purchase from stores in
+ * your current country", a suspended account) answers 403 WITH the JSON envelope. The body is the
+ * only thing that separates them.
+ *
+ * Treating every 403 as a lapsed session is not a harmless over-reach. Refresh tokens are rotated
+ * and one-time-use, so each needless refresh burns a rotation; a customer repeatedly hitting a
+ * business rule — adding items from another country, say — spent their session on retries that
+ * could never succeed and was signed out for it, having been shown a sync error rather than the
+ * reason. That is the bug this exists to stop.
+ */
+async function isSessionLapsed(res: Response): Promise<boolean> {
+  if (res.status === 401) return true;
+  if (res.status !== 403) return false;
+  // clone() so the caller still gets an unread body to parse.
+  try {
+    return (await res.clone().text()).trim().length === 0;
+  } catch {
+    // Unreadable body — treat as a real refusal rather than burning a rotation on a guess.
+    return false;
+  }
+}
+
+/**
  * Fetch with the Bearer token, retrying ONCE through a refresh when the session has lapsed.
  *
- * The retry matters because of a backend quirk: an expired access token does not produce a JSON
- * 401 — the JWT filter silently continues unauthenticated and Spring answers 403 with an empty
- * body. Both statuses therefore mean "try a refresh", and only a failed refresh means the session
- * is really over.
+ * Only a lapsed session is retried — see {@link isSessionLapsed}. A 403 that carries a message is
+ * the server's answer, not a prompt to re-authenticate, and is returned to the caller untouched so
+ * the UI can show what it says.
  */
 export async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const call = (token: string | null) =>
@@ -164,7 +190,7 @@ export async function authedFetch(path: string, init: RequestInit = {}): Promise
     });
 
   let res = await call(getAccessToken());
-  if (res.status === 401 || res.status === 403) {
+  if (await isSessionLapsed(res)) {
     const claims = await refreshSession();
     if (claims) res = await call(getAccessToken());
   }

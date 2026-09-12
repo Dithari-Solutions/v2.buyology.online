@@ -84,6 +84,13 @@ type CartValue = {
   ready: boolean;
   /** Set when a server write failed and the cart was re-synced; cleared by the next success. */
   syncError: boolean;
+  /**
+   * What the server actually said, when it said anything — the country-purchase rule, a stock
+   * refusal. Null when the failure carried no message worth repeating (a network drop), in which
+   * case the generic note is the honest answer. Showing "something went wrong" over a server that
+   * explained itself precisely is how a working rule reads as a broken site.
+   */
+  syncErrorMessage: string | null;
   addItem: (product: AddInput, opts?: { openDrawer?: boolean; qty?: number }) => void;
   removeItem: (id: string) => void;
   setQty: (id: string, qty: number) => void;
@@ -206,6 +213,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [syncing, setSyncing] = useState(false);
   const [ready, setReady] = useState(false);
   const [syncError, setSyncError] = useState(false);
+  const [syncErrorMessage, setSyncErrorMessage] = useState<string | null>(null);
 
   const savedSetRef = useRef<Set<string>>(new Set());
   const serverLinesRef = useRef<StoredLine[]>([]);
@@ -239,6 +247,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const pendingRef = useRef(0);
   const lastResRef = useRef<ApiCart | null>(null);
   const failedRef = useRef(false);
+  const failedMsgRef = useRef<string | null>(null);
   // Quantities whose debounced PATCH has not fired yet — adoption must not clobber them.
   const pendingQtyRef = useRef(new Map<string, number>());
   // Edits made to a tmp- line while its POST is in flight, applied once the real id exists.
@@ -298,10 +307,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           if (res && gen === authGenRef.current) {
             lastResRef.current = res;
             setSyncError(false);
+            setSyncErrorMessage(null);
           }
         })
-        .catch(() => {
-          if (gen === authGenRef.current) failedRef.current = true;
+        .catch((err: unknown) => {
+          if (gen !== authGenRef.current) return;
+          failedRef.current = true;
+          // Keep the server's own wording when it gave one. A 403 that carries a message is a
+          // rule, not a fault, and the shopper can act on a rule.
+          const msg = err instanceof Error ? err.message.trim() : "";
+          failedMsgRef.current = msg && !/^HTTP \d+$/.test(msg) ? msg : null;
         })
         .finally(() => {
           pendingRef.current -= 1;
@@ -309,12 +324,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             setSyncing(false);
             const stale = gen !== authGenRef.current;
             const failed = failedRef.current;
+            const failedMsg = failedMsgRef.current;
             const res = lastResRef.current;
             failedRef.current = false;
+            failedMsgRef.current = null;
             lastResRef.current = null;
             if (stale) return;
             if (failed) {
               setSyncError(true);
+              setSyncErrorMessage(failedMsg);
               void reload();
             } else if (res) {
               adopt(res);
@@ -340,6 +358,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setFees(null);
         setCurrency(undefined);
         setSyncError(false);
+        setSyncErrorMessage(null);
         replayedForRef.current = null;
       }
       return;
@@ -749,6 +768,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       // store then must render as a skeleton, never as "your cart is empty".
       ready: status === "authed" ? ready : status === "guest" ? hydrated : false,
       syncError,
+      syncErrorMessage,
       addItem,
       removeItem,
       setQty,
@@ -762,7 +782,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       settle,
     };
   }, [
-    authed, status, hydrated, serverLines, localLines, currency, fees, isOpen, syncing, ready, syncError, reload, settle,
+    authed, status, hydrated, serverLines, localLines, currency, fees, isOpen, syncing, ready, syncError, syncErrorMessage, reload, settle,
     addItem, removeItem, setQty, setSelected, setAllSelected, saveForLater, moveToCart, open, close,
   ]);
 
