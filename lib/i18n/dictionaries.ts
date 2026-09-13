@@ -121,8 +121,10 @@ export interface Dict {
     noneSelected: string;
     selectItem: string;
     shippingAtCheckout: string;
-    /** "VAT ({rate}%)" — {rate} is substituted with the server-quoted rate. */
+    /** Summary row: the VAT contained IN the total, never a line added to it. {rate} substituted. */
     vat: string;
+    /** Per-product note: the VAT already contained in that product's price. {rate} substituted. */
+    vatIncluded: string;
     syncErrorNote: string;
     paymentsSoon: string;
     reviews: string;
@@ -505,11 +507,7 @@ export interface Dict {
     manageAddresses: string;
     noAddresses: string;
     noStores: string;
-    method: string;
     standard: string;
-    express: string;
-    expressNeedsPin: string;
-    expressUnavailable: string;
     payment: string;
     card: string;
     cod: string;
@@ -574,6 +572,12 @@ export interface Dict {
     home: string;
     breadcrumb: string;
     buyNow: string;
+    /** WhatsApp CTA under the BNPL block. */
+    talkToExpert: string;
+    /** Prefilled WhatsApp message. {product} is the product name. */
+    talkToExpertMessage: string;
+    /** Trust badge linking to dithari.com. A brand name, so it is not translated. */
+    dithariCertified: string;
     qty: string;
     color: string;
     configuration: string;
@@ -611,6 +615,8 @@ export interface Dict {
       verified: string;
       helpful: string;
       basedOn: string;
+      /** Empty state, in place of stating "based on 0 reviews" as though 0 were a score. */
+      beFirst: string;
       signInToReview: string;
       alreadyReviewed: string;
       posted: string;
@@ -667,6 +673,8 @@ export interface Dict {
     payments: string;
     rights: string;
     madeIn: string;
+    /** "Powered by" — the Dithari name that follows it is a brand and stays as-is. */
+    poweredBy: string;
     privacy: string;
     terms: string;
     cookies: string;
@@ -1262,7 +1270,8 @@ const en: Dict = {
     noneSelected: "Select at least one item to check out",
     selectItem: "Select",
     shippingAtCheckout: "Calculated at checkout",
-    vat: "VAT ({rate}%)",
+    vat: "VAT {rate}% included in total",
+    vatIncluded: "VAT {rate}% included",
     syncErrorNote: "Something went wrong syncing your cart — it has been reloaded.",
     paymentsSoon: "Online payment isn't available in your region yet — it's coming soon.",
     saved: "Saved",
@@ -1299,7 +1308,7 @@ const en: Dict = {
       soon: "soon",
     },
     pageMap: "Store locator",
-    pageQuickDelivery: "30-minute delivery",
+    pageQuickDelivery: "Quick delivery",
     pageSupplier: "Become a supplier",
     browseProducts: "Browse products",
     backHome: "Back to home",
@@ -1308,7 +1317,7 @@ const en: Dict = {
     helpOrders: "Orders & delivery",
     helpOrdersHint: "Track status, cancel a pending order, or view your delivery timeline from your account's order history.",
     helpShipping: "Shipping options & fees",
-    helpShippingHint: "Standard, 30-minute express, and free store pickup — see what applies to your basket.",
+    helpShippingHint: "Standard delivery and free store pickup — see what applies to your basket.",
     helpReturns: "Returns & refunds",
     helpReturnsHint: "How returns work and how refunds reach your original payment method.",
     helpSupport: "Report a problem",
@@ -1332,8 +1341,8 @@ const en: Dict = {
     shipIntro: "What to expect from each delivery option. The exact fee for your basket is always shown at checkout before you pay.",
     shipStandardH: "Standard delivery",
     shipStandardP: "Delivered in 2–3 business days across the UAE.",
-    shipExpressH: "Express (30 minutes)",
-    shipExpressP: "Available when every item in your order is stocked within 30 minutes of your delivery address — checkout offers it automatically when your address qualifies.",
+    shipExpressH: "Express delivery",
+    shipExpressP: "Express delivery isn't being offered at the moment — every order ships with standard delivery.",
     shipPickupH: "Store pickup",
     shipPickupP: "Free. Usually ready within 24 hours — you'll see the store's address at checkout.",
     shipFreeH: "Free delivery",
@@ -1344,7 +1353,7 @@ const en: Dict = {
     warrantyP2: "For any warranty claim, contact support with your order number — we'll take it from there with the supplier or manufacturer.",
     aboutTitle: "About Buyology",
     aboutP1: "Buyology is a UAE-based electronics marketplace: laptops, audio, wearables, accessories and more — new and renewed — from vetted stores, delivered fast.",
-    aboutP2: "We built this new experience around honest prices, real reviews, 30-minute express delivery where it's genuinely possible, and a checkout that shows you exactly what you'll pay before you pay it.",
+    aboutP2: "We built this new experience around honest prices, real reviews, fast UAE-wide delivery, and a checkout that shows you exactly what you'll pay before you pay it.",
     legalEnglishNote: "This document is provided in English.",
     globalTitle: "We're not in your region yet",
     globalBody: "Buyology currently serves the regions below. We're expanding — check back soon.",
@@ -1713,17 +1722,13 @@ const en: Dict = {
     manageAddresses: "Manage addresses",
     noAddresses: "No saved addresses yet — add one in your account to continue.",
     noStores: "No stores are available for pickup right now.",
-    method: "Delivery speed",
     standard: "Standard delivery",
-    express: "Express (30 min)",
-    expressNeedsPin: "Add a map pin to this address to unlock express",
-    expressUnavailable: "Not available for these items at this address",
     payment: "Payment method",
     card: "Card",
     cod: "Cash on delivery",
     codHint: "Pay the courier in cash when your order arrives.",
     codUnavailable: "Cash on delivery is not available for this order.",
-    vat: "VAT ({rate}%)",
+    vat: "VAT {rate}% included in total",
     discount: "Discount",
     promoInvalid: "This promo code can't be applied.",
     totalNote: "The final amount is confirmed on the payment page.",
@@ -1830,6 +1835,9 @@ const en: Dict = {
     home: "Home",
     breadcrumb: "Breadcrumb",
     buyNow: "Buy now",
+    talkToExpert: "Talk to an Expert",
+    talkToExpertMessage: "Hi! I'd like to ask about {product}.",
+    dithariCertified: "Dithari Certified",
     qty: "Quantity",
     color: "Color",
     configuration: "Configuration",
@@ -1868,6 +1876,7 @@ const en: Dict = {
       verified: "Verified purchase",
       helpful: "Helpful",
       basedOn: "Based on",
+      beFirst: "No reviews yet — be the first to review this product.",
       signInToReview: "Sign in to write a review.",
       alreadyReviewed: "You've already reviewed this product.",
       posted: "Your review has been posted.",
@@ -2018,6 +2027,7 @@ const en: Dict = {
     payments: "We accept",
     rights: "All rights reserved.",
     madeIn: "Designed in the UAE · Prices in AED",
+    poweredBy: "Powered by",
     privacy: "Privacy Policy",
     terms: "Terms of Service",
     cookies: "Cookies",
@@ -2669,7 +2679,8 @@ const az: Dict = {
     noneSelected: "Ödənişə keçmək üçün ən azı bir məhsul seçin",
     selectItem: "Seç",
     shippingAtCheckout: "Ödəniş zamanı hesablanır",
-    vat: "ƏDV ({rate}%)",
+    vat: "ƏDV {rate}% cəmi məbləğə daxildir",
+    vatIncluded: "ƏDV {rate}% qiymətə daxildir",
     syncErrorNote: "Səbətinizi sinxronlaşdırarkən xəta baş verdi — yenidən yükləndi.",
     paymentsSoon: "Regionunuzda onlayn ödəniş hələ mövcud deyil — tezliklə olacaq.",
     saved: "Saxlanıldı",
@@ -2706,7 +2717,7 @@ const az: Dict = {
       soon: "tezliklə",
     },
     pageMap: "Mağaza xəritəsi",
-    pageQuickDelivery: "30 dəqiqəlik çatdırılma",
+    pageQuickDelivery: "Sürətli çatdırılma",
     pageSupplier: "Təchizatçı ol",
     browseProducts: "Məhsullara bax",
     backHome: "Ana səhifəyə qayıt",
@@ -2715,7 +2726,7 @@ const az: Dict = {
     helpOrders: "Sifarişlər və çatdırılma",
     helpOrdersHint: "Hesabınızdakı sifariş tarixçəsindən statusu izləyin, gözləyən sifarişi ləğv edin və ya çatdırılma qrafikinə baxın.",
     helpShipping: "Çatdırılma seçimləri və haqları",
-    helpShippingHint: "Standart, 30 dəqiqəlik ekspres və pulsuz mağazadan götürmə — səbətinizə nəyin aid olduğunu görün.",
+    helpShippingHint: "Standart çatdırılma və pulsuz mağazadan götürmə — səbətinizə nəyin aid olduğunu görün.",
     helpReturns: "Qaytarma və geri ödənişlər",
     helpReturnsHint: "Qaytarmalar necə işləyir və geri ödənişlər ilkin ödəniş üsulunuza necə çatır.",
     helpSupport: "Problem bildirin",
@@ -2739,8 +2750,8 @@ const az: Dict = {
     shipIntro: "Hər çatdırılma seçimindən nə gözləmək olar. Səbətiniz üçün dəqiq haqq ödənişdən əvvəl həmişə checkout-da göstərilir.",
     shipStandardH: "Standart çatdırılma",
     shipStandardP: "BƏƏ üzrə 2–3 iş günü ərzində çatdırılır.",
-    shipExpressH: "Ekspres (30 dəqiqə)",
-    shipExpressP: "Sifarişinizdəki bütün məhsullar çatdırılma ünvanınızdan 30 dəqiqəlik məsafədə anbarda olduqda mümkündür — ünvanınız uyğun gələndə checkout bunu avtomatik təklif edir.",
+    shipExpressH: "Ekspres çatdırılma",
+    shipExpressP: "Ekspres çatdırılma hazırda təklif olunmur — bütün sifarişlər standart çatdırılma ilə göndərilir.",
     shipPickupH: "Mağazadan götürmə",
     shipPickupP: "Pulsuz. Adətən 24 saat ərzində hazır olur — mağazanın ünvanını checkout-da görəcəksiniz.",
     shipFreeH: "Pulsuz çatdırılma",
@@ -2751,7 +2762,7 @@ const az: Dict = {
     warrantyP2: "Hər hansı zəmanət müraciəti üçün sifariş nömrənizlə dəstəyə yazın — qalanını təchizatçı və ya istehsalçı ilə biz həll edəcəyik.",
     aboutTitle: "Buyology haqqında",
     aboutP1: "Buyology BƏƏ mərkəzli elektronika marketpleysidir: noutbuklar, audio, geyilə bilən cihazlar, aksesuarlar və daha çoxu — yeni və yenilənmiş — yoxlanılmış mağazalardan, sürətli çatdırılma ilə.",
-    aboutP2: "Bu yeni təcrübəni dürüst qiymətlər, real rəylər, həqiqətən mümkün olan yerlərdə 30 dəqiqəlik ekspres çatdırılma və ödəməzdən əvvəl nə ödəyəcəyinizi dəqiq göstərən checkout üzərində qurduq.",
+    aboutP2: "Bu yeni təcrübəni dürüst qiymətlər, real rəylər, BƏƏ üzrə sürətli çatdırılma və ödəməzdən əvvəl nə ödəyəcəyinizi dəqiq göstərən checkout üzərində qurduq.",
     legalEnglishNote: "Bu sənəd ingilis dilində təqdim olunur.",
     globalTitle: "Hələ sizin regionda deyilik",
     globalBody: "Buyology hazırda aşağıdakı regionlarda xidmət göstərir. Genişlənirik — tezliklə yenidən yoxlayın.",
@@ -3119,17 +3130,13 @@ const az: Dict = {
     manageAddresses: "Ünvanları idarə et",
     noAddresses: "Hələ yadda saxlanmış ünvan yoxdur — davam etmək üçün hesabınızda əlavə edin.",
     noStores: "Hazırda götürmə üçün mağaza yoxdur.",
-    method: "Çatdırılma sürəti",
     standard: "Standart çatdırılma",
-    express: "Ekspres (30 dəq)",
-    expressNeedsPin: "Ekspres üçün bu ünvana xəritə nişanı əlavə edin",
-    expressUnavailable: "Bu ünvanda bu məhsullar üçün mövcud deyil",
     payment: "Ödəniş üsulu",
     card: "Kart",
     cod: "Çatdırılma zamanı nağd ödəniş",
     codHint: "Sifarişiniz çatdırılanda kuryerə nağd ödəyin.",
     codUnavailable: "Bu sifariş üçün nağd ödəniş mümkün deyil.",
-    vat: "ƏDV ({rate}%)",
+    vat: "ƏDV {rate}% cəmi məbləğə daxildir",
     discount: "Endirim",
     promoInvalid: "Bu promo kod tətbiq oluna bilmir.",
     totalNote: "Yekun məbləğ ödəniş səhifəsində təsdiqlənir.",
@@ -3236,6 +3243,9 @@ const az: Dict = {
     home: "Ana səhifə",
     breadcrumb: "Naviqasiya cığırı",
     buyNow: "İndi al",
+    talkToExpert: "Mütəxəssislə danışın",
+    talkToExpertMessage: "Salam! {product} haqqında soruşmaq istəyirəm.",
+    dithariCertified: "Dithari Certified",
     qty: "Miqdar",
     color: "Rəng",
     configuration: "Konfiqurasiya",
@@ -3274,6 +3284,7 @@ const az: Dict = {
       verified: "Təsdiqlənmiş alış",
       helpful: "Faydalı",
       basedOn: "Əsaslanır",
+      beFirst: "Hələ rəy yoxdur — bu məhsula ilk rəyi siz yazın.",
       signInToReview: "Rəy yazmaq üçün daxil olun.",
       alreadyReviewed: "Bu məhsula artıq rəy yazmısınız.",
       posted: "Rəyiniz dərc olundu.",
@@ -3439,6 +3450,7 @@ const az: Dict = {
     payments: "Qəbul edirik",
     rights: "Bütün hüquqlar qorunur.",
     madeIn: "BƏƏ-də dizayn edilib · Qiymətlər AED ilə",
+    poweredBy: "Dəstəklənir",
     privacy: "Məxfilik Siyasəti",
     terms: "İstifadə Şərtləri",
     cookies: "Kukilər",
@@ -4090,7 +4102,8 @@ const ar: Dict = {
     noneSelected: "حدد منتجًا واحدًا على الأقل لإتمام الشراء",
     selectItem: "تحديد",
     shippingAtCheckout: "يُحسب عند إتمام الشراء",
-    vat: "ضريبة القيمة المضافة ({rate}%)",
+    vat: "ضريبة القيمة المضافة {rate}% مشمولة في الإجمالي",
+    vatIncluded: "ضريبة القيمة المضافة {rate}% مشمولة في السعر",
     syncErrorNote: "حدث خطأ أثناء مزامنة سلتك — تم إعادة تحميلها.",
     paymentsSoon: "الدفع الإلكتروني غير متاح في منطقتك بعد — قريبًا.",
     saved: "محفوظ",
@@ -4127,7 +4140,7 @@ const ar: Dict = {
       soon: "قريبًا",
     },
     pageMap: "دليل المتاجر",
-    pageQuickDelivery: "توصيل خلال 30 دقيقة",
+    pageQuickDelivery: "توصيل سريع",
     pageSupplier: "كن مورّدًا",
     browseProducts: "تصفح المنتجات",
     backHome: "العودة إلى الرئيسية",
@@ -4136,7 +4149,7 @@ const ar: Dict = {
     helpOrders: "الطلبات والتوصيل",
     helpOrdersHint: "تتبّع الحالة، أو ألغِ طلبًا قيد الانتظار، أو اطّلع على جدول التوصيل من سجل طلباتك في حسابك.",
     helpShipping: "خيارات الشحن ورسومه",
-    helpShippingHint: "توصيل عادي، وسريع خلال 30 دقيقة، واستلام مجاني من المتجر — اعرف ما ينطبق على سلتك.",
+    helpShippingHint: "توصيل عادي واستلام مجاني من المتجر — اعرف ما ينطبق على سلتك.",
     helpReturns: "الإرجاع والاسترداد",
     helpReturnsHint: "كيف يعمل الإرجاع وكيف يصل الاسترداد إلى وسيلة الدفع الأصلية.",
     helpSupport: "الإبلاغ عن مشكلة",
@@ -4160,8 +4173,8 @@ const ar: Dict = {
     shipIntro: "ما يمكن توقعه من كل خيار توصيل. الرسوم الدقيقة لسلتك تظهر دائمًا عند إتمام الشراء قبل الدفع.",
     shipStandardH: "توصيل عادي",
     shipStandardP: "يصل خلال 2–3 أيام عمل في أنحاء الإمارات.",
-    shipExpressH: "سريع (30 دقيقة)",
-    shipExpressP: "متاح عندما تكون كل منتجات طلبك متوفرة على بُعد 30 دقيقة من عنوان التوصيل — يعرضه إتمام الشراء تلقائيًا عندما يكون عنوانك مؤهلًا.",
+    shipExpressH: "التوصيل السريع",
+    shipExpressP: "التوصيل السريع غير متاح حاليًا — تُشحن جميع الطلبات بالتوصيل العادي.",
     shipPickupH: "استلام من المتجر",
     shipPickupP: "مجاني. جاهز عادةً خلال 24 ساعة — سترى عنوان المتجر عند إتمام الشراء.",
     shipFreeH: "توصيل مجاني",
@@ -4172,7 +4185,7 @@ const ar: Dict = {
     warrantyP2: "لأي مطالبة ضمان، تواصل مع الدعم برقم طلبك — وسنتولى الباقي مع المورّد أو المصنّع.",
     aboutTitle: "عن Buyology",
     aboutP1: "Buyology سوق إلكترونيات مقره الإمارات: حواسيب محمولة وصوتيات وأجهزة قابلة للارتداء وإكسسوارات والمزيد — جديدة ومجددة — من متاجر موثوقة وبتوصيل سريع.",
-    aboutP2: "بنينا هذه التجربة الجديدة على أسعار صادقة، ومراجعات حقيقية، وتوصيل سريع خلال 30 دقيقة حيث يكون ممكنًا فعلًا، وإتمام شراء يريك بالضبط ما ستدفعه قبل أن تدفع.",
+    aboutP2: "بنينا هذه التجربة الجديدة على أسعار صادقة، ومراجعات حقيقية، وتوصيل سريع في جميع أنحاء الإمارات، وإتمام شراء يريك بالضبط ما ستدفعه قبل أن تدفع.",
     legalEnglishNote: "هذه الوثيقة متاحة باللغة الإنجليزية.",
     globalTitle: "لسنا في منطقتك بعد",
     globalBody: "تخدم Buyology حاليًا المناطق أدناه. نحن نتوسع — عاود الزيارة قريبًا.",
@@ -4539,17 +4552,13 @@ const ar: Dict = {
     manageAddresses: "إدارة العناوين",
     noAddresses: "لا توجد عناوين محفوظة بعد — أضف عنوانًا في حسابك للمتابعة.",
     noStores: "لا توجد متاجر متاحة للاستلام حاليًا.",
-    method: "سرعة التوصيل",
     standard: "توصيل عادي",
-    express: "سريع (30 دقيقة)",
-    expressNeedsPin: "أضف موقعًا على الخريطة لهذا العنوان لتفعيل التوصيل السريع",
-    expressUnavailable: "غير متاح لهذه المنتجات على هذا العنوان",
     payment: "طريقة الدفع",
     card: "بطاقة",
     cod: "الدفع عند الاستلام",
     codHint: "ادفع نقدًا لمندوب التوصيل عند وصول طلبك.",
     codUnavailable: "الدفع عند الاستلام غير متاح لهذا الطلب.",
-    vat: "ضريبة القيمة المضافة ({rate}%)",
+    vat: "ضريبة القيمة المضافة {rate}% مشمولة في الإجمالي",
     discount: "الخصم",
     promoInvalid: "لا يمكن تطبيق هذا الرمز الترويجي.",
     totalNote: "يتم تأكيد المبلغ النهائي في صفحة الدفع.",
@@ -4655,6 +4664,9 @@ const ar: Dict = {
     home: "الرئيسية",
     breadcrumb: "مسار التنقل",
     buyNow: "اشترِ الآن",
+    talkToExpert: "تحدّث إلى خبير",
+    talkToExpertMessage: "مرحبًا! أرغب في السؤال عن {product}.",
+    dithariCertified: "Dithari Certified",
     qty: "الكمية",
     color: "اللون",
     configuration: "التهيئة",
@@ -4693,6 +4705,7 @@ const ar: Dict = {
       verified: "شراء موثّق",
       helpful: "مفيد",
       basedOn: "استنادًا إلى",
+      beFirst: "لا توجد مراجعات بعد — كن أول من يقيّم هذا المنتج.",
       signInToReview: "سجّل الدخول لكتابة تقييم.",
       alreadyReviewed: "لقد قيّمت هذا المنتج بالفعل.",
       posted: "تم نشر تقييمك.",
@@ -4843,6 +4856,7 @@ const ar: Dict = {
     payments: "نقبل",
     rights: "جميع الحقوق محفوظة.",
     madeIn: "صُمّم في الإمارات · الأسعار بالدرهم",
+    poweredBy: "مدعوم بواسطة",
     privacy: "سياسة الخصوصية",
     terms: "شروط الخدمة",
     cookies: "ملفات تعريف الارتباط",

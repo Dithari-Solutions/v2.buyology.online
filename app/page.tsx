@@ -50,12 +50,15 @@ export default function Home() {
         <FeatureStrip />
         {/* <ProductCarousel /> */}
         <BuyologyAI />
-        <Metrics />
         <BuyologyServices />
         {/* Closing statement: what this shop actually sells, in the words people search for.
             It carries the page's H1, so it stays in the document even at the end. */}
         <RefurbishedIntro />
         <HomeFaq />
+        {/* Last, immediately above the footer. The numbers are a closing reassurance rather than
+            something to walk past on the way to the products, which is what they were sitting
+            mid-page between the AI panel and the services grid. */}
+        <Metrics />
       </main>
     </>
   );

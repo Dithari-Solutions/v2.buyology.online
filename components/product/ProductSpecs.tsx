@@ -15,10 +15,15 @@ export function ProductSpecs() {
   if (api.brandName) rows.push({ label: t.pdp.spec.brand, value: api.brandName });
   if (api.sku) rows.push({ label: t.pdp.spec.model, value: api.sku });
   if (product.category) rows.push({ label: t.pdp.spec.category, value: product.category });
-  rows.push({
-    label: t.pdp.spec.rating,
-    value: `${product.rating.toFixed(1)} / 5 (${product.reviews})`,
-  });
+  // Omitted entirely for an unreviewed product, rather than stating "0.0 / 5 (0)" as though that
+  // were a measurement. Every other row here is conditional on having something to say; this one
+  // was not, because 0 is what the backend writes when no stats row exists.
+  if (product.reviews > 0) {
+    rows.push({
+      label: t.pdp.spec.rating,
+      value: `${product.rating.toFixed(1)} / 5 (${product.reviews})`,
+    });
+  }
   for (const spec of api.specs ?? []) {
     const values = (spec.options ?? [])
       .map((o) => [o.value, o.unit].filter(Boolean).join(" "))

@@ -6,14 +6,26 @@ import { useCart } from "@/components/cart/cart-provider";
 import { useFly } from "@/components/fx/FlyProvider";
 import { useI18n } from "@/components/i18n/language-provider";
 import { BagIcon, CheckIcon } from "@/components/icons";
+import {
+  CartQuantityStepper,
+  useCartLineFor,
+} from "@/components/cart/CartQuantityStepper";
 
-/** Add-to-cart with a fly-to-cart dot; the drawer opens when the dot lands. */
+/**
+ * Add-to-cart with a fly-to-cart dot; the drawer opens when the dot lands.
+ *
+ * <p>Once the product IS in the cart this becomes a quantity control instead. Every listing surface
+ * goes through here — the home carousels, the products grid, search results, related products and the
+ * wishlist all render ProductCard, which renders this — so there is one place to change and no chance
+ * of one grid behaving differently from another.
+ */
 export function AddToCartButton({ product }: { product: Product }) {
   const { t } = useI18n();
   const { addItem } = useCart();
   const { fly } = useFly();
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const line = useCartLineFor(product.id);
 
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
@@ -35,6 +47,16 @@ export function AddToCartButton({ product }: { product: Product }) {
     setAdded(true);
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setAdded(false), 1600);
+  }
+
+  if (line) {
+    return (
+      <CartQuantityStepper
+        productId={product.id}
+        productName={product.name}
+        className="mt-3"
+      />
+    );
   }
 
   return (

@@ -159,22 +159,30 @@ export function ProductCard({
               {formatMoney(product.price, product.currency)}
             </span>
           </div>
-          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
-            <span className="flex items-center gap-0.5" aria-hidden="true">
-              <StarIcon className="h-3.5 w-3.5 text-gold" />
-              {Array.from({ length: 4 }).map((_, i) => (
-                <StarIcon
-                  key={i}
-                  className={`hidden h-3.5 w-3.5 sm:block ${
-                    i + 1 < filled ? "text-gold" : "text-border-strong"
-                  }`}
-                />
-              ))}
-            </span>
-            <span className="text-xs font-medium text-foreground sm:text-sm">
-              {product.rating.toFixed(1)}
-            </span>
-          </div>
+          {/* Only once somebody has actually reviewed it. A product with no reviews was showing five
+              grey stars and "0.0", which reads as a bad score rather than as no data — and 0 is
+              indistinguishable from unknown here on purpose: the backend writes zeros when a product
+              has no stats row, and the mapper coalesces nulls, so `reviews > 0` is the only usable
+              test. This cluster shares a row with the price, which sets the row's height, so dropping
+              it does not shorten the card or break the grid alignment the blocks above maintain. */}
+          {product.reviews > 0 && (
+            <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+              <span className="flex items-center gap-0.5" aria-hidden="true">
+                <StarIcon className="h-3.5 w-3.5 text-gold" />
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <StarIcon
+                    key={i}
+                    className={`hidden h-3.5 w-3.5 sm:block ${
+                      i + 1 < filled ? "text-gold" : "text-border-strong"
+                    }`}
+                  />
+                ))}
+              </span>
+              <span className="text-xs font-medium text-foreground sm:text-sm">
+                {product.rating.toFixed(1)}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Above the card-wide product link, or it would just open the product. */}

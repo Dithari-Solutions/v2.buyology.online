@@ -283,18 +283,26 @@ export function ProductReviews() {
       <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
         {/* Overview — the product's own aggregated stats. */}
         <div className="h-fit rounded-2xl border border-border bg-surface p-5">
-          <div className="flex items-end gap-2">
-            <span className="text-4xl font-bold tracking-tight text-foreground tabular-nums">
-              {product.rating.toFixed(1)}
-            </span>
-            <span className="mb-1 text-sm text-muted">{t.metrics.outOf}</span>
-          </div>
-          <div className="mt-1.5">
-            <Stars rating={product.rating} />
-          </div>
-          <p className="mt-2 text-sm text-muted">
-            {t.pdp.reviews.basedOn} {formatInt(product.reviews)} {t.cart.reviews}
-          </p>
+          {/* The score, the stars and the "based on N reviews" line are all suppressed until there is
+              at least one review. A big "0.0 out of" above an empty star row is the worst possible
+              reading of "nobody has reviewed this yet" — it looks like a verdict. The write-a-review
+              form below stays, which is the whole point of still rendering this card. */}
+          {product.reviews > 0 && (
+            <>
+              <div className="flex items-end gap-2">
+                <span className="text-4xl font-bold tracking-tight text-foreground tabular-nums">
+                  {product.rating.toFixed(1)}
+                </span>
+                <span className="mb-1 text-sm text-muted">{t.metrics.outOf}</span>
+              </div>
+              <div className="mt-1.5">
+                <Stars rating={product.rating} />
+              </div>
+              <p className="mt-2 text-sm text-muted">
+                {t.pdp.reviews.basedOn} {formatInt(product.reviews)} {t.cart.reviews}
+              </p>
+            </>
+          )}
           {stats && stats.totalReviews > 0 && (
             <ul className="mt-4 space-y-1.5" aria-hidden="true">
               {([5, 4, 3, 2, 1] as const).map((star) => {
@@ -331,8 +339,9 @@ export function ProductReviews() {
               ))}
             </div>
           ) : rows.length === 0 ? (
+            // "Based on 0 reviews" as an empty state was stating a metric where an invitation belongs.
             <p className="rounded-2xl border border-border bg-surface px-5 py-8 text-center text-sm text-muted">
-              {t.pdp.reviews.basedOn} 0 {t.cart.reviews}
+              {t.pdp.reviews.beFirst}
             </p>
           ) : (
             <>

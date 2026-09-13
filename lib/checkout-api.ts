@@ -124,7 +124,13 @@ export function validatePromo(
 
 // ── Fulfilment data ──────────────────────────────────────────────────────────
 
-/** Stores that can 30-minute-deliver to a POINT — the delivery ADDRESS's pin, never the device. */
+/**
+ * Stores that can 30-minute-deliver to a POINT — the delivery ADDRESS's pin, never the device.
+ *
+ * Unused by the checkout while 30-minute delivery is switched off: the endpoint answers with an
+ * empty list and the order pipeline refuses EXPRESS, so there is no choice left to gate. Kept
+ * because the endpoint is still served — nothing about the contract changed, only what we offer.
+ */
 export function fetchExpressStores(
   lat: number,
   lng: number,
@@ -163,7 +169,10 @@ export type DeliveryQuote = {
   expressFee: number;
   freeShippingThreshold: number;
   qualifiesForFreeShipping: boolean;
-  /** The VAT rate this checkout is charged at — 5 means 5%; null where VAT does not apply. */
+  /**
+   * The rate CONTAINED in the quoted prices — 5 means 5%; null where VAT does not apply. Prices are
+   * VAT-inclusive, so this names a portion of the total and is never added to it.
+   */
   vatRatePercent?: number | null;
 };
 

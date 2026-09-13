@@ -364,6 +364,22 @@ export function ChatIcon(props: IconProps) {
   );
 }
 
+/**
+ * WhatsApp — the handset inside a speech bubble.
+ *
+ * Drawn in this file's stroke idiom rather than using the official filled glyph, so it matches every
+ * other icon here and inherits currentColor. The brand's own mark is a filled shape on green; a
+ * faithful copy would be the only icon in the set that ignores the 2px-stroke convention.
+ */
+export function WhatsAppIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+      <path d="M9 9.5c0 3 2.5 5.5 5.5 5.5a1.4 1.4 0 0 0 1.4-1.4l-1.7-.8-1 1a5.6 5.6 0 0 1-2.5-2.5l1-1-.8-1.7A1.4 1.4 0 0 0 9 9.5Z" />
+    </Icon>
+  );
+}
+
 export function LinkIcon(props: IconProps) {
   return (
     <Icon {...props}>

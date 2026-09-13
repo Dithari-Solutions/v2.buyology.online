@@ -29,6 +29,13 @@ export type ApiCartItem = {
   totalPrice: number;
   originalUnitPrice?: number | null;
   originalTotalPrice?: number | null;
+  /**
+   * The VAT already CONTAINED in this line's `totalPrice` — catalogue prices are VAT-inclusive,
+   * so this annotates the price rather than adding to it. Null where the market is untaxed.
+   */
+  vatAmount?: number | null;
+  /** Orderable units left on this line. Null means NOT TRACKED — absent, never zero. */
+  availableUnits?: number | null;
   quickDelivery?: boolean | null;
   selected: boolean;
   selectedSpecs?: ApiSpecSelection[] | null;
@@ -49,12 +56,19 @@ export type ApiCart = {
   qualifiesForFreeShipping?: boolean | null;
   expressAvailable?: boolean | null;
   expressDeliveryFee?: number | null;
-  /** VAT the checkout will add on top of goods + delivery. Null means "unknown", not zero. */
+  /**
+   * The VAT already CONTAINED in `estimatedTotal` (gross × rate / (100 + rate)), never a charge on
+   * top of it. Null means "unknown", not zero.
+   */
   vatAmount?: number | null;
-  /** The rate — 5 means 5%. Null where VAT does not apply to this cart's market. */
+  /**
+   * The rate — 5 means 5%. Non-null whenever the market is taxed, even for a zero-value cart, so
+   * every VAT label gates on THIS and never on the amount. Null where VAT does not apply.
+   */
   vatRatePercent?: number | null;
   /**
-   * goods + delivery + VAT — what the customer will actually be asked for.
+   * subtotal + delivery — what the customer will actually be asked for. The VAT is already inside
+   * this figure and is NOT added on top of it.
    *
    * Server-computed, and the page must SHOW this rather than adding the tax itself: the same
    * VatPolicy decides the order's total, and a client that does its own arithmetic is a total

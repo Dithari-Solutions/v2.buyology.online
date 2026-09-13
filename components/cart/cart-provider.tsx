@@ -30,6 +30,14 @@ export type CartLine = {
   /** Unit price. Server lines carry the price LOCKED AT ADD TIME by the backend. */
   price: number;
   originalPrice?: number | null;
+  /**
+   * The VAT already CONTAINED in this line's price, as the server extracted it. Server lines only;
+   * null for a guest/demo line and in untaxed markets. Shown as a note ON the price — the per-line
+   * figures are not meant to add up to the summary's VAT row.
+   */
+  vatAmount?: number | null;
+  /** Orderable units left, per the server. Null means NOT TRACKED — never render it as "0 left". */
+  availableUnits?: number | null;
   category: string;
   qty: number;
   /** Only ticked lines are priced and shipped at checkout. */
@@ -60,7 +68,9 @@ type CartFees = {
   expressFee: number | null;
   freeShippingThreshold: number | null;
   qualifiesForFreeShipping: boolean | null;
+  /** The VAT CONTAINED in `estimatedTotal` — extracted by the server, never added to the bill. */
   vatAmount: number | null;
+  /** 5 means 5%. Non-null whenever the market is taxed: what every VAT label gates on. */
   vatRatePercent: number | null;
   /** What the server says the cart comes to, VAT included. Carried through untouched so the
    *  summary quotes the server's figure instead of a total it derived itself. */
@@ -168,6 +178,8 @@ function mapServerCart(cart: ApiCart, savedSet: Set<string>): StoredLine[] {
     name: it.productSku ?? it.productId,
     price: it.unitPrice,
     originalPrice: it.originalUnitPrice ?? null,
+    vatAmount: it.vatAmount ?? null,
+    availableUnits: it.availableUnits ?? null,
     category: "",
     qty: it.quantity,
     selected: it.selected,

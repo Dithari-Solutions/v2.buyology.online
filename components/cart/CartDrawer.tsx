@@ -18,7 +18,8 @@ import { BagIcon, CloseIcon } from "@/components/icons";
  */
 export function CartDrawer() {
   const { t } = useI18n();
-  const { items, count, subtotal, currency, isOpen, close, syncError, syncErrorMessage } = useCart();
+  const { items, count, subtotal, currency, fees, isOpen, close, syncError, syncErrorMessage } =
+    useCart();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -133,11 +134,21 @@ export function CartDrawer() {
 
             {/* Footer */}
             <div className="border-t border-border p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm text-muted">{t.cart.subtotal}</span>
-                <span className="text-lg font-bold text-foreground" dir="ltr">
-                  {formatMoney(subtotal, currency)}
-                </span>
+              <div className="mb-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted">{t.cart.subtotal}</span>
+                  <span className="text-lg font-bold text-foreground" dir="ltr">
+                    {formatMoney(subtotal, currency)}
+                  </span>
+                </div>
+                {/* The subtotal already contains the tax. No amount here on purpose: the drawer
+                    quotes no total, and the cart's VAT figure is extracted from goods plus
+                    delivery, so it is not the tax inside this number. */}
+                {fees?.vatRatePercent != null && (
+                  <p className="mt-0.5 text-[11px] text-muted">
+                    {t.cart.vatIncluded.replace("{rate}", String(fees.vatRatePercent))}
+                  </p>
+                )}
               </div>
               <div className="mb-3">
                 <BnplOptions total={subtotal} currency={currency} compact />
@@ -167,9 +178,11 @@ export function CartDrawer() {
 /** One drawer line: real catalogue photo and name resolved by product id. */
 function DrawerLine({ line }: { line: CartLine }) {
   const { t } = useI18n();
-  const { removeItem, setQty } = useCart();
+  const { removeItem, setQty, fees } = useCart();
   const { product: detail, loading } = useProductLookup(line.productId);
   const name = detail?.name ?? line.name;
+  // The market's rate, not the line's amount, decides whether a VAT note belongs here.
+  const vatRate = fees?.vatRatePercent ?? null;
   return (
     <li
       className={`flex gap-3 rounded-xl p-2 transition-colors hover:bg-surface-2 ${
@@ -224,11 +237,14 @@ function DrawerLine({ line }: { line: CartLine }) {
             <span className="min-w-5 text-center text-sm font-medium tabular-nums text-foreground">
               {line.qty}
             </span>
+            {/* Capped at the server's figure, as on the cart page. null means untracked — no ceiling
+                — and must never be treated as zero. */}
             <button
               type="button"
               onClick={() => setQty(line.id, line.qty + 1)}
+              disabled={line.availableUnits != null && line.qty >= line.availableUnits}
               aria-label={`${t.cart.increase}: ${name}`}
-              className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
             >
               <span aria-hidden="true">+</span>
             </button>
@@ -237,6 +253,13 @@ function DrawerLine({ line }: { line: CartLine }) {
             {formatMoney(line.price * line.qty, line.currency)}
           </span>
         </div>
+        {/* Named, not added — the tax is already inside the price above. */}
+        {vatRate != null && line.vatAmount != null && (
+          <p className="pt-0.5 text-[11px] text-muted">
+            {t.cart.vatIncluded.replace("{rate}", String(vatRate))}{" "}
+            <span dir="ltr">({formatMoney(line.vatAmount, line.currency)})</span>
+          </p>
+        )}
       </div>
       <button
         type="button"

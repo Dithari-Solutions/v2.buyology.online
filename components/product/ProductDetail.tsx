@@ -8,9 +8,14 @@ import { useWishlist } from "@/components/wishlist/wishlist-provider";
 import { useFly } from "@/components/fx/FlyProvider";
 import { useI18n } from "@/components/i18n/language-provider";
 import { BnplOptions } from "@/components/cart/BnplOptions";
+import {
+  CartQuantityStepper,
+  useCartLineFor,
+} from "@/components/cart/CartQuantityStepper";
 import { useProduct } from "@/components/product/product-context";
 import { formatInt, formatMoney } from "@/lib/format";
 import { currentMarket } from "@/lib/market";
+import { DITHARI_URL, whatsAppUrl } from "@/lib/site";
 import {
   BagIcon,
   CheckIcon,
@@ -19,6 +24,7 @@ import {
   ShieldCheckIcon,
   StarIcon,
   TruckIcon,
+  WhatsAppIcon,
 } from "@/components/icons";
 
 const FALLBACK_IMG = "/mock/product-hero.jpg";
@@ -70,6 +76,9 @@ export function ProductDetail() {
   const { id, name, category, currency } = product;
   const saved = has(id);
   const filled = Math.round(product.rating);
+  // The basket line for this product, if there is one — what turns the quantity picker below into a
+  // cart control and hides the add button.
+  const cartLine = useCartLineFor(id);
 
   const selectedOptions = configurableSpecs.map((spec) => {
     const idx = choice[spec.id] ?? 0;
@@ -213,23 +222,30 @@ export function ProductDetail() {
           {product.name}
         </h1>
 
-        {/* Rating */}
-        <a href="#reviews" className="mt-2 inline-flex w-fit items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          <span className="flex items-center gap-0.5" aria-hidden="true">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <StarIcon
-                key={i}
-                className={`h-4 w-4 ${i < filled ? "text-gold" : "text-border-strong"}`}
-              />
-            ))}
-          </span>
-          <span className="text-sm font-semibold text-foreground">
-            {product.rating.toFixed(1)}
-          </span>
-          <span className="text-sm text-muted underline-offset-2 hover:underline">
-            {formatInt(product.reviews)} {t.cart.reviews}
-          </span>
-        </a>
+        {/* Rating — only once somebody has reviewed it. "0.0" beside five grey stars reads as a bad
+            score rather than as no data, and 0 is indistinguishable from unknown by design here: the
+            backend writes zeros when a product has no stats row and the mapper coalesces nulls, so
+            `reviews > 0` is the only meaningful test. This is also the only in-page link to the
+            reviews section, which is fine — that section still renders below and offers the first
+            review. */}
+        {product.reviews > 0 && (
+          <a href="#reviews" className="mt-2 inline-flex w-fit items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <span className="flex items-center gap-0.5" aria-hidden="true">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <StarIcon
+                  key={i}
+                  className={`h-4 w-4 ${i < filled ? "text-gold" : "text-border-strong"}`}
+                />
+              ))}
+            </span>
+            <span className="text-sm font-semibold text-foreground">
+              {product.rating.toFixed(1)}
+            </span>
+            <span className="text-sm text-muted underline-offset-2 hover:underline">
+              {formatInt(product.reviews)} {t.cart.reviews}
+            </span>
+          </a>
+        )}
 
         {/* Price */}
         <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1" dir="ltr">
@@ -315,8 +331,21 @@ export function ProductDetail() {
           </div>
         ))}
 
-        {/* Qty + CTAs */}
+        {/* Qty + CTAs.
+
+            Two different controls share this row. Before the product is in the cart the picker is a
+            local number that only decides how many to add; afterwards it becomes the cart's own
+            quantity, and editing it edits the basket. The local `qty` state stays either way, because
+            the BNPL estimate (unit × qty) and the Buy Now link both need a quantity even when nothing
+            has been added yet. */}
         <div className="mt-6 flex flex-wrap items-center gap-3">
+          {cartLine ? (
+            <CartQuantityStepper
+              productId={id}
+              productName={product.name}
+              className="min-w-[10rem] flex-1"
+            />
+          ) : (
           <div className="inline-flex items-center rounded-full border border-border">
             <button
               type="button"
@@ -338,25 +367,28 @@ export function ProductDetail() {
               <span aria-hidden="true">+</span>
             </button>
           </div>
+          )}
 
-          <button
-            type="button"
-            onClick={onAdd}
-            disabled={outOfStock}
-            className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {added ? (
-              <>
-                <CheckIcon className="buyo-pop h-5 w-5" />
-                {t.cart.added}
-              </>
-            ) : (
-              <>
-                <BagIcon className="h-5 w-5" />
-                {t.deals.addToCart}
-              </>
-            )}
-          </button>
+          {!cartLine && (
+            <button
+              type="button"
+              onClick={onAdd}
+              disabled={outOfStock}
+              className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {added ? (
+                <>
+                  <CheckIcon className="buyo-pop h-5 w-5" />
+                  {t.cart.added}
+                </>
+              ) : (
+                <>
+                  <BagIcon className="h-5 w-5" />
+                  {t.deals.addToCart}
+                </>
+              )}
+            </button>
+          )}
 
           <button
             type="button"
@@ -384,10 +416,35 @@ export function ProductDetail() {
           {t.pdp.buyNow}
         </button>
 
-        {/* BNPL */}
+        {/* BNPL, and the way to reach a person about this specific product.
+            The expert CTA lives INSIDE this card rather than after it for a reason: BnplOptions
+            renders nothing in browse-only regions (no payments enabled), which left this bordered box
+            empty on those markets. It is also deliberately NOT market-gated — somebody who cannot
+            check out here has all the more reason to want to ask a question. */}
         <div className="mt-5 rounded-2xl border border-border bg-surface p-4">
           <BnplOptions total={unit * qty} />
+          <a
+            href={whatsAppUrl(t.pdp.talkToExpertMessage.replace("{product}", product.name))}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand-soft text-sm font-semibold text-brand transition-colors hover:bg-brand hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            <WhatsAppIcon className="h-4 w-4" />
+            {t.pdp.talkToExpert}
+          </a>
         </div>
+
+        {/* Dithari, who certify the refurbishment. A factual claim, so it links out to them rather
+            than asserting it unsupported. */}
+        <a
+          href={DITHARI_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-full text-xs font-semibold text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <ShieldCheckIcon className="h-3.5 w-3.5 text-gold" />
+          {t.pdp.dithariCertified}
+        </a>
 
         {/* Trust — real where the catalogue speaks, generic otherwise. */}
         <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">

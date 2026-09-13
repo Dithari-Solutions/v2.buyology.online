@@ -23,7 +23,6 @@ import {
   createOrder,
   repayOrder,
   fetchDeliveryQuote,
-  fetchExpressStores,
   type DeliveryQuote,
   fetchPickupStores,
   initiatePayment,
@@ -54,7 +53,12 @@ export const PENDING_ORDER_KEY = "buyo_pending_order";
 export const BUYNOW_ORDER_KEY = "buyo_buynow_order";
 
 type Fulfilment = "DELIVERY" | "PICKUP";
-type Method = "EXPRESS" | "REGULAR";
+/**
+ * Every delivery order ships REGULAR. 30-minute delivery is switched off — the cart says
+ * expressAvailable: false, the express-store list comes back empty and the order pipeline refuses
+ * EXPRESS — so a choice here could only lead a customer to a method that fails at the last step.
+ */
+const DELIVERY_METHOD = "REGULAR" as const;
 
 const card = "rounded-2xl border border-border bg-surface p-5";
 const radioCls =
@@ -94,7 +98,6 @@ export function CheckoutView() {
   const effectiveFulfilment: Fulfilment = buyNow ? "DELIVERY" : fulfilment;
   const [addressId, setAddressId] = useState<string | null>(null);
   const [pickupStoreId, setPickupStoreId] = useState<string | null>(null);
-  const [method, setMethod] = useState<Method>("REGULAR");
   // "COD" is not a gateway method — it is the absence of one. Kept in the same radio group
   // because to the customer it is simply another way to pay, and mapped back at submit time.
   const [payMethod, setPayMethod] = useState<PaymentMethod | "COD">("CARD");
@@ -168,7 +171,6 @@ export function CheckoutView() {
     };
   }, [fulfilment, stores]);
 
-  // ── Express eligibility: judged from the delivery ADDRESS's pin, all lines in range ──
   const cartSelected = useMemo(
     () => cart.items.filter((l) => l.selected && l.selectable),
     [cart.items],
@@ -185,43 +187,13 @@ export function CheckoutView() {
         currency: bnProduct.currency,
         qty: bnQty,
         storeId: bnStoreId,
+        // Buy Now is priced by /api/orders/delivery-quote, which quotes the rate but no per-line
+        // tax, so the note for this row states the rate without an amount rather than deriving one.
+        vatAmount: null,
       },
     ];
   }, [buyNow, cartSelected, bnProductId, bnStoreId, bnProduct, bnQty]);
   const address = addresses?.find((a) => a.id === addressId) ?? null;
-  // Keyed by the address pin so a stale answer for another address can never leak in;
-  // an unanswered lookup means express is simply not offered — never guessed.
-  const coordKey =
-    address?.latitude != null && address?.longitude != null
-      ? `${address.latitude},${address.longitude}`
-      : null;
-  const [expressRes, setExpressRes] = useState<{ key: string; ids: string[] } | null>(null);
-  useEffect(() => {
-    if (!coordKey) return;
-    let cancelled = false;
-    const [lat, lng] = coordKey.split(",").map(Number);
-    fetchExpressStores(lat, lng)
-      .then((res) => {
-        if (!cancelled) setExpressRes({ key: coordKey, ids: res.storeIds });
-      })
-      .catch(() => {
-        /* unanswered — never offer express on a guess */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [coordKey]);
-  const expressStoreIds = expressRes?.key === coordKey ? expressRes.ids : null;
-
-
-  const expressAvailable =
-    effectiveFulfilment === "DELIVERY" &&
-    expressStoreIds !== null &&
-    selectedLines.length > 0 &&
-    selectedLines.every((l) => l.storeId && expressStoreIds.includes(l.storeId));
-  const addressHasPin = address?.latitude != null && address?.longitude != null;
-  // Losing eligibility mid-edit silently falls back to standard — derived, never a state write.
-  const effectiveMethod: Method = method === "EXPRESS" && !expressAvailable ? "REGULAR" : method;
 
   // ── Money (display only; the order's own total is what gets charged) ───────
   const currency = buyNow ? bnProduct?.currency : cart.currency;
@@ -241,26 +213,27 @@ export function CheckoutView() {
     : free
       ? 0
       : cart.fees?.deliveryFee ?? null;
-  const expressFee = buyNow
-    ? free
-      ? 0
-      : bnQuote?.expressFee ?? null
-    : free
-      ? 0
-      : cart.fees?.expressFee ?? null;
-  const shownFee =
-    effectiveFulfilment === "PICKUP" ? 0 : effectiveMethod === "EXPRESS" ? expressFee : standardFee;
+  const shownFee = effectiveFulfilment === "PICKUP" ? 0 : standardFee;
   // Mirror the backend clamp: a fixed discount can eat the delivery fee too.
   const discount = promo?.valid
     ? Math.min(promo.discountAmount ?? 0, subtotal + (shownFee ?? 0))
     : 0;
-  const netTotal = Math.max(0, subtotal + (shownFee ?? 0) - discount);
-  // The rate is quoted by the server (the cart for a normal checkout, the delivery quote for Buy
-  // Now). The page only applies the arithmetic the server has already agreed to; where no rate
-  // came back, no VAT line is shown and no tax is added.
+  // Catalogue prices INCLUDE VAT, so no tax is added here: the total is goods + delivery − discount,
+  // exactly what the order will carry. This page used to take 5% of that figure and add it on, which
+  // charged the customer the tax a second time over the price they had been shown.
+  const total = Math.max(0, subtotal + (shownFee ?? 0) - discount);
+  // The rate comes from the server (the cart for a normal checkout, the delivery quote for Buy Now)
+  // and is sent whenever the market is taxed — so the VAT label gates on it, never on an amount.
   const vatRate = buyNow ? bnQuote?.vatRatePercent ?? null : cart.fees?.vatRatePercent ?? null;
-  const vatAmount = vatRate != null ? Math.round(netTotal * vatRate) / 100 : 0;
-  const total = netTotal + vatAmount;
+  // Only the server extracts the amount (one VatPolicy, to the fils). Its cart figure was extracted
+  // from goods + delivery with no promo applied, so once a discount or store pickup has moved the
+  // total it no longer describes it — the row then states the rate alone instead of a number nothing
+  // has agreed to. Buy Now's quote carries no amount at all.
+  const vatAmount =
+    !buyNow && discount === 0 && effectiveFulfilment === "DELIVERY"
+      ? cart.fees?.vatAmount ?? null
+      : null;
+  const vatLabel = vatRate != null ? c.vat.replace("{rate}", String(vatRate)) : null;
 
   // Is cash on offer for this exact checkout? Re-asked as the total moves, because the answer
   // depends on it: the ceiling is per order. Selecting cash and then adding an item that pushes
@@ -375,7 +348,7 @@ export function CheckoutView() {
       if (buyNow) {
         // An identical retry recharges the order this tab already created instead of minting
         // another (the backend also supersedes stranded buy-now orders — belt and braces).
-        const intentKey = ["bn", bnProductId, bnStoreId, bnQty, addressId, effectiveMethod, coupon ?? ""].join("|");
+        const intentKey = ["bn", bnProductId, bnStoreId, bnQty, addressId, DELIVERY_METHOD, coupon ?? ""].join("|");
         try {
           const stored = JSON.parse(sessionStorage.getItem(BUYNOW_ORDER_KEY) ?? "null") as
             | { key: string; orderId: string }
@@ -408,7 +381,7 @@ export function CheckoutView() {
           storeId: bnStoreId!,
           quantity: bnQty,
           addressId: addressId!,
-          deliveryMethod: effectiveMethod,
+          deliveryMethod: DELIVERY_METHOD,
           couponCode: coupon,
           paymentMethod: payMethod === "COD" ? "CASH_ON_DELIVERY" : undefined,
         });
@@ -423,7 +396,7 @@ export function CheckoutView() {
         // 3. Create (or reuse) the order — the server prices everything.
         order = await createOrder(credId, {
           cartId: checked.id,
-          deliveryMethod: fulfilment === "PICKUP" ? "PICKUP" : effectiveMethod,
+          deliveryMethod: fulfilment === "PICKUP" ? "PICKUP" : DELIVERY_METHOD,
           addressId: fulfilment === "DELIVERY" ? addressId ?? undefined : undefined,
           pickupStoreId: fulfilment === "PICKUP" ? pickupStoreId ?? undefined : undefined,
           couponCode: coupon,
@@ -480,7 +453,7 @@ export function CheckoutView() {
       setPlacing(false);
       cart.refresh(); // stock errors may have changed what's orderable
     }
-  }, [credId, uid, profile, promo, subtotal, selectedLines, fulfilment, effectiveMethod, addressId, pickupStoreId, payMethod, cart, c, buyNow, bnProductId, bnStoreId, bnQty, router]);
+  }, [credId, uid, profile, promo, subtotal, selectedLines, fulfilment, addressId, pickupStoreId, payMethod, cart, c, buyNow, bnProductId, bnStoreId, bnQty, router]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   if (
@@ -724,62 +697,24 @@ export function CheckoutView() {
             )}
           </section>
 
-          {/* Delivery method */}
+          {/* Delivery — stated, not chosen: one flat rate for every order, read from the server. */}
           {effectiveFulfilment === "DELIVERY" && (
             <section className={card}>
-              <h2 className="mb-4 font-semibold text-foreground">{c.method}</h2>
-              <div className="grid gap-2 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => setMethod("REGULAR")}
-                  aria-pressed={effectiveMethod === "REGULAR"}
-                  className={`rounded-xl border p-4 text-start transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                    effectiveMethod === "REGULAR" ? "border-brand bg-brand-soft/40" : "border-border hover:border-border-strong"
-                  }`}
-                >
-                  <span className="flex items-center gap-2 font-semibold text-foreground">
-                    <TruckIcon className="h-4 w-4 text-gold" />
-                    {c.standard}
-                  </span>
-                  <span className="mt-1 block text-sm text-muted">
-                    {standardFee === 0 ? (
-                      t.cart.free
-                    ) : standardFee != null ? (
-                      <span dir="ltr">{formatMoney(standardFee, currency)}</span>
-                    ) : (
-                      t.cart.shippingAtCheckout
-                    )}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  disabled={!expressAvailable}
-                  onClick={() => setMethod("EXPRESS")}
-                  aria-pressed={effectiveMethod === "EXPRESS"}
-                  className={`rounded-xl border p-4 text-start transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${
-                    effectiveMethod === "EXPRESS" ? "border-brand bg-brand-soft/40" : "border-border hover:border-border-strong"
-                  }`}
-                >
-                  <span className="flex items-center gap-2 font-semibold text-foreground">
-                    <TruckIcon className="h-4 w-4 text-gold" />
-                    {c.express}
-                  </span>
-                  <span className="mt-1 block text-sm text-muted">
-                    {expressAvailable ? (
-                      expressFee === 0 ? (
-                        t.cart.free
-                      ) : expressFee != null ? (
-                        <span dir="ltr">{formatMoney(expressFee, currency)}</span>
-                      ) : (
-                        t.cart.shippingAtCheckout
-                      )
-                    ) : !addressHasPin ? (
-                      c.expressNeedsPin
-                    ) : (
-                      c.expressUnavailable
-                    )}
-                  </span>
-                </button>
+              <h2 className="mb-4 font-semibold text-foreground">{c.delivery}</h2>
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border p-4">
+                <span className="flex items-center gap-2 font-semibold text-foreground">
+                  <TruckIcon className="h-4 w-4 text-gold" />
+                  {c.standard}
+                </span>
+                <span className="text-sm text-muted">
+                  {standardFee === 0 ? (
+                    t.cart.free
+                  ) : standardFee != null ? (
+                    <span dir="ltr">{formatMoney(standardFee, currency)}</span>
+                  ) : (
+                    t.cart.shippingAtCheckout
+                  )}
+                </span>
               </div>
             </section>
           )}
@@ -830,13 +765,29 @@ export function CheckoutView() {
 
             <ul className="mb-4 space-y-2 text-sm">
               {selectedLines.map((l) => (
-                <li key={l.id} className="flex justify-between gap-3">
-                  <span className="min-w-0 truncate text-muted">
-                    {l.qty} × {l.name}
-                  </span>
-                  <span className="shrink-0 font-medium text-foreground" dir="ltr">
-                    {formatMoney(l.price * l.qty, l.currency)}
-                  </span>
+                <li key={l.id}>
+                  <div className="flex justify-between gap-3">
+                    <span className="min-w-0 truncate text-muted">
+                      {l.qty} × {l.name}
+                    </span>
+                    <span className="shrink-0 font-medium text-foreground" dir="ltr">
+                      {formatMoney(l.price * l.qty, l.currency)}
+                    </span>
+                  </div>
+                  {/* The tax already INSIDE that price. Each line is rounded on its own, so these are
+                      not meant to add up to the summary row below — the server extracts that one from
+                      the whole amount. */}
+                  {vatRate != null && (
+                    <p className="mt-0.5 text-[11px] text-muted">
+                      {t.cart.vatIncluded.replace("{rate}", String(vatRate))}
+                      {l.vatAmount != null && (
+                        <>
+                          {" "}
+                          <span dir="ltr">({formatMoney(l.vatAmount, l.currency)})</span>
+                        </>
+                      )}
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>
@@ -885,9 +836,9 @@ export function CheckoutView() {
                   <dd className="text-muted">{t.cart.shippingAtCheckout}</dd>
                 )}
               </div>
-              {vatRate != null && (
+              {vatLabel && vatAmount != null && (
                 <div className="flex items-center justify-between">
-                  <dt className="text-muted">{c.vat.replace("{rate}", String(vatRate))}</dt>
+                  <dt className="text-muted">{vatLabel}</dt>
                   <dd className="font-medium text-foreground" dir="ltr">
                     {formatMoney(vatAmount, currency)}
                   </dd>
@@ -900,6 +851,10 @@ export function CheckoutView() {
                 {formatMoney(total, currency)}
               </span>
             </div>
+            {/* Same statement as the row above, for the totals the server quoted no figure for. */}
+            {vatLabel && vatAmount == null && (
+              <p className="mt-2 text-xs text-muted">{vatLabel}</p>
+            )}
             <p className="mt-2 text-xs text-muted">{c.totalNote}</p>
 
             <button

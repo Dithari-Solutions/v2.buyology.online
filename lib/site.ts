@@ -79,4 +79,20 @@ export const site = {
 /** Corporate/about site — a separate property from this storefront. */
 export const WHO_WE_ARE_URL = "https://web.buyology.online";
 
+/** Dithari — the technology partner credited in the footer and on the product page. */
+export const DITHARI_URL = "https://dithari.com";
+
+/**
+ * A wa.me link that opens WhatsApp with a message already typed.
+ *
+ * <p>The number must have NO leading "+" and no spaces — wa.me silently fails to resolve a chat
+ * otherwise, which looks like a dead button rather than a bad URL. site.contact.phoneE164 carries the
+ * plus, so it is stripped here rather than at each call site.
+ */
+export function whatsAppUrl(message?: string): string {
+  const number = site.contact.phoneE164.replace(/\D/g, "");
+  const base = `https://wa.me/${number}`;
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+}
+
 export type Site = typeof site;

@@ -28,14 +28,31 @@ import { BagIcon, CloseIcon, LifeBuoyIcon, SettingsIcon } from "@/components/ico
 
 const PAGE = 9;
 
+// How many consecutive catalogue pages may come back with nothing renderable before the scroll
+// loader gives up. A page can legitimately add zero products — every row on it unavailable in the
+// selected country — so one empty page is not the end of the catalogue; ten in a row effectively is.
+const MAX_EMPTY_PAGE_PULLS = 10;
+
 export function ProductsView({ initialCategory }: { initialCategory?: string }) {
   const { t, locale } = useI18n();
 
+  // How many of the loaded products are revealed. Declared up here with the browse-mode state rather
+  // than beside the filter controls, because the catalogue fetch below has to reset it.
+  const [visible, setVisible] = useState(PAGE);
+
   // ── Browse mode: the plain catalogue, accumulated page by page ─────────────
   const [catalog, setCatalog] = useState<Product[] | null>(null);
-  const [serverPage, setServerPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  // Which page we are on, and whether a fetch is in flight, held as refs rather than state.
+  //
+  // revealMore can pull SEVERAL pages within one turn (see loadNextServerPage), and state does not
+  // update between iterations of a loop — so a state-based page number would request page 1 three
+  // times, and a state-based busy flag would not stop the scroll observer firing again before React
+  // re-rendered. Neither value is rendered, so nothing is lost by keeping them out of state.
+  const serverPageRef = useRef(0);
+  const loadingMoreRef = useRef(false);
 
   const [browseError, setBrowseError] = useState(false);
   // A fetch failure must not masquerade as an empty catalogue, and stale responses (locale
@@ -50,8 +67,13 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
       .then(({ items, hasMore: more }) => {
         if (gen !== catalogGen.current) return;
         setCatalog(items);
-        setServerPage(0);
+        serverPageRef.current = 0;
         setHasMore(more);
+        // Back to the first screenful, because this replaced the catalogue. Not needed while loading
+        // was driven by a button — it only meant a locale switch kept its scroll depth — but with a
+        // sentinel a large `visible` over a freshly-reloaded catalogue leaves it on screen, and it
+        // starts pulling pages on its own.
+        setVisible(PAGE);
         setBrowseError(false);
       })
       .catch(() => {
@@ -59,20 +81,34 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
       });
   }, [locale, retryNonce]);
 
-  async function loadNextServerPage() {
-    if (!hasMore || loadingMore) return;
+  /**
+   * Pulls the next catalogue page, reporting what it added and whether any remain.
+   *
+   * <p>The row count matters to the caller: a page of 24 can yield ZERO renderable products, because
+   * withCategoryNames drops rows that are not available in the selected country AFTER the page is
+   * fetched, while `hasMore` is derived from the PRE-filter length and so stays true. A loader that
+   * assumed one page meant one screenful would sit at the bottom of the grid forever with nothing new
+   * appearing. revealMore uses the count to keep going.
+   */
+  async function loadNextServerPage(): Promise<{ added: number; more: boolean }> {
+    if (loadingMoreRef.current) return { added: 0, more: hasMore };
+    loadingMoreRef.current = true;
     setLoadingMore(true);
     const gen = catalogGen.current;
     try {
-      const next = serverPage + 1;
+      const next = serverPageRef.current + 1;
       const { items, hasMore: more } = await fetchProducts(locale, { page: next });
-      if (gen !== catalogGen.current) return; // a locale switch replaced the catalogue meanwhile
+      if (gen !== catalogGen.current) return { added: 0, more: false }; // a locale switch replaced it
       setCatalog((prev) => [...(prev ?? []), ...items]);
-      setServerPage(next);
+      serverPageRef.current = next;
       setHasMore(more);
+      return { added: items.length, more };
     } catch {
-      /* keep what we have */
+      // Keep what we have, and report nothing left to pull so the sentinel stops asking. A retry is
+      // still reachable — the error card owns the grid and offers one.
+      return { added: 0, more: false };
     } finally {
+      loadingMoreRef.current = false;
       setLoadingMore(false);
     }
   }
@@ -97,7 +133,6 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
 
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [sort, setSort] = useState<SortKey>("featured");
-  const [visible, setVisible] = useState(PAGE);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   // /products?category= — new links carry the category ID (locale-invariant); older links and
@@ -230,6 +265,66 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
   const loadError = serverKey !== null ? searchError : browseError;
   const initialLoading =
     serverKey !== null ? results === null : catalog === null;
+
+  // ── Loading on scroll ──────────────────────────────────────────────────────
+  //
+  // There are two different "more" here and the sentinel has to serve both. `visible` is a purely
+  // client-side reveal over what is in memory; in BROWSE mode there is also a server page to pull.
+  // In FILTERED mode there is not — /api/product/search returns the complete matched set in one
+  // response, and the client predicates and sorting in lib/shop depend on having all of it — so
+  // asking for another page there would be wrong, not just wasteful.
+  const canRevealMore =
+    visible < filtered.length || (serverKey === null && hasMore);
+
+  const revealingRef = useRef(false);
+
+  async function revealMore() {
+    if (revealingRef.current || !canRevealMore) return;
+    revealingRef.current = true;
+    try {
+      setVisible((v) => v + PAGE);
+
+      if (serverKey !== null) return; // filtered mode: everything is already in memory
+      // Still revealing rows we already hold — no need to go to the network yet.
+      if (visible + PAGE < (catalog?.length ?? 0)) return;
+
+      // The loop is for the empty-page case: a page whose every row is unavailable in the selected
+      // country adds nothing renderable, and stopping after one would leave the sentinel sitting on
+      // screen with no new products and no reason to fire again. Bounded, because "keep fetching
+      // until something appears" over a catalogue with nothing left for this market is an infinite
+      // scroll in the wrong sense of the phrase.
+      let attempts = 0;
+      let more = hasMore;
+      while (more && attempts < MAX_EMPTY_PAGE_PULLS) {
+        attempts += 1;
+        const { added, more: remaining } = await loadNextServerPage();
+        more = remaining;
+        if (added > 0) break;
+      }
+    } finally {
+      revealingRef.current = false;
+    }
+  }
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node || !canRevealMore) return;
+
+    // rootMargin so the next batch is already arriving as the last row comes into view, rather than
+    // the user reaching the bottom and then waiting.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) void revealMore();
+      },
+      { rootMargin: "600px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+    // revealMore closes over the current page/filter state, so the observer is rebuilt when any of
+    // that changes — which is also what re-fires it if the sentinel is still on screen after a batch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canRevealMore, visible, filtered.length, hasMore, serverKey, locale]);
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -448,26 +543,40 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
                   />
                 ))}
               </div>
-              {(visible < filtered.length || (serverKey === null && hasMore)) && (
-                <div className="mt-8 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVisible((v) => v + PAGE);
-                      // Browse mode nears the end of what is loaded → pull the next server
-                      // page. Filtered mode already holds the complete matched set.
-                      if (
-                        serverKey === null &&
-                        visible + PAGE >= (catalog?.length ?? 0)
-                      )
-                        void loadNextServerPage();
-                    }}
-                    className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {t.shop.loadMore}
-                  </button>
-                </div>
+              {canRevealMore && (
+                <>
+                  {/* What the observer watches. Empty and unstyled: it exists to cross the viewport
+                      edge, and the spinner below is what the user actually sees. */}
+                  <div ref={sentinelRef} aria-hidden="true" className="h-px w-full" />
+                  <div className="mt-8 flex flex-col items-center gap-3">
+                    {/* Only while a fetch is actually in flight. `loadingMore` was tracked and never
+                        rendered before, so a page fetch behind the button gave no feedback at all. */}
+                    {loadingMore && (
+                      <span
+                        className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary"
+                        aria-hidden="true"
+                      />
+                    )}
+                    {/* Scrolling is not the only way to operate a page. Removing the button removed
+                        the sole keyboard-reachable way to load more, and an observer says nothing to a
+                        screen reader — so the button stays, visible only when focused, and the status
+                        region announces each batch. */}
+                    <button
+                      type="button"
+                      onClick={() => void revealMore()}
+                      className="sr-only rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground focus-visible:not-sr-only focus-visible:relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      {t.shop.loadMore}
+                    </button>
+                  </div>
+                </>
               )}
+              {/* An observer firing is silent. This is what tells a screen-reader user that more
+                  products arrived, using the same count/label pair as the toolbar so no new
+                  translation key is needed. */}
+              <p aria-live="polite" aria-atomic="true" className="sr-only">
+                {shown.length} {t.shop.results}
+              </p>
             </>
           )}
         </div>

@@ -1,0 +1,19 @@
+<!--
+  PLACEHOLDER — replace this file with Dithari's real logo, keeping the filename.
+
+  It is referenced by components/footer/Footer.tsx ("Powered by Dithari") and by the product detail
+  page ("Dithari Certified"). Overwriting this file is the whole handover; no code needs to change.
+
+  Two constraints on the replacement, both learned the hard way from the footer:
+
+  1. It must be LIGHT / knockout. The footer band is a fixed dark gradient (#402f75 -> #2b1f52) in
+     BOTH light and dark themes, so a dark-ink logo is invisible there. This placeholder paints with
+     currentColor and inherits the footer's white text; a supplied asset should carry its own light
+     artwork.
+  2. Keep it an SVG, or update the width/height in the components. It is rendered with `unoptimized`
+     because SVG is already resolution-independent and Next refuses to run SVGs through the image
+     optimizer without dangerouslyAllowSVG, which is not worth enabling for one asset.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 24" width="132" height="24" role="img" aria-label="Dithari">
+  <text x="0" y="17.5" fill="currentColor" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" letter-spacing="0.5">Dithari</text>
+</svg>

@@ -26,10 +26,13 @@ const checkboxCls =
 /** One rich cart line: tick-to-buy, image, rating, qty, save-for-later. */
 function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
   const { t } = useI18n();
-  const { removeItem, setQty, setSelected, saveForLater, moveToCart } = useCart();
+  const { removeItem, setQty, setSelected, saveForLater, moveToCart, fees } = useCart();
   const { product: detail, loading } = useProductLookup(line.productId);
   const name = detail?.name ?? line.name;
   const filled = detail ? Math.round(detail.rating) : 0;
+  // Gated on the market's rate, not on the line's amount: a taxed market quotes a rate even where
+  // the extracted figure rounds to nothing, and a missing amount is "untaxed/unknown", not zero.
+  const vatRate = fees?.vatRatePercent ?? null;
 
   return (
     <li className="flex flex-col gap-4 p-4 sm:flex-row">
@@ -141,11 +144,16 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
               <span className="min-w-6 text-center text-sm font-medium tabular-nums text-foreground">
                 {line.qty}
               </span>
+              {/* Stops at what the server will actually accept. null means this product's stock is
+                  not tracked, so there is no ceiling — reading it as 0 would make every untracked
+                  product un-incrementable. Without this the stepper counted freely to MAX_QTY and the
+                  customer learned the limit from a rejected request. */}
               <button
                 type="button"
                 onClick={() => setQty(line.id, line.qty + 1)}
+                disabled={line.availableUnits != null && line.qty >= line.availableUnits}
                 aria-label={`${t.cart.increase}: ${name}`}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <span aria-hidden="true">+</span>
               </button>
@@ -182,6 +190,15 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
             {line.qty > 1 && (
               <p className="text-[11px] text-muted" dir="ltr">
                 {line.qty} × {formatMoney(line.price, line.currency)}
+              </p>
+            )}
+            {/* The tax already INSIDE this price, named for the shopper — never added to it. Each
+                line is rounded on its own, so these deliberately do not read as a sum of the
+                summary's VAT row, which is extracted from goods plus delivery. */}
+            {vatRate != null && line.vatAmount != null && (
+              <p className="mt-0.5 text-[11px] text-muted">
+                {t.cart.vatIncluded.replace("{rate}", String(vatRate))}{" "}
+                <span dir="ltr">({formatMoney(line.vatAmount, line.currency)})</span>
               </p>
             )}
           </div>
@@ -260,12 +277,12 @@ export function CartView() {
   const shippingFree =
     fees?.qualifiesForFreeShipping === true || (shippingKnown && fees.deliveryFee === 0);
   const shippingFee = shippingKnown && !shippingFree ? fees.deliveryFee! : 0;
-  // VAT is shown only when the server actually quoted it. Rendering a computed 5% while the
-  // server's figures are unknown (guest mode, FX failure) would put a number on the page that
-  // nothing has agreed to charge.
+  // VAT is DISPLAYED but never added: catalogue prices already contain it, so the total is goods
+  // plus delivery and this figure is how much of that total IS tax. Gated on the rate — which the
+  // server sends whenever the market is taxed, even for an empty basket — and not on the amount,
+  // so a zero-value cart still says what the rate is instead of hiding the row.
   const vatRate = fees?.vatRatePercent ?? null;
-  const vatAmount = fees?.vatAmount ?? null;
-  const vatKnown = vatRate != null && vatAmount != null;
+  const vatAmount = fees?.vatAmount ?? 0;
   // The server's own total wins whenever it sent one — it is the figure the order will carry.
   const total = fees?.estimatedTotal ?? subtotal + shippingFee;
 
@@ -431,7 +448,7 @@ export function CartView() {
                 <dd className="text-muted">{t.cart.shippingAtCheckout}</dd>
               )}
             </div>
-            {vatKnown && (
+            {vatRate != null && (
               <div className="flex items-center justify-between">
                 <dt className="text-muted">{t.cart.vat.replace("{rate}", String(vatRate))}</dt>
                 <dd className="font-medium text-foreground" dir="ltr">
