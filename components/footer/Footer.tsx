@@ -161,31 +161,31 @@ export async function Footer() {
             </div>
           </div>
         </div>
-        {/* Powered by Dithari — its own band above the fine print, not a footnote beside it. A partner
-            credit that reads as small print reads as a disclaimer; given its own rule and centred, at a
-            legible size, it reads as an attribution.
+        {/* Powered by Dithari — its own centred band above the fine print rather than a footnote beside
+            it, so a partner credit does not read as a disclaimer. Sized just above the legal line and no
+            more: at 28px the logo competed with the Buyology mark at the top of the footer.
 
             The footer is a fixed dark gradient in BOTH themes, so the mark has to be a light one —
             public/dithari-logo.svg paints with currentColor and inherits this white. Served
             `unoptimized` because an SVG is already resolution-independent and Next refuses to put SVGs
             through the image optimizer without dangerouslyAllowSVG, which is not worth enabling
             site-wide for one asset. */}
-        <div className="mx-auto max-w-[1400px] px-4 pb-5 sm:px-6">
-          <div className="flex justify-center border-t border-white/10 pt-5">
+        <div className="mx-auto max-w-[1400px] px-4 pb-4 sm:px-6">
+          <div className="flex justify-center border-t border-white/10 pt-4">
             <a
               href={DITHARI_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2.5 rounded-lg px-3 py-2 text-white/60 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 sm:gap-3"
+              className="group inline-flex items-center gap-2 rounded-lg px-2 py-1 text-white/50 transition-colors hover:bg-white/5 hover:text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
             >
-              <span className="text-sm font-medium tracking-wide sm:text-base">{f.poweredBy}</span>
+              <span className="text-xs font-medium tracking-wide">{f.poweredBy}</span>
               <Image
                 src="/dithari-logo.svg"
                 alt="Dithari"
                 width={132}
                 height={24}
                 unoptimized
-                className="h-6 w-auto opacity-80 transition-opacity group-hover:opacity-100 sm:h-7"
+                className="h-[18px] w-auto opacity-75 transition-opacity group-hover:opacity-100"
               />
             </a>
           </div>
