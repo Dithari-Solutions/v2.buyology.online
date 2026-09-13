@@ -417,7 +417,10 @@ export function CheckoutView() {
           /* ignore */
         }
         if (!buyNow) cart.refresh();
-        router.replace(`/orders/${order.id}`);
+        // /account/orders/{id} — there is no /orders route, so this sent every cash order to a 404.
+        // Reached only by the cash branch, which is why it had never fired: every other link in the
+        // app (account order list, order detail, tracking, payment callback) already uses this path.
+        router.replace(`/account/orders/${order.id}`);
         return;
       }
       // 4. Charge exactly the order's own total.
@@ -753,6 +756,14 @@ export function CheckoutView() {
                     <span className="block text-xs text-muted">{c.codHint}</span>
                   </span>
                 </label>
+              )}
+              {/* Say WHY, when the reason is about this particular order rather than about cash being
+                  switched off. A basket over the ceiling simply lost the option with no explanation,
+                  which reads as the site being broken — and the server has always sent the reason and
+                  the limit, and the translated string has always existed. Suppressed when cash is off
+                  entirely: nobody needs telling that a method they have never seen is unavailable. */}
+              {cod && !cod.available && cod.maxOrderTotalAed != null && (
+                <p className="px-1 text-xs text-muted">{c.codUnavailable}</p>
               )}
             </div>
           </section>
