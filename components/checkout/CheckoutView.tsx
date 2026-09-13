@@ -250,10 +250,13 @@ export function CheckoutView() {
         if (!a.available) setPayMethod((m) => (m === "COD" ? "CARD" : m));
       })
       .catch(() => {
-        if (!cancelled) {
-          setCod(null);
-          setPayMethod((m) => (m === "COD" ? "CARD" : m));
-        }
+        // Keep whatever the server last said. Resetting to null hid the cash option in a way that is
+        // indistinguishable from cash being switched off — and this call is easy to lose: it sits in
+        // the PUBLIC rate-limit tier, whose 100/min bucket is keyed on the proxy IP and therefore
+        // shared by every visitor on the platform, and this effect re-fires whenever the total moves.
+        // A dropped request must not silently remove a payment method the customer is entitled to.
+        // Only the FIRST answer is allowed to be "unknown", and then the option stays hidden because
+        // offering it unverified is the worse failure. So: deliberately nothing.
       });
     return () => {
       cancelled = true;
@@ -757,13 +760,17 @@ export function CheckoutView() {
                   </span>
                 </label>
               )}
-              {/* Say WHY, when the reason is about this particular order rather than about cash being
-                  switched off. A basket over the ceiling simply lost the option with no explanation,
-                  which reads as the site being broken — and the server has always sent the reason and
-                  the limit, and the translated string has always existed. Suppressed when cash is off
-                  entirely: nobody needs telling that a method they have never seen is unavailable. */}
-              {cod && !cod.available && cod.maxOrderTotalAed != null && (
-                <p className="px-1 text-xs text-muted">{c.codUnavailable}</p>
+              {/* Say WHY, when cash is offered but this order does not qualify — a basket over the
+                  ceiling, or a market that is not served. Silence there reads as the site being broken.
+                  Suppressed when cash is switched off entirely: nobody needs telling that a method they
+                  have never seen is unavailable.
+                  Gated on `offered`, which the server sends for exactly this decision. It used to be
+                  inferred from whether a ceiling existed, which was wrong — with no ceiling configured
+                  (the default) every refusal looked like "switched off" and nothing was ever explained,
+                  including the one case this was written for. The server's own wording is preferred
+                  over the generic string because it names the limit. */}
+              {cod && !cod.available && cod.offered === true && (
+                <p className="px-1 text-xs text-muted">{cod.reason ?? c.codUnavailable}</p>
               )}
             </div>
           </section>

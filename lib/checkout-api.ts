@@ -76,7 +76,17 @@ export function createBuyNowOrder(
 // ── Cash on delivery ─────────────────────────────────────────────────────────
 
 export type CashOnDeliveryAvailability = {
+  /** Whether THIS order may be paid in cash. */
   available: boolean;
+  /**
+   * Whether the platform offers cash at all, regardless of this order.
+   *
+   * <p>The difference decides whether the page explains itself. Cash switched off: say nothing, nobody
+   * wants to hear about a method they have never seen. Cash on but this order refused: say why, or the
+   * option vanishing reads as the site being broken. Optional because a client build older than the
+   * field will not receive it.
+   */
+  offered?: boolean;
   /** The customer-facing explanation when it is not on offer; null when it is. */
   reason: string | null;
   /** The single-order ceiling in AED, or null when there is none. */
