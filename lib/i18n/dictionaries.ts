@@ -582,6 +582,10 @@ export interface Dict {
     color: string;
     configuration: string;
     inStock: string;
+    /** Shown in place of inStock when the product cannot be bought. */
+    outOfStock: string;
+    /** Low-stock urgency. {n} is the number of units left. */
+    onlyLeft: string;
     freeDelivery: string;
     deliveryNote: string;
     warranty: string;
@@ -1842,6 +1846,8 @@ const en: Dict = {
     color: "Color",
     configuration: "Configuration",
     inStock: "In stock",
+    outOfStock: "Out of stock",
+    onlyLeft: "Only {n} left",
     freeDelivery: "Free next-day delivery",
     deliveryNote: "Order within 4 hours for delivery tomorrow",
     warranty: "1-year warranty",
@@ -3250,6 +3256,8 @@ const az: Dict = {
     color: "Rəng",
     configuration: "Konfiqurasiya",
     inStock: "Stokda var",
+    outOfStock: "Stokda yoxdur",
+    onlyLeft: "Yalnız {n} ədəd qaldı",
     freeDelivery: "Pulsuz növbəti gün çatdırılma",
     deliveryNote: "Sabah çatdırılma üçün 4 saat ərzində sifariş verin",
     warranty: "1 illik zəmanət",
@@ -4671,6 +4679,8 @@ const ar: Dict = {
     color: "اللون",
     configuration: "التهيئة",
     inStock: "متوفّر",
+    outOfStock: "غير متوفّر",
+    onlyLeft: "بقي {n} فقط",
     freeDelivery: "توصيل مجاني في اليوم التالي",
     deliveryNote: "اطلب خلال 4 ساعات للتوصيل غدًا",
     warranty: "ضمان لمدة سنة واحدة",

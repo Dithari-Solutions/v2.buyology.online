@@ -38,6 +38,13 @@ export type Product = {
   /** The store the price came from — required by the cart payload once checkout migrates. */
   storeId?: string;
   stock?: number;
+  /**
+   * Units the server will actually let somebody order, when this product's stock is tracked.
+   *
+   * <p>Undefined means NOT tracked — no ceiling. Distinct from `stock`, which is the old display-only
+   * urgency hint and does not limit anything.
+   */
+  availableUnits?: number;
   inStock?: boolean;
   slug?: string;
 };

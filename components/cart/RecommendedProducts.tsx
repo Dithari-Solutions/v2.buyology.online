@@ -10,6 +10,7 @@ import { useCart } from "@/components/cart/cart-provider";
 import { useFly } from "@/components/fx/FlyProvider";
 import { useI18n } from "@/components/i18n/language-provider";
 import { BagIcon, BotIcon, CheckIcon, SparklesIcon } from "@/components/icons";
+import { useCartLineFor } from "@/components/cart/CartQuantityStepper";
 
 
 function RecCard({ product }: { product: Product }) {
@@ -18,6 +19,15 @@ function RecCard({ product }: { product: Product }) {
   const { fly } = useFly();
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Deliberately NOT the full quantity stepper the listing cards and the product page use: this is a
+  // 36px icon button inside a narrow rail, and a minus/qty/plus control does not fit it. What it does
+  // need is the same ceiling, because without one this was the last place a customer could push a line
+  // past what is actually in stock and only find out at checkout.
+  const line = useCartLineFor(product.id);
+  const atCap =
+    (line?.availableUnits != null && line.qty >= line.availableUnits) ||
+    product.inStock === false ||
+    product.availableUnits === 0;
 
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
@@ -82,12 +92,13 @@ function RecCard({ product }: { product: Product }) {
         <button
           type="button"
           onClick={add}
-          aria-label={`${added ? t.cart.added : t.deals.addToCart}: ${product.name}`}
+          disabled={atCap}
+          aria-label={`${atCap ? t.pdp.outOfStock : added ? t.cart.added : t.deals.addToCart}: ${product.name}`}
           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
             added
               ? "bg-primary text-primary-fg"
               : "bg-surface-2 text-brand-icon hover:bg-primary hover:text-primary-fg"
-          }`}
+          } disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-surface-2 disabled:hover:text-brand-icon`}
         >
           {added ? (
             <CheckIcon className="buyo-pop h-4 w-4" />

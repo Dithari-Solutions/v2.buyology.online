@@ -52,6 +52,11 @@ export type ApiProduct = {
   availabilityStatus?: string | null;
   availableInSelectedCountry?: boolean | null;
   stockQuantity?: number | null;
+  /**
+   * Units on hand. ABSENT means this product's stock is not tracked and it sells without a limit —
+   * absent is not zero, and treating it as zero marks the whole catalogue sold out.
+   */
+  availableQuantity?: number | null;
   isSuperDeal?: boolean | null;
   isLimitedStock?: boolean | null;
   expressDelivery?: boolean | null;
@@ -190,6 +195,9 @@ export function toProduct(api: ApiProduct, categoryName?: string): Product {
     brand: api.brandName ?? undefined,
     storeId: api.storeId ?? undefined,
     stock: api.stockQuantity ?? undefined,
+    // Left undefined when the server omits it, so "not tracked" survives the mapping. Coalescing to 0
+    // here — as `rating` and `reviews` do, deliberately — would make every untracked product sold out.
+    availableUnits: api.availableQuantity ?? undefined,
     inStock: api.availabilityStatus !== "OUT_OF_STOCK",
     slug: api.slug ?? undefined,
   };

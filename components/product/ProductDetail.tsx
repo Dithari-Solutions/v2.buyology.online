@@ -86,7 +86,16 @@ export function ProductDetail() {
   });
   const extra = selectedOptions.reduce((acc, s) => acc + (s.option?.additionalPrice ?? 0), 0);
   const unit = product.price + extra;
-  const outOfStock = product.inStock === false;
+  // Sold out either because an admin marked it so, or because its tracked count is actually zero.
+  // The second half matters because a product can deplete without its status flipping, and the status
+  // is all this used to consult. `undefined` means stock is not tracked at all — no ceiling, never
+  // sold out, which is why this is a strict === 0 and not a falsy check.
+  const outOfStock = product.inStock === false || product.availableUnits === 0;
+  // Enough left to mention, and low enough to be worth mentioning.
+  const lowStock =
+    !outOfStock && product.availableUnits != null && product.availableUnits > 0 && product.availableUnits < 5
+      ? product.availableUnits
+      : null;
 
   function add(openDrawer: boolean) {
     // The configuration changes the unit price, so it is part of the line identity — otherwise
@@ -463,11 +472,11 @@ export function ProductDetail() {
             { icon: RentIcon, label: t.pdp.returns, sub: "" },
             {
               icon: CheckIcon,
-              label: outOfStock ? (t.account.orders.statuses.FAILED ?? t.pdp.inStock) : t.pdp.inStock,
-              sub:
-                !outOfStock && product.stock != null && product.stock > 0 && product.stock < 5
-                  ? `${product.stock}`
-                  : "",
+              // Was reusing the ORDER STATUS dictionary here, so an out-of-stock product announced
+              // "Delivery failed" — and the low-stock hint printed a bare integer with no label at all,
+              // so a product with 3 left simply said "3".
+              label: outOfStock ? t.pdp.outOfStock : t.pdp.inStock,
+              sub: lowStock != null ? t.pdp.onlyLeft.replace("{n}", String(lowStock)) : "",
             },
           ].map(({ icon: Icon, label, sub }) => (
             <li key={label} className="flex items-center gap-2.5">

@@ -93,10 +93,13 @@ export function CartQuantityStepper({
  * asking.
  *
  * <p>It prefers the line with no spec configuration. A product page can add the same product several
- * times with different specs, each its own line, and after a server round-trip specOptionIds are gone
- * from the mapped line — so a configured selection cannot be matched back to its line reliably. The
- * plain line is the one a listing card creates and the one an unconfigured page view means, and
- * falling back to the first match keeps the control working rather than vanishing.
+ * times with different specs, and each is its own line — so "the line for this product" is ambiguous
+ * the moment specs are involved. The plain line is the one a listing card creates and the one an
+ * unconfigured page view means, so it wins. When every line is configured there is no unambiguous
+ * answer, and it falls back to the first: the control stays usable rather than vanishing, and it edits
+ * a line the customer can see. Matching a specific configuration would mean comparing the mapped
+ * `specs` LABELS (mapServerCart keeps those, though not the option ids), which is not reliable enough
+ * to move somebody's basket on.
  */
 export function useCartLineFor(productId: string) {
   const { items, ready } = useCart();

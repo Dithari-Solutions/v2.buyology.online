@@ -26,6 +26,9 @@ export function AddToCartButton({ product }: { product: Product }) {
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const line = useCartLineFor(product.id);
+  // A tracked count of zero means it cannot be bought, whatever the status column says. undefined is
+  // "not tracked" — no ceiling — so this is a strict === 0, not a falsy test.
+  const soldOut = product.inStock === false || product.availableUnits === 0;
 
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
@@ -64,14 +67,17 @@ export function AddToCartButton({ product }: { product: Product }) {
       <button
         type="button"
         onClick={onClick}
-        aria-label={t.deals.addToCart}
+        disabled={soldOut}
+        aria-label={soldOut ? t.pdp.outOfStock : t.deals.addToCart}
         className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
           added
             ? "bg-primary text-primary-fg"
             : "bg-surface-2 text-foreground hover:bg-primary hover:text-primary-fg"
-        }`}
+        } disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-surface-2 disabled:hover:text-foreground`}
       >
-        {added ? (
+        {soldOut ? (
+          t.pdp.outOfStock
+        ) : added ? (
           <>
             <CheckIcon className="buyo-pop h-[18px] w-[18px]" />
             {t.cart.added}
