@@ -161,29 +161,37 @@ export async function Footer() {
             </div>
           </div>
         </div>
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-3 px-4 pb-6 sm:px-6">
+        {/* Powered by Dithari — its own band above the fine print, not a footnote beside it. A partner
+            credit that reads as small print reads as a disclaimer; given its own rule and centred, at a
+            legible size, it reads as an attribution.
+
+            The footer is a fixed dark gradient in BOTH themes, so the mark has to be a light one —
+            public/dithari-logo.svg paints with currentColor and inherits this white. Served
+            `unoptimized` because an SVG is already resolution-independent and Next refuses to put SVGs
+            through the image optimizer without dangerouslyAllowSVG, which is not worth enabling
+            site-wide for one asset. */}
+        <div className="mx-auto max-w-[1400px] px-4 pb-5 sm:px-6">
+          <div className="flex justify-center border-t border-white/10 pt-5">
+            <a
+              href={DITHARI_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2.5 rounded-lg px-3 py-2 text-white/60 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 sm:gap-3"
+            >
+              <span className="text-sm font-medium tracking-wide sm:text-base">{f.poweredBy}</span>
+              <Image
+                src="/dithari-logo.svg"
+                alt="Dithari"
+                width={132}
+                height={24}
+                unoptimized
+                className="h-6 w-auto opacity-80 transition-opacity group-hover:opacity-100 sm:h-7"
+              />
+            </a>
+          </div>
+        </div>
+        <div className="mx-auto max-w-[1400px] px-4 pb-6 sm:px-6">
           <p className="text-xs text-white/40">{f.madeIn}</p>
-          {/* Powered by Dithari. The band is a fixed dark gradient in BOTH themes, so the mark has to
-              be a light one — public/dithari-logo.svg paints with currentColor and inherits this
-              white. It is served `unoptimized` because an SVG is already resolution-independent and
-              Next refuses to run SVGs through the image optimizer without dangerouslyAllowSVG, which
-              is not worth enabling site-wide for one asset. */}
-          <a
-            href={DITHARI_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded text-xs text-white/40 transition-colors hover:text-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-          >
-            <span>{f.poweredBy}</span>
-            <Image
-              src="/dithari-logo.svg"
-              alt="Dithari"
-              width={132}
-              height={24}
-              unoptimized
-              className="h-4 w-auto"
-            />
-          </a>
         </div>
       </div>
     </footer>

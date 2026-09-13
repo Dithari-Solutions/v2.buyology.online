@@ -576,6 +576,8 @@ export interface Dict {
     talkToExpert: string;
     /** Prefilled WhatsApp message. {product} is the product name. */
     talkToExpertMessage: string;
+    /** One line of context above the expert button, so it is not a bare CTA. */
+    talkToExpertHint: string;
     /** Trust badge linking to dithari.com. A brand name, so it is not translated. */
     dithariCertified: string;
     qty: string;
@@ -1841,6 +1843,7 @@ const en: Dict = {
     buyNow: "Buy now",
     talkToExpert: "Talk to an Expert",
     talkToExpertMessage: "Hi! I'd like to ask about {product}.",
+    talkToExpertHint: "Questions about this product? Chat with a specialist on WhatsApp.",
     dithariCertified: "Dithari Certified",
     qty: "Quantity",
     color: "Color",
@@ -3251,6 +3254,7 @@ const az: Dict = {
     buyNow: "İndi al",
     talkToExpert: "Mütəxəssislə danışın",
     talkToExpertMessage: "Salam! {product} haqqında soruşmaq istəyirəm.",
+    talkToExpertHint: "Bu məhsul barədə sualınız var? WhatsApp-da mütəxəssislə danışın.",
     dithariCertified: "Dithari Certified",
     qty: "Miqdar",
     color: "Rəng",
@@ -4674,6 +4678,7 @@ const ar: Dict = {
     buyNow: "اشترِ الآن",
     talkToExpert: "تحدّث إلى خبير",
     talkToExpertMessage: "مرحبًا! أرغب في السؤال عن {product}.",
+    talkToExpertHint: "لديك سؤال عن هذا المنتج؟ تحدّث إلى مختص على واتساب.",
     dithariCertified: "Dithari Certified",
     qty: "الكمية",
     color: "اللون",

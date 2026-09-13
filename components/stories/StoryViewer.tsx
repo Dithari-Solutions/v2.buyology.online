@@ -14,7 +14,7 @@ const IMAGE_DURATION_MS = 6000;
  * Fullscreen story viewer — an overlay, not a route, because the site is single-locale-path and
  * every other modal here (SearchModal, CartDrawer) opens from state.
  *
- * z-[130]: above the chat launcher (120) on purpose — a floating chat bubble over a fullscreen
+ * z-[130]: above the chat launcher (90) on purpose — a floating chat bubble over a fullscreen
  * story reads as broken.
  *
  * Media is rendered with plain <img>/<video>, deliberately not next/image: the URLs are presigned

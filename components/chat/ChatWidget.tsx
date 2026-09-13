@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CloseIcon, SendIcon } from "@/components/icons";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useAssistant } from "@/lib/assistant/useAssistant";
+import { useCart } from "@/components/cart/cart-provider";
 import { MAX_MESSAGE_LENGTH } from "@/lib/assistant/client";
 import type { AssistantProductCard } from "@/types/assistant";
 
@@ -156,6 +157,17 @@ export function ChatWidget() {
     [c.intro, c.errorGeneric, c.rateLimited],
   );
 
+  // This is the lowest-priority floating thing on the page, so it sits under every overlay: z-90,
+  // beneath the search modal (100), the cart and filter drawers (110), the promo sheets (120) and the
+  // story viewer (130). It used to be 120 and therefore covered the cart preview the customer had just
+  // opened.
+  //
+  // Being under the drawer is enough to stop it obscuring anything, but it would then sit behind the
+  // panel invisibly — so it also slides clear of the drawer's 380px width while it is open, which keeps
+  // it reachable. Not on a narrow screen, where the drawer is full-width and there is nowhere to slide
+  // to; the z-index alone covers that case.
+  const { isOpen: cartOpen } = useCart();
+
   const { enabled, turns, busy, send, greet } = useAssistant(
     { language: locale, countryCode: COUNTRY_CODE, currency: CURRENCY },
     copy,
@@ -214,7 +226,11 @@ export function ChatWidget() {
   const remaining = MAX_MESSAGE_LENGTH - draft.length;
 
   return (
-    <div className="pointer-events-none fixed bottom-4 end-4 z-[120] flex flex-col items-end gap-3 sm:bottom-6 sm:end-6">
+    <div
+      className={`pointer-events-none fixed bottom-4 end-4 z-[90] flex flex-col items-end gap-3 transition-transform duration-300 sm:bottom-6 sm:end-6 ${
+        cartOpen ? "-translate-x-[380px] max-[460px]:translate-x-0" : ""
+      }`}
+    >
       {open && (
         <div
           id={panelId}
