@@ -28,6 +28,8 @@ export type Product = {
   /** Number of customer reviews behind the rating. */
   reviews: number;
   bestseller?: boolean;
+  /** Set by the backend per product (isRefurbished). Absent on the mock items, which shows no badge. */
+  refurbished?: boolean;
   /**
    * Real-catalogue extras. Absent on the mock flash-deals items (which keep the historic
    * $-styled display); present on everything served by lib/catalogue.

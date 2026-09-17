@@ -425,6 +425,19 @@ export function CheckIcon(props: IconProps) {
   );
 }
 
+/** Renewed-and-verified: a refresh cycle around a check. Marks refurbished products. */
+export function RefurbishedIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M8 16H3v5" />
+      <path d="m9 12 2 2 4-4" />
+    </Icon>
+  );
+}
+
 export function ShieldCheckIcon(props: IconProps) {
   return (
     <Icon {...props}>

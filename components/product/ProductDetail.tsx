@@ -16,6 +16,7 @@ import { useProduct } from "@/components/product/product-context";
 import { formatInt, formatMoney } from "@/lib/format";
 import { currentMarket } from "@/lib/market";
 import { DITHARI_URL, whatsAppUrl } from "@/lib/site";
+import { RefurbishedBadge } from "@/components/product/RefurbishedBadge";
 import {
   BagIcon,
   CheckIcon,
@@ -234,7 +235,10 @@ export function ProductDetail() {
         {/* Who certifies the refurbishment, stated where it qualifies the product — beside the rating,
             under the name — rather than trailing the payment options at the bottom of the box. A factual
             claim, so it links out to them rather than asserting it unsupported. */}
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-2">
+          {/* Refurbished first: it is what the product is, and the certification beside it is who
+              vouches for that. */}
+          {product.refurbished && <RefurbishedBadge label={t.deals.refurbished} size="md" />}
           <a
             href={DITHARI_URL}
             target="_blank"

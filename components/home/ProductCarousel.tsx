@@ -153,6 +153,7 @@ export function ProductCarousel() {
                 <ProductCard
                   product={product}
                   bestsellerLabel={t.deals.bestseller}
+                  refurbishedLabel={t.deals.refurbished}
                   wishlistLabel={t.header.wishlist}
                 />
               </div>

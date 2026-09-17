@@ -336,6 +336,70 @@ main {
   animation: buyo-border-spin 3.5s linear infinite;
 }
 
+/* Refurbished seal (components/product/RefurbishedBadge). American Blue with a Mikado Yellow hairline,
+   and a band of gold light that crosses it once every few seconds and then rests — alive in a grid
+   without two dozen cards shimmering non-stop. The band sits at z-index -1 inside the pill's own
+   stacking context (isolation), so it paints over the gradient but beneath the label.
+
+   In the components layer on purpose: unlayered CSS outranks every Tailwind utility, so the
+   `position: relative` here would silently beat the `absolute` a card passes in, dropping the badge
+   out of its corner into the flow. Layered, any utility on the element wins. */
+@layer components {
+  .buyo-refurb {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: linear-gradient(
+      135deg,
+      var(--color-brand-deep) 0%,
+      var(--color-brand) 55%,
+      var(--color-brand-400) 100%
+    );
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 190, 18, 0.55),
+      0 6px 16px -6px rgba(43, 31, 82, 0.55);
+  }
+
+  /* On black the blue alone sinks into the page, so the gold edge and glow carry it instead. */
+  .dark .buyo-refurb {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 190, 18, 0.75),
+      0 6px 18px -6px rgba(255, 190, 18, 0.28);
+  }
+
+  .buyo-refurb::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgba(255, 216, 113, 0.4) 50%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    animation: buyo-refurb-sheen 5s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .buyo-refurb::before {
+      animation: none;
+      opacity: 0;
+    }
+  }
+}
+
+@keyframes buyo-refurb-sheen {
+  0% {
+    transform: translateX(-120%);
+  }
+  28%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
 /* Header icon pulse when a fly-to-cart / fly-to-wishlist dot lands. */
 @keyframes buyo-bump {
   0%, 100% { transform: scale(1); }

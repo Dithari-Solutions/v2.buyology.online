@@ -83,6 +83,7 @@ export interface Dict {
     viewAll: string;
     addToCart: string;
     bestseller: string;
+    refurbished: string;
     prev: string;
     next: string;
     pause: string;
@@ -1239,6 +1240,7 @@ const en: Dict = {
     viewAll: "View all",
     addToCart: "Add to cart",
     bestseller: "Bestseller",
+    refurbished: "Refurbished",
     prev: "Previous products",
     next: "Next products",
     pause: "Pause auto-scroll",
@@ -2651,6 +2653,7 @@ const az: Dict = {
     viewAll: "Hamısına bax",
     addToCart: "Səbətə əlavə et",
     bestseller: "Ən çox satılan",
+    refurbished: "Bərpa edilmiş",
     prev: "Əvvəlki məhsullar",
     next: "Növbəti məhsullar",
     pause: "Avtomatik sürüşməni dayandır",
@@ -4077,6 +4080,7 @@ const ar: Dict = {
     viewAll: "عرض الكل",
     addToCart: "أضف إلى السلة",
     bestseller: "الأكثر مبيعًا",
+    refurbished: "مُجدَّد",
     prev: "المنتجات السابقة",
     next: "المنتجات التالية",
     pause: "إيقاف التمرير التلقائي",

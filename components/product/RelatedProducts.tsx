@@ -41,6 +41,7 @@ export function RelatedProducts({ currentId }: { currentId: string }) {
             key={p.id}
             product={p}
             bestsellerLabel={t.deals.bestseller}
+            refurbishedLabel={t.deals.refurbished}
             wishlistLabel={t.header.wishlist}
           />
         ))}

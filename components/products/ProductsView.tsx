@@ -539,6 +539,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
                     key={p.id}
                     product={p}
                     bestsellerLabel={t.deals.bestseller}
+                    refurbishedLabel={t.deals.refurbished}
                     wishlistLabel={t.header.wishlist}
                   />
                 ))}

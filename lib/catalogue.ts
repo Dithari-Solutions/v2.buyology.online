@@ -59,6 +59,7 @@ export type ApiProduct = {
   availableQuantity?: number | null;
   isSuperDeal?: boolean | null;
   isLimitedStock?: boolean | null;
+  isRefurbished?: boolean | null;
   expressDelivery?: boolean | null;
   expressDeliveryFee?: number | null;
   freeDelivery?: boolean | null;
@@ -191,6 +192,7 @@ export function toProduct(api: ApiProduct, categoryName?: string): Product {
     rating: api.averageRating ?? 0,
     reviews: api.totalReviews ?? 0,
     bestseller: api.isSuperDeal ?? false,
+    refurbished: api.isRefurbished ?? false,
     currency: api.currency ?? currentMarket().currency,
     brand: api.brandName ?? undefined,
     storeId: api.storeId ?? undefined,

@@ -8,6 +8,7 @@ import { HeartIcon, StarIcon } from "@/components/icons";
 import { AddToCartButton } from "@/components/home/AddToCartButton";
 import { useWishlist } from "@/components/wishlist/wishlist-provider";
 import { useFly } from "@/components/fx/FlyProvider";
+import { RefurbishedBadge } from "@/components/product/RefurbishedBadge";
 
 /**
  * Premium product card. On hover, gold corner brackets slide outward into a
@@ -16,10 +17,12 @@ import { useFly } from "@/components/fx/FlyProvider";
 export function ProductCard({
   product,
   bestsellerLabel,
+  refurbishedLabel,
   wishlistLabel,
 }: {
   product: Product;
   bestsellerLabel: string;
+  refurbishedLabel: string;
   wishlistLabel: string;
 }) {
   const filled = Math.round(product.rating);
@@ -87,6 +90,17 @@ export function ProductCard({
             -{product.discount}%
           </span>
         ) : null}
+
+        {/* Refurbished seal — bottom corner, so it never competes with the bestseller/discount badge
+            or the wishlist button along the top. On the photo rather than in the text rows below,
+            which hold fixed heights to keep a row of cards aligned. Beneath the card-wide link layer,
+            so clicking it opens the product like the rest of the photo. */}
+        {product.refurbished && (
+          <RefurbishedBadge
+            label={refurbishedLabel}
+            className="absolute bottom-2.5 start-2.5 z-[1] sm:bottom-3 sm:start-3"
+          />
+        )}
 
         {/* Wishlist (end) */}
         <button

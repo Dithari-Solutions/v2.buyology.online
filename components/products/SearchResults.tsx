@@ -67,6 +67,7 @@ export function SearchResults({ q, category }: { q?: string; category?: string }
           <ProductCard
             product={p}
             bestsellerLabel={t.deals.bestseller}
+            refurbishedLabel={t.deals.refurbished}
             wishlistLabel={t.header.wishlist}
           />
         </li>
