@@ -50,7 +50,7 @@ export function ContactView() {
                 type="button"
                 onClick={() => setActive(r.id)}
                 aria-pressed={active === r.id}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm first:col-span-2 sm:first:col-span-1 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   active === r.id
                     ? "border-brand bg-brand-soft text-brand-icon"
                     : "border-border text-foreground hover:border-border-strong"
@@ -82,7 +82,7 @@ export function ContactView() {
                 <a
                   href={`tel:${region.phone.replace(/\s/g, "")}`}
                   dir="ltr"
-                  className="text-foreground transition-colors hover:text-brand-icon"
+                  className="-my-2.5 py-2.5 text-foreground transition-colors hover:text-brand-icon"
                 >
                   {region.phone}
                 </a>
@@ -91,7 +91,7 @@ export function ContactView() {
                 <MailIcon className="mt-0.5 h-5 w-5 shrink-0 text-brand-icon" />
                 <a
                   href={`mailto:${region.email}`}
-                  className="text-foreground transition-colors hover:text-brand-icon"
+                  className="-my-2.5 py-2.5 text-foreground transition-colors hover:text-brand-icon"
                 >
                   {region.email}
                 </a>

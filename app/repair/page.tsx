@@ -25,16 +25,16 @@ export default async function RepairLandingPage() {
             {r.heroTitle}
           </h1>
           <p className="mt-3 max-w-2xl text-muted">{r.heroSubtitle}</p>
-          <div className="mt-7 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
               href="/repair/new"
-              className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="rounded-full bg-primary px-6 py-3 text-center text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {r.startCta}
             </Link>
             <Link
               href="/repair/my"
-              className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="rounded-full border border-border px-6 py-3 text-center text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {r.viewRequests}
             </Link>
@@ -62,7 +62,7 @@ export default async function RepairLandingPage() {
         {/* CTA */}
         <section className="mt-12 rounded-3xl border border-border bg-surface p-8 text-center sm:p-10">
           <h2 className="text-xl font-semibold text-foreground sm:text-2xl">{r.ctaTitle}</h2>
-          <p className="mx-auto mt-2 max-w-xl text-muted">{r.ctaBody}</p>
+          <p className="mx-auto mt-2 max-w-xl text-balance text-muted sm:text-wrap">{r.ctaBody}</p>
           <Link
             href="/repair/new"
             className="mt-6 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

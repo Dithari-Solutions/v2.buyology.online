@@ -48,7 +48,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       onClick={toggle}
       aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
       aria-pressed={isDark}
-      className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${className}`}
+      className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-8 sm:w-8 ${className}`}
     >
       {isDark ? (
         <SunIcon className="h-[18px] w-[18px]" />

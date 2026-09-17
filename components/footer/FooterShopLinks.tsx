@@ -6,7 +6,7 @@ import { fetchCategories, type Category } from "@/lib/catalogue";
 import { useI18n } from "@/components/i18n/language-provider";
 
 const linkCls =
-  "rounded text-sm text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60";
+  "block rounded py-1.5 text-sm text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 sm:inline sm:py-0";
 
 /**
  * The footer's shop column, from the LIVE category taxonomy — a hardcoded list here once
@@ -34,7 +34,7 @@ export function FooterShopLinks({ allLabel }: { allLabel: string }) {
   }, [locale]);
 
   return (
-    <ul className="mt-4 space-y-2.5">
+    <ul className="mt-2.5 sm:mt-4 sm:space-y-2.5">
       <li>
         <Link href="/products" className={linkCls}>
           {allLabel}

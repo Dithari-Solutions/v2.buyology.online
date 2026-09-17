@@ -31,7 +31,7 @@ export function ProductCard({
   const wished = has(product.id);
 
   return (
-    <article className="group relative flex h-full flex-col rounded-2xl border border-border bg-surface p-3 shadow-[var(--shadow-elevation)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_44px_-14px_rgba(64,47,117,0.4)]">
+    <article className="group relative flex h-full flex-col rounded-xl border border-border bg-surface p-2 sm:rounded-2xl sm:p-3 shadow-[var(--shadow-elevation)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_44px_-14px_rgba(64,47,117,0.4)]">
       {/* Corner brackets — slide outward + fade in on hover ("corners move") */}
       <span
         aria-hidden="true"
@@ -52,7 +52,7 @@ export function ProductCard({
 
       {/* Image — inset rounded container. One shared sample device image for
           every card; swap for a real per-product photo later. */}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-border bg-surface-2">
+      <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-surface-2 sm:aspect-[4/3] sm:rounded-xl">
         {product.image?.startsWith("http") ? (
           // Real catalogue photo through next/image: the source is a ~200KB PNG, the card needs
           // ~300px — the optimizer serves a cached AVIF/WebP a tenth the size. The backend keeps
@@ -66,7 +66,7 @@ export function ProductCard({
             fill
             quality={75}
             sizes="(min-width: 1024px) 300px, (min-width: 640px) 33vw, 50vw"
-            className="bg-white object-contain p-3 transition-transform duration-500 group-hover:scale-[1.03]"
+            className="bg-white object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03] sm:p-3"
             draggable={false}
           />
         ) : (
@@ -82,11 +82,11 @@ export function ProductCard({
 
         {/* Badge (start) */}
         {product.bestseller ? (
-          <span className="absolute start-3 top-3 z-[1] inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-warn shadow-sm backdrop-blur-sm dark:bg-black/75 dark:text-gold">
+          <span className="absolute start-2 top-2 z-[1] inline-flex items-center rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-bold text-warn shadow-sm backdrop-blur-sm sm:start-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-[11px] dark:bg-black/75 dark:text-gold">
             {bestsellerLabel}
           </span>
         ) : product.discount > 0 ? (
-          <span className="absolute start-3 top-3 z-[1] inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold text-primary-fg shadow-sm">
+          <span className="absolute start-2 top-2 z-[1] inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-fg shadow-sm sm:start-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-[11px]">
             -{product.discount}%
           </span>
         ) : null}
@@ -98,7 +98,7 @@ export function ProductCard({
         {product.refurbished && (
           <RefurbishedBadge
             label={refurbishedLabel}
-            className="absolute bottom-2.5 start-2.5 z-[1] sm:bottom-3 sm:start-3"
+            className="absolute bottom-2 start-2 z-[1] sm:bottom-3 sm:start-3"
           />
         )}
 
@@ -112,30 +112,37 @@ export function ProductCard({
           }}
           aria-label={`${wishlistLabel}: ${product.name}`}
           aria-pressed={wished}
-          className={`absolute end-3 top-3 z-[3] flex h-9 w-9 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+          className={`absolute end-2 top-2 z-[3] flex h-8 w-8 items-center justify-center rounded-full sm:end-3 sm:top-3 sm:h-9 sm:w-9 shadow-sm backdrop-blur transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
             wished
               ? "bg-white text-brand dark:bg-black/80"
               : "bg-white/85 text-brand-icon hover:bg-white hover:text-brand dark:bg-black/60"
           }`}
         >
           <HeartIcon
-            className={`h-[18px] w-[18px] ${wished ? "fill-brand text-brand dark:fill-gold dark:text-gold" : ""}`}
+            className={`h-4 w-4 sm:h-[18px] sm:w-[18px] ${wished ? "fill-brand text-brand dark:fill-gold dark:text-gold" : ""}`}
           />
         </button>
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col px-0.5 pt-3 sm:px-1 sm:pt-3.5">
+      <div className="flex flex-1 flex-col px-1 pt-2.5 sm:pt-3.5">
         {/* Every block below reserves its height even when its content is short or absent, so the
             price row and the button sit at identical positions on every card in a row — a card
-            with no specs must not be shorter than its neighbours. */}
-        <p className="min-h-4 text-[11px] font-semibold uppercase tracking-wider text-warn dark:text-gold">
+            with no specs must not be shorter than its neighbours.
+
+            On a phone the card is ~170px wide, two to a row, and carrying everything read as a wall
+            of text. Below sm it shows only what decides a tap — photo, name, price, button — and
+            leaves the category, description and spec chips to the product page. */}
+        <p className="hidden min-h-4 text-[11px] font-semibold uppercase tracking-wider text-warn sm:block dark:text-gold">
           {product.category || "\u00a0"}
         </p>
         {/* The link lives on the name and stretches over the whole card (::after), so clicking
             the name, the description or the photo all open the product. Controls that do
             something else — wishlist, add to cart — sit above it on a higher layer. */}
-        <h3 className="mt-1 line-clamp-2 min-h-[2.4rem] text-sm font-semibold leading-snug text-foreground sm:min-h-[2.8rem] sm:text-base">
+        {/* The box is exactly two lines tall. leading-snug needs the important flag: the global
+            heading rule in globals.css (line-height 1.04) is unlayered and outranks any utility, and
+            at 1.04 the two-line box has room for the top of a third line under the ellipsis. */}
+        <h3 className="line-clamp-2 h-[2.25rem] text-[13px] font-semibold leading-snug! text-foreground sm:mt-1 sm:h-[2.75rem] sm:text-base">
           <Link
             href={product.href}
             className="after:absolute after:inset-0 after:z-[2] after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -143,18 +150,16 @@ export function ProductCard({
             {product.name}
           </Link>
         </h3>
-        <p className="mt-1 line-clamp-2 min-h-8 text-xs text-muted sm:min-h-10 sm:text-sm">
+        <p className="mt-1 hidden min-h-10 text-sm text-muted sm:line-clamp-2">
           {product.description}
         </p>
 
         {/* Feature chips — the row keeps its height when a product has none */}
-        <div className="mt-2.5 flex min-h-[30px] flex-wrap gap-1 overflow-hidden pb-2.5 sm:mt-3 sm:min-h-[38px] sm:gap-1.5 sm:pb-3">
-          {product.tags.map((tag, i) => (
+        <div className="mt-3 hidden min-h-[38px] flex-wrap gap-1.5 overflow-hidden pb-3 sm:flex">
+          {product.tags.map((tag) => (
             <span
               key={tag}
-              className={`rounded-md bg-brand-soft px-1.5 py-0.5 text-[11px] font-medium text-brand-icon sm:px-2 sm:py-1 sm:text-xs ${
-                i > 0 ? "hidden sm:inline-block" : ""
-              }`}
+              className="rounded-md bg-brand-soft px-2 py-1 text-xs font-medium text-brand-icon"
             >
               {tag}
             </span>
@@ -162,14 +167,14 @@ export function ProductCard({
         </div>
 
         {/* Price + rating */}
-        <div className="mt-auto flex flex-wrap items-end justify-between gap-x-3 gap-y-1 border-t border-border pt-3">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 pt-2 sm:items-end sm:gap-x-3 sm:gap-y-1 sm:border-t sm:border-border sm:pt-3">
           <div className="flex min-w-0 flex-wrap items-baseline gap-2" dir="ltr">
             {product.oldPrice > product.price && (
-              <span className="text-xs text-muted line-through">
+              <span className="text-[11px] text-muted line-through sm:text-xs">
                 {formatMoney(product.oldPrice, product.currency)}
               </span>
             )}
-            <span className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
+            <span className="text-base font-bold tracking-tight text-foreground sm:text-xl">
               {formatMoney(product.price, product.currency)}
             </span>
           </div>

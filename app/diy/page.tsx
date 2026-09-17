@@ -65,8 +65,8 @@ export default async function DiyPage() {
             >
               {t.pages.browseProducts}
             </Link>
-            <span className="flex items-center gap-2 font-mono text-xs text-muted">
-              <HammerIcon className="h-4 w-4 text-gold" />
+            <span className="flex items-start gap-2 font-mono text-xs text-muted sm:items-center">
+              <HammerIcon className="h-4 w-4 shrink-0 text-gold" />
               {p.note}
             </span>
           </div>

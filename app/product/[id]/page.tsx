@@ -131,13 +131,13 @@ export default async function ProductPage({
         >
           <Link
             href="/"
-            className="inline-flex items-center gap-1 rounded-md transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="inline-flex shrink-0 items-center gap-1 rounded-md transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ChevronLeftIcon className="h-4 w-4 rtl:-scale-x-100" />
             {t.pdp.home}
           </Link>
           <span aria-hidden="true">/</span>
-          <span className="text-warn dark:text-gold">{product.category}</span>
+          <span className="shrink-0 whitespace-nowrap text-warn dark:text-gold">{product.category}</span>
           <span aria-hidden="true">/</span>
           <span className="truncate text-foreground">{product.name}</span>
         </nav>

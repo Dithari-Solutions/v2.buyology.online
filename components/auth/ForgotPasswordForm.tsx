@@ -159,7 +159,7 @@ export function ForgotPasswordForm() {
           <p className="mt-6 text-center text-sm text-muted">
             <Link
               href="/login"
-              className="inline-flex items-center gap-1 font-medium text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="-my-2.5 inline-flex items-center gap-1 py-2.5 font-medium text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:my-0 sm:py-0"
             >
               <ChevronLeftIcon className="h-4 w-4 rtl:-scale-x-100" />
               {f.backToSignin}

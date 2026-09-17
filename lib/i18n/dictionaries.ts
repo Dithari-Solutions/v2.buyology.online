@@ -1124,6 +1124,13 @@ export interface Dict {
     promoDismiss: string;
     note: string;
   };
+  search: {
+    label: string;
+    assistant: string;
+    resultsFor: string;
+    title: string;
+    noResults: string;
+  };
   notFound: {
     eyebrow: string;
     title: string;
@@ -1240,7 +1247,7 @@ const en: Dict = {
     viewAll: "View all",
     addToCart: "Add to cart",
     bestseller: "Bestseller",
-    refurbished: "Refurbished",
+    refurbished: "Renewed",
     prev: "Previous products",
     next: "Next products",
     pause: "Pause auto-scroll",
@@ -2537,6 +2544,13 @@ const en: Dict = {
     promoDismiss: "Maybe later",
     note: "The iPhone 18 Pro will be given away in the first week of its release date.",
   },
+  search: {
+    label: "Search",
+    assistant: "AI Assistant",
+    resultsFor: "Results for",
+    title: "Search Buyology",
+    noResults: "No products found",
+  },
   notFound: {
     eyebrow: "Signal lost",
     title: "This page has gone off the grid",
@@ -2653,7 +2667,7 @@ const az: Dict = {
     viewAll: "Hamısına bax",
     addToCart: "Səbətə əlavə et",
     bestseller: "Ən çox satılan",
-    refurbished: "Bərpa edilmiş",
+    refurbished: "Yenilənmiş",
     prev: "Əvvəlki məhsullar",
     next: "Növbəti məhsullar",
     pause: "Avtomatik sürüşməni dayandır",
@@ -3963,6 +3977,13 @@ const az: Dict = {
     promoClose: "Bağla",
     promoDismiss: "Bəlkə sonra",
     note: "iPhone 18 Pro təqdimat tarixindən sonrakı ilk həftə ərzində hədiyyə ediləcək.",
+  },
+  search: {
+    label: "Axtarış",
+    assistant: "AI köməkçi",
+    resultsFor: "Nəticələr:",
+    title: "Buyology-də axtar",
+    noResults: "Heç bir məhsul tapılmadı",
   },
   notFound: {
     eyebrow: "Siqnal itdi",
@@ -5373,6 +5394,13 @@ const ar: Dict = {
     promoClose: "إغلاق",
     promoDismiss: "ربما لاحقًا",
     note: "سيتم تسليم iPhone 18 Pro خلال الأسبوع الأول من تاريخ إطلاقه.",
+  },
+  search: {
+    label: "بحث",
+    assistant: "المساعد الذكي",
+    resultsFor: "نتائج البحث عن",
+    title: "ابحث في Buyology",
+    noResults: "لم يتم العثور على منتجات",
   },
   notFound: {
     eyebrow: "انقطعت الإشارة",

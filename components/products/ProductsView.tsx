@@ -414,11 +414,12 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
           <span className="font-semibold text-foreground">{filtered.length}</span>{" "}
           {t.shop.results}
         </p>
-        <div className="flex items-center gap-2">
+        {/* Below sm the controls get their own full-width row in both languages; sort fills what Filters leaves. */}
+        <div className="flex w-full items-center gap-2 sm:w-auto">
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-0 lg:hidden"
           >
             <SettingsIcon className="h-4 w-4" />
             {t.shop.filters}
@@ -428,7 +429,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
               </span>
             )}
           </button>
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex min-w-0 flex-1 items-center gap-2 text-sm sm:min-w-auto sm:flex-initial">
             <span className="hidden text-muted sm:inline">{t.shop.sortBy}</span>
             <select
               value={sort}
@@ -437,7 +438,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
                 setVisible(PAGE);
               }}
               aria-label={t.shop.sortBy}
-              className="max-w-[11rem] truncate rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className="min-h-10 w-full truncate rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:min-h-0 sm:w-auto sm:max-w-[11rem]"
             >
               {SORT_KEYS.map((k) => (
                 <option key={k} value={k}>
@@ -457,16 +458,17 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
               key={chip.key}
               type="button"
               onClick={chip.remove}
-              className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand-icon transition-colors hover:bg-primary hover:text-primary-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand-icon transition-colors hover:bg-primary hover:text-primary-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-0"
             >
               <bdi>{chip.label}</bdi>
               <CloseIcon className="h-3 w-3" />
             </button>
           ))}
+          {/* -ms-2 cancels px-2, so a wrapped "Clear all" lines up with the chips above it. */}
           <button
             type="button"
             onClick={clearAll}
-            className="text-xs font-semibold text-muted underline-offset-2 hover:text-foreground hover:underline"
+            className="-ms-2 inline-flex min-h-9 items-center px-2 text-xs font-semibold text-muted underline-offset-2 hover:text-foreground hover:underline sm:ms-0 sm:min-h-0 sm:px-0"
           >
             {t.shop.clearAll}
           </button>
@@ -603,7 +605,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
                   type="button"
                   onClick={() => setDrawerOpen(false)}
                   aria-label={t.cart.close}
-                  className="rounded-md p-1 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="-me-2 rounded-md p-2.5 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <CloseIcon className="h-5 w-5" />
                 </button>

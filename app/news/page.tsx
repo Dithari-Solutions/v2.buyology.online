@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/header/Header";
+import { dirFor, type Locale } from "@/lib/i18n/config";
 import { getDict, getLocale } from "@/lib/i18n/server";
 import { fetchAnnouncements, type Announcement } from "@/lib/news-api";
 import { breadcrumbSchema, jsonLdScript } from "@/lib/structured-data";
@@ -22,6 +23,14 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
     },
   };
+}
+
+/** A post is written in one language whatever the site locale. Its title's first letter sets the
+    direction for the post's whole text block, so its lines share one edge. */
+function postDirFor(title: string, pageDir: "ltr" | "rtl"): "ltr" | "rtl" {
+  const letter = title.match(/\p{L}/u)?.[0];
+  if (!letter) return pageDir;
+  return /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/.test(letter) ? "rtl" : "ltr";
 }
 
 function formatDate(iso: string | null, locale: string): string {
@@ -94,7 +103,9 @@ export default async function AnnouncementsPage() {
 
 function LeadCard({
   item, locale, readMore,
-}: { item: Announcement; locale: string; readMore: string }) {
+}: { item: Announcement; locale: Locale; readMore: string }) {
+  const pageDir = dirFor(locale);
+  const postDir = postDirFor(item.title, pageDir);
   return (
     <article className="mt-10 overflow-hidden rounded-3xl border border-border bg-surface">
       {/* Side by side above md, stacked below. Full-width at 16:7 the hero was ~460px tall and
@@ -116,8 +127,10 @@ function LeadCard({
             />
           </div>
         )}
-        <div className="flex flex-col justify-center p-6 sm:p-8">
-          <time className="font-mono text-xs uppercase tracking-wider text-muted">
+        {/* The column takes the post's direction; the date and the link keep the page's language,
+            so each keeps its own text order and self-start puts it on the post's edge. */}
+        <div dir={postDir} className="flex flex-col justify-center p-6 sm:p-8">
+          <time dir={pageDir} className="self-start font-mono text-xs uppercase tracking-wider text-muted">
             {formatDate(item.publishedAt, locale)}
           </time>
           <h2 className="mt-3 text-2xl font-semibold leading-tight tracking-tight [text-wrap:balance] group-hover:underline sm:text-3xl">
@@ -126,9 +139,10 @@ function LeadCard({
           {item.summary && (
             <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted">{item.summary}</p>
           )}
-          <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-icon">
+          <span dir={pageDir} className="mt-5 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-brand-icon">
             {readMore}
-            <span aria-hidden="true" className="rtl:-scale-x-100">&rarr;</span>
+            {/* Not rtl:, which also matches anything inside an RTL post's column. */}
+            <span aria-hidden="true" className={pageDir === "rtl" ? "-scale-x-100" : undefined}>&rarr;</span>
           </span>
         </div>
       </Link>
@@ -136,9 +150,14 @@ function LeadCard({
   );
 }
 
-function ArticleCard({ item, locale }: { item: Announcement; locale: string }) {
+function ArticleCard({ item, locale }: { item: Announcement; locale: Locale }) {
+  const pageDir = dirFor(locale);
   return (
-    <Link href={`/news/${item.slug}`} className="group block focus-visible:outline-none">
+    <Link
+      href={`/news/${item.slug}`}
+      dir={postDirFor(item.title, pageDir)}
+      className="group block focus-visible:outline-none"
+    >
       <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-surface-2">
         {item.imageUrl ? (
           <Image
@@ -158,7 +177,7 @@ function ArticleCard({ item, locale }: { item: Announcement; locale: string }) {
           </div>
         )}
       </div>
-      <time className="mt-4 block font-mono text-xs uppercase tracking-wider text-muted">
+      <time dir={pageDir} className="mt-4 block w-fit font-mono text-xs uppercase tracking-wider text-muted">
         {formatDate(item.publishedAt, locale)}
       </time>
       <h3 className="mt-2 text-lg font-semibold leading-snug tracking-tight [text-wrap:balance] group-hover:underline">

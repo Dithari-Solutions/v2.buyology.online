@@ -35,7 +35,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`${t.language.label}: ${localeMeta[locale].native}`}
-        className="inline-flex items-center gap-1.5 rounded px-2 py-1 font-medium text-white/80 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+        className="inline-flex items-center gap-1.5 rounded px-2 py-2.5 font-medium text-white/80 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold sm:py-1"
       >
         <GlobeIcon className="h-4 w-4" />
         {localeMeta[locale].short}

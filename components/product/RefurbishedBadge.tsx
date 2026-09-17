@@ -1,7 +1,7 @@
 import { RefurbishedIcon } from "@/components/icons";
 
 /**
- * The refurbished seal — shown on a product card's photo and in the product page's buy box whenever
+ * The refurbished ("Renewed") seal — shown on a product card's photo and in the product page's buy box whenever
  * the backend marks the product isRefurbished.
  *
  * American Blue with a Mikado Yellow hairline and icon: the two brand colours, so it reads as
@@ -22,14 +22,16 @@ export function RefurbishedBadge({
 }) {
   const sizing =
     size === "md"
-      ? "gap-1.5 px-3 py-1 text-xs"
-      : "gap-1 px-2 py-[3px] text-[10px] sm:px-2.5 sm:py-1 sm:text-[11px]";
+      ? // Smaller type than the certification pill beside it, but the same 24px height, so the row
+        // stays level.
+        "gap-1 px-2.5 py-[4.5px] text-[11px]"
+      : "gap-[3px] px-1.5 py-0.5 text-[9.5px] sm:gap-1 sm:px-2 sm:py-[3px] sm:text-[10px]";
   return (
     <span
       className={`buyo-refurb inline-flex items-center rounded-full font-bold tracking-wide text-white ${sizing} ${className}`}
     >
       <RefurbishedIcon
-        className={`shrink-0 text-gold ${size === "md" ? "h-3.5 w-3.5" : "h-3 w-3 sm:h-3.5 sm:w-3.5"}`}
+        className={`shrink-0 text-gold ${size === "md" ? "h-3 w-3" : "h-2.5 w-2.5 sm:h-3 sm:w-3"}`}
       />
       {label}
     </span>

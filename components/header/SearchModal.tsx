@@ -13,6 +13,7 @@ import { formatMoney } from "@/lib/format";
 import type { Product } from "@/lib/products";
 import {
   ArrowRightIcon,
+  CloseIcon,
   EnterKeyIcon,
   MicIcon,
   SearchIcon,
@@ -259,18 +260,22 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
   }
 
   // Panel handles dismissal + a minimal focus trap for the remaining tab stops
-  // (input, mic, esc).
+  // (input, mic, close).
   function onPanelKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Escape") {
       e.preventDefault();
       onClose();
     } else if (e.key === "Tab") {
-      const focusables = panelRef.current?.querySelectorAll<HTMLElement>(
-        // Option rows are <button tabIndex={-1}> — without the :not() on the button term
-        // the trap's "last" lands on a row Tab can never reach and focus escapes the dialog.
-        'button:not([tabindex="-1"]), input, [href], [tabindex]:not([tabindex="-1"])',
-      );
-      if (!focusables || focusables.length === 0) return;
+      const focusables = Array.from(
+        panelRef.current?.querySelectorAll<HTMLElement>(
+          // Option rows are <button tabIndex={-1}> — without the :not() on the button term
+          // the trap's "last" lands on a row Tab can never reach and focus escapes the dialog.
+          'button:not([tabindex="-1"]), input, [href], [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      )
+        // The phone X and the desktop esc cap are display:none at the other size — skip those too.
+        .filter((el) => el.getClientRects().length > 0);
+      if (focusables.length === 0) return;
       const first = focusables[0];
       const last = focusables[focusables.length - 1];
       if (e.shiftKey && document.activeElement === first) {
@@ -323,7 +328,9 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
             }}
             onKeyDown={onInputKeyDown}
             placeholder={isListening ? t.palette.listening : t.palette.placeholder}
-            className="h-16 min-w-0 flex-1 bg-transparent text-start text-[15px] text-foreground placeholder:text-muted focus:outline-none"
+            // Phones: the placeholder outruns the field, and text-overflow is ignored on a
+            // focused input — fade its end edge instead of cutting a word in half.
+            className="h-16 min-w-0 flex-1 bg-transparent text-start text-[15px] text-foreground [--fade-to:right] placeholder:text-muted placeholder-shown:[mask-image:linear-gradient(to_var(--fade-to),#000_calc(100%_-_1.5rem),transparent)] focus:outline-none rtl:[--fade-to:left] sm:placeholder-shown:[mask-image:none]"
           />
 
           {isSupported && (
@@ -346,6 +353,16 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
               </button>
             </div>
           )}
+
+          {/* Touch screens have no Esc key, so phones get a visible X instead of the key cap. */}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t.palette.closeSearch}
+            className="-me-1.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
+          >
+            <CloseIcon className="h-5 w-5" />
+          </button>
 
           <button
             type="button"
@@ -469,9 +486,13 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-2.5 text-xs text-muted">
-          <div className="flex items-center gap-4">
+        {/* Footer: key hints are desktop-only; phones show the row only for voice state.
+            Not while searching — the row would pop in and out on every typing pause,
+            and the "Search for" row already says so. */}
+        <div
+          className={`${error || isListening ? "flex" : "hidden sm:flex"} items-center justify-between gap-3 border-t border-border px-4 py-2.5 text-xs text-muted`}
+        >
+          <div className="hidden items-center gap-4 sm:flex">
             <span className="flex items-center gap-1.5">
               <KeyHint>↑</KeyHint>
               <KeyHint>↓</KeyHint>

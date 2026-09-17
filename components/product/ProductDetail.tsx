@@ -276,7 +276,7 @@ export function ProductDetail() {
         )}
 
         {/* Price */}
-        <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1" dir="ltr">
+        <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 self-start" dir="ltr">
           <span className="text-3xl font-bold tracking-tight text-foreground">
             {formatMoney(unit, currency)}
           </span>
@@ -366,7 +366,7 @@ export function ProductDetail() {
             quantity, and editing it edits the basket. The local `qty` state stays either way, because
             the BNPL estimate (unit × qty) and the Buy Now link both need a quantity even when nothing
             has been added yet. */}
-        <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-2 sm:gap-3">
           {cartLine ? (
             <CartQuantityStepper
               productId={id}
@@ -379,7 +379,7 @@ export function ProductDetail() {
               type="button"
               onClick={() => setQty((q) => Math.max(1, q - 1))}
               aria-label={t.cart.decrease}
-              className="flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-11 w-10 sm:w-11 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <span aria-hidden="true">−</span>
             </button>
@@ -390,7 +390,7 @@ export function ProductDetail() {
               type="button"
               onClick={() => setQty((q) => q + 1)}
               aria-label={t.cart.increase}
-              className="flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-11 w-10 sm:w-11 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <span aria-hidden="true">+</span>
             </button>
@@ -402,7 +402,7 @@ export function ProductDetail() {
               type="button"
               onClick={onAdd}
               disabled={outOfStock}
-              className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 sm:px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
             >
               {added ? (
                 <>
@@ -448,7 +448,7 @@ export function ProductDetail() {
             and the drawer, and it returns nothing at all in browse-only regions (no payments enabled),
             so this card can legitimately be empty. */}
         <div className="mt-5 rounded-2xl border border-border bg-surface p-4">
-          <BnplOptions total={unit * qty} />
+          <BnplOptions total={unit * qty} currency={currency} />
         </div>
 
         {/* Talking to a person is a different offer from a payment plan, so it is its own card below,

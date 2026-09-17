@@ -140,7 +140,9 @@ export function GiveawayPromo() {
         className="absolute inset-0 h-full w-full cursor-default bg-black/60 backdrop-blur-[2px] buyo-overlay"
       />
 
-      <div className="buyo-giveaway-ground relative isolate w-full max-w-lg overflow-hidden rounded-t-3xl border border-white/15 text-white shadow-2xl buyo-sheet sm:rounded-3xl">
+      {/* On phones the sheet is capped to the screen and only the content below scrolls, so a
+          short screen never pushes the close button off the top and the backdrop art stays put. */}
+      <div className="buyo-giveaway-ground relative isolate flex max-h-dvh w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-white/15 text-white shadow-2xl buyo-sheet sm:block sm:max-h-none sm:rounded-3xl">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -end-10 -top-16 h-56 w-56 rounded-full bg-gold/25 blur-[70px]" />
           <div className="absolute -bottom-20 start-1/4 h-52 w-52 rounded-full bg-brand/45 blur-[80px]" />
@@ -156,78 +158,81 @@ export function GiveawayPromo() {
           <CloseIcon className="h-4 w-4" />
         </button>
 
-        <div className="grid grid-cols-[minmax(0,1fr)_104px] items-center gap-4 p-6 sm:grid-cols-[minmax(0,1fr)_132px] sm:p-7">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-fg">
-              <SparklesIcon className="h-3 w-3" />
-              {g.eyebrow}
+        <div className="min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain sm:overflow-visible">
+          {/* The extra top padding on phones keeps the close button off the phone image's corner. */}
+          <div className="grid grid-cols-[minmax(0,1fr)_104px] items-center gap-4 p-6 pt-14 sm:grid-cols-[minmax(0,1fr)_132px] sm:p-7">
+            <div>
+              <p className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-fg">
+                <SparklesIcon className="h-3 w-3" />
+                {g.eyebrow}
+              </p>
+              <h2
+                id="giveaway-promo-title"
+                className="mt-3.5 text-2xl font-extrabold leading-[1.05] tracking-[-0.03em] sm:text-3xl"
+              >
+                {g.title} <span className="text-gold">{g.prize}</span>
+              </h2>
+            </div>
+
+            <div className="pointer-events-none relative h-32 w-full sm:h-40">
+              <div
+                aria-hidden="true"
+                className="absolute start-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/20 blur-[45px]"
+              />
+              <Image
+                src="/mock/iphone-18-pro.png"
+                alt=""
+                fill
+                sizes="132px"
+                className="rotate-[12deg] object-contain drop-shadow-[0_18px_30px_rgba(0,0,0,0.5)] rtl:-rotate-[12deg]"
+              />
+            </div>
+          </div>
+
+          <div className="px-6 pb-6 sm:px-7 sm:pb-7">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/55">
+              {g.stepsLabel}
             </p>
-            <h2
-              id="giveaway-promo-title"
-              className="mt-3.5 text-2xl font-extrabold leading-[1.05] tracking-[-0.03em] sm:text-3xl"
+            <ol className="mt-2.5 grid gap-2">
+              {steps.map((s, i) => {
+                const Icon = s.icon;
+                return (
+                  <li
+                    key={s.title}
+                    className="flex items-start gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5"
+                  >
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-fg">
+                      {i + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-sm font-semibold">
+                        <Icon className="h-4 w-4 shrink-0 text-gold" />
+                        {s.title}
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-white/65">{s.body}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+
+            <Link
+              href="/#giveaway"
+              onClick={close}
+              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
-              {g.title} <span className="text-gold">{g.prize}</span>
-            </h2>
+              {g.cta}
+              <ArrowRightShortIcon className="h-4 w-4 rtl:rotate-180" />
+            </Link>
+
+            <button
+              type="button"
+              onClick={close}
+              className="mt-2 w-full rounded-full px-6 py-2.5 text-xs font-semibold text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            >
+              {g.promoDismiss}
+            </button>
           </div>
-
-          <div className="pointer-events-none relative h-32 w-full sm:h-40">
-            <div
-              aria-hidden="true"
-              className="absolute start-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/20 blur-[45px]"
-            />
-            <Image
-              src="/mock/iphone-18-pro.png"
-              alt=""
-              fill
-              sizes="132px"
-              className="rotate-[12deg] object-contain drop-shadow-[0_18px_30px_rgba(0,0,0,0.5)] rtl:-rotate-[12deg]"
-            />
-          </div>
-        </div>
-
-        <div className="px-6 pb-6 sm:px-7 sm:pb-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/55">
-            {g.stepsLabel}
-          </p>
-          <ol className="mt-2.5 grid gap-2">
-            {steps.map((s, i) => {
-              const Icon = s.icon;
-              return (
-                <li
-                  key={s.title}
-                  className="flex items-start gap-3 rounded-2xl border border-white/15 bg-white/[0.07] p-3.5"
-                >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-fg">
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="flex items-center gap-2 text-sm font-semibold">
-                      <Icon className="h-4 w-4 shrink-0 text-gold" />
-                      {s.title}
-                    </p>
-                    <p className="mt-1 text-xs leading-relaxed text-white/65">{s.body}</p>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-
-          <Link
-            href="/#giveaway"
-            onClick={close}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-          >
-            {g.cta}
-            <ArrowRightShortIcon className="h-4 w-4 rtl:rotate-180" />
-          </Link>
-
-          <button
-            type="button"
-            onClick={close}
-            className="mt-2 w-full rounded-full px-6 py-2.5 text-xs font-semibold text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-          >
-            {g.promoDismiss}
-          </button>
         </div>
       </div>
     </div>

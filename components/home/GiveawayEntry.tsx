@@ -24,9 +24,10 @@ const DRAFT_KEY = "buyo_giveaway_handle";
  * It has four — signing in, the entry form, an ineligible account, and already entered — and it
  * picks between them only after auth and a fetch resolve. Without a reserved height each of those
  * swaps shoves the rest of the home page down, which is a layout shift charged against every
- * visitor on the page that matters most.
+ * visitor on the page that matters most. Phones skip the floor because the block starts below the
+ * first screen there, so the swap costs no visible shift.
  */
-const RESERVED = "min-h-[13.5rem] sm:min-h-[8.5rem]";
+const RESERVED = "sm:min-h-[8.5rem]";
 
 const ghost =
   "inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent";

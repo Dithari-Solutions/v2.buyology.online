@@ -41,9 +41,9 @@ export async function Footer() {
       </div>
 
       {/* Main */}
-      <div className="mx-auto grid max-w-[1400px] gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.5fr_repeat(4,1fr)] lg:gap-8">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-2 gap-x-6 gap-y-10 px-4 py-12 sm:gap-10 sm:px-6 lg:grid-cols-[1.5fr_repeat(4,1fr)] lg:gap-8">
         {/* Brand */}
-        <div className="md:col-span-2 lg:col-span-1">
+        <div className="col-span-2 lg:col-span-1">
           <Link
             href="/"
             aria-label={`${site.name} home`}
@@ -87,10 +87,9 @@ export async function Footer() {
             <a
               href={`tel:${site.contact.phoneE164}`}
               className="flex items-center gap-2 text-sm text-white/70 transition-colors hover:text-white"
-              dir="ltr"
             >
               <PhoneIcon className="h-4 w-4 shrink-0" />
-              {site.contact.phone}
+              <span dir="ltr">{site.contact.phone}</span>
             </a>
             <p className="flex items-start gap-2 text-sm text-white/60">
               <MapPinIcon className="mt-0.5 h-4 w-4 shrink-0" />
@@ -110,12 +109,12 @@ export async function Footer() {
             {col.titleKey === "shop" ? (
               <FooterShopLinks allLabel={f.links.electronics} />
             ) : (
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-2.5 sm:mt-4 sm:space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.key}>
                     <Link
                       href={l.href}
-                      className="rounded text-sm text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                      className="block rounded py-1.5 text-sm text-white/60 transition-colors sm:inline sm:py-0 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                     >
                       {f.links[l.key]}
                     </Link>
@@ -165,8 +164,8 @@ export async function Footer() {
             it, so a partner credit does not read as a disclaimer. Sized just above the legal line and no
             more: at 28px the logo competed with the Buyology mark at the top of the footer.
 
-            The footer is a fixed dark gradient in BOTH themes, so the mark has to be a light one —
-            public/dithari-logo.svg paints with currentColor and inherits this white. Served
+            The footer is a fixed dark gradient in BOTH themes, so the mark has to be a light one — and
+            an <img> SVG cannot inherit currentColor, so public/dithari-logo.svg is itself white. Served
             `unoptimized` because an SVG is already resolution-independent and Next refuses to put SVGs
             through the image optimizer without dangerouslyAllowSVG, which is not worth enabling
             site-wide for one asset. */}
@@ -182,7 +181,7 @@ export async function Footer() {
               <Image
                 src="/dithari-logo.svg"
                 alt="Dithari"
-                width={132}
+                width={64}
                 height={24}
                 unoptimized
                 className="h-[18px] w-auto opacity-75 transition-opacity group-hover:opacity-100"

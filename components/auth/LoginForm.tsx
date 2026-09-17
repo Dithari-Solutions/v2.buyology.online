@@ -76,7 +76,7 @@ export function LoginForm() {
         <AuthPassword label={a.password} autoComplete="current-password" />
 
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <label className="flex items-center gap-2 text-sm text-muted">
+          <label className="-my-2.5 flex items-center gap-2 py-2.5 text-sm text-muted sm:my-0 sm:py-0">
             <input
               type="checkbox"
               className="h-4 w-4 rounded border-border accent-brand"
@@ -85,7 +85,7 @@ export function LoginForm() {
           </label>
           <Link
             href="/forgot-password"
-            className="text-sm font-medium text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="-my-2.5 py-2.5 text-sm font-medium text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:my-0 sm:py-0"
           >
             {a.login.forgot}
           </Link>
@@ -117,7 +117,7 @@ export function LoginForm() {
               ? `/signup?next=${encodeURIComponent(new URLSearchParams(window.location.search).get("next")!)}`
               : "/signup"
           }
-          className="font-semibold text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="py-3 font-semibold text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:py-0"
         >
           {a.login.cta}
         </Link>

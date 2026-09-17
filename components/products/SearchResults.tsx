@@ -55,7 +55,7 @@ export function SearchResults({ q, category }: { q?: string; category?: string }
   if (items.length === 0) {
     return (
       <p className="mt-8 rounded-2xl border border-border bg-surface px-5 py-10 text-center text-muted">
-        {t.shop.empty}
+        {t.search.noResults}
       </p>
     );
   }

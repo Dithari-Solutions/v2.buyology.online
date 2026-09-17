@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/header/Header";
 import { SearchResults } from "@/components/products/SearchResults";
+import { getDict } from "@/lib/i18n/server";
 
 type SearchParams = Promise<{
   q?: string;
@@ -30,23 +31,24 @@ export default async function SearchPage({
   searchParams: SearchParams;
 }) {
   const { q, category, assistant } = await searchParams;
+  const t = await getDict();
 
   return (
     <>
       <Header />
       <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-10 sm:px-6">
         <p className="text-sm text-muted">
-          {assistant ? "AI Assistant" : "Search"}
+          {assistant ? t.search.assistant : t.search.label}
           {category ? ` · ${category}` : ""}
         </p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight">
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
           {q ? (
             <>
-              Results for{" "}
-              <span className="text-warn dark:text-gold">“{q}”</span>
+              {t.search.resultsFor}{" "}
+              <bdi className="text-warn dark:text-gold">“{q}”</bdi>
             </>
           ) : (
-            "Search Buyology"
+            t.search.title
           )}
         </h1>
         <SearchResults q={q} category={category} />

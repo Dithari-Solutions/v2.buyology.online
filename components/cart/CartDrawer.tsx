@@ -73,7 +73,7 @@ export function CartDrawer() {
       <div
         ref={panelRef}
         onKeyDown={onKeyDown}
-        className="buyo-drawer absolute right-0 top-0 flex h-full w-[380px] max-w-full flex-col border-l border-border bg-elevated shadow-[var(--shadow-overlay)]"
+        className="buyo-drawer absolute right-0 top-0 flex h-full w-full max-w-full flex-col border-border bg-elevated shadow-[var(--shadow-overlay)] sm:w-[380px] sm:border-l"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
@@ -163,7 +163,7 @@ export function CartDrawer() {
               <button
                 type="button"
                 onClick={close}
-                className="mt-2 w-full text-center text-sm text-muted transition-colors hover:text-foreground"
+                className="mt-1 w-full py-2.5 text-center text-sm text-muted transition-colors hover:text-foreground sm:mt-2 sm:py-0"
               >
                 {t.cart.continueShopping}
               </button>
@@ -230,7 +230,7 @@ function DrawerLine({ line }: { line: CartLine }) {
               type="button"
               onClick={() => setQty(line.id, line.qty - 1)}
               aria-label={`${t.cart.decrease}: ${name}`}
-              className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-7 sm:w-7"
             >
               <span aria-hidden="true">−</span>
             </button>
@@ -244,7 +244,7 @@ function DrawerLine({ line }: { line: CartLine }) {
               onClick={() => setQty(line.id, line.qty + 1)}
               disabled={line.availableUnits != null && line.qty >= line.availableUnits}
               aria-label={`${t.cart.increase}: ${name}`}
-              className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 sm:h-7 sm:w-7"
             >
               <span aria-hidden="true">+</span>
             </button>
@@ -265,7 +265,7 @@ function DrawerLine({ line }: { line: CartLine }) {
         type="button"
         onClick={() => removeItem(line.id)}
         aria-label={`${t.cart.remove}: ${name}`}
-        className="self-start rounded-md p-1 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="-m-2 self-start rounded-md p-3 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:m-0 sm:p-1"
       >
         <CloseIcon className="h-4 w-4" />
       </button>

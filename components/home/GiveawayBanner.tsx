@@ -62,7 +62,7 @@ export async function GiveawayBanner() {
           <div className="pointer-events-none relative mx-auto h-56 w-44 sm:h-72 sm:w-56 lg:hidden">
             <div
               aria-hidden="true"
-              className="absolute start-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/20 blur-[60px]"
+              className="absolute start-1/2 top-1/2 h-56 w-56 -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/20 blur-[60px]"
             />
             <div className="buyo-float relative h-full w-full">
               <Image
@@ -88,7 +88,7 @@ export async function GiveawayBanner() {
               className="mt-5 text-3xl font-extrabold leading-[1.02] tracking-[-0.03em] sm:text-5xl sm:leading-[0.95] lg:text-6xl"
             >
               {t.giveaway.title}{" "}
-              <span className="text-gold">{t.giveaway.prize}</span>
+              <span className="whitespace-nowrap text-gold">{t.giveaway.prize}</span>
             </h2>
 
             <p className="mt-4 max-w-xl text-white/75">{t.giveaway.subtitle}</p>
@@ -126,7 +126,7 @@ export async function GiveawayBanner() {
                 href={site.social.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                className="mt-3 flex w-full sm:inline-flex sm:w-auto items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
                 <InstagramIcon className="h-4 w-4" />
                 {t.giveaway.instagram}
@@ -146,17 +146,18 @@ export async function GiveawayBanner() {
           <div className="pointer-events-none relative hidden lg:block">
             <div
               aria-hidden="true"
-              className="absolute start-1/2 top-1/2 h-[460px] w-[460px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/20 blur-[90px]"
+              className="absolute start-1/2 top-1/2 h-[460px] w-[460px] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/20 blur-[90px]"
             />
             <div
               aria-hidden="true"
-              className="absolute start-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/25 blur-[70px]"
+              className="absolute start-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/25 blur-[70px]"
             />
 
             {/* Centring and the float live on separate elements: `buyo-float`
                 animates `transform`, which would otherwise replace the
-                -translate-x/y-1/2 and drop the phone out of alignment. */}
-            <div className="absolute start-1/2 top-1/2 h-[420px] w-[336px] -translate-x-1/2 -translate-y-1/2">
+                -translate-x/y-1/2 and drop the phone out of alignment.
+                `start-1/2` flips under RTL, so the x shift flips with it. */}
+            <div className="absolute start-1/2 top-1/2 h-[420px] w-[336px] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2">
               <div className="buyo-float relative h-full w-full">
                 <Image
                   src="/mock/iphone-18-pro.png"

@@ -76,7 +76,7 @@ function RecCard({ product }: { product: Product }) {
           {t.ai.pick}
         </span>
       </div>
-      <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-warn dark:text-gold">
+      <p className="mt-3 truncate text-[11px] font-semibold uppercase tracking-wider text-warn sm:overflow-visible sm:whitespace-normal dark:text-gold">
         {product.category}
       </p>
       <Link

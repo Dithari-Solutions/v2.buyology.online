@@ -138,7 +138,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
             <Logo className="lg:hidden" />
             <Link
               href="/"
-              className="ms-auto inline-flex items-center gap-1 text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="-my-2.5 ms-auto inline-flex items-center gap-1 py-2.5 text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:my-0 sm:py-0"
             >
               <ChevronLeftIcon className="h-4 w-4 rtl:-scale-x-100" />
               {t.pdp.home}

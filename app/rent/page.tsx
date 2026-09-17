@@ -55,7 +55,7 @@ export default async function RentPage() {
               <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-surface-2">
                 <Icon className="h-8 w-8 text-brand-icon/60" />
               </span>
-              <p className="mt-4 h-2.5 w-3/4 rounded-full bg-surface-2" />
+              <p className="mx-auto mt-4 h-2.5 w-3/4 rounded-full bg-surface-2 sm:mx-0" />
               <p className="mt-2 flex items-baseline justify-center gap-1 text-sm font-semibold text-foreground" dir="ltr">
                 <span className="tracking-widest text-muted">— —</span>
                 <span className="text-xs font-normal text-muted">{p.perDay}</span>

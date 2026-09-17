@@ -26,10 +26,10 @@ export default async function GlobalWelcomePage() {
       <span className="mt-10 flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft text-brand-icon">
         <GlobeIcon className="h-8 w-8" />
       </span>
-      <h1 className="mt-5 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+      <h1 className="mt-5 text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl">
         {p.globalTitle}
       </h1>
-      <p className="mt-3 max-w-lg text-muted">{p.globalBody}</p>
+      <p className="mt-3 max-w-lg text-pretty text-muted sm:text-wrap">{p.globalBody}</p>
       <h2 className="mt-10 text-sm font-semibold uppercase tracking-wider text-muted">
         {p.globalRegions}
       </h2>

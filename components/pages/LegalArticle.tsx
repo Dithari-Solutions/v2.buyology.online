@@ -18,7 +18,8 @@ export async function LegalArticle({ doc }: { doc: LegalDoc }) {
     .join(" · ");
 
   return (
-    <StaticPage title={doc.title} subtitle={meta || undefined}>
+    // The title and meta line are English like the body, so they share its ltr alignment.
+    <StaticPage title={doc.title} subtitle={meta || undefined} headerDir="ltr">
       {locale !== "en" && (
         <p className="rounded-xl border border-border bg-surface-2 px-4 py-3 text-sm text-muted">
           {t.pages.legalEnglishNote}

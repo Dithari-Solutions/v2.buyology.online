@@ -35,7 +35,11 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
   const vatRate = fees?.vatRatePercent ?? null;
 
   return (
-    <li className="flex flex-col gap-4 p-4 sm:flex-row">
+    <li
+      className={`grid items-start gap-3 p-4 sm:flex sm:flex-row sm:items-stretch sm:gap-4 ${
+        savedRow ? "grid-cols-[5.5rem_minmax(0,1fr)]" : "grid-cols-[auto_5.5rem_minmax(0,1fr)]"
+      }`}
+    >
       {!savedRow && (
         <input
           type="checkbox"
@@ -43,7 +47,7 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
           disabled={!line.selectable}
           onChange={(e) => setSelected(line.id, e.target.checked)}
           aria-label={`${t.cart.selectItem}: ${name}`}
-          className={`${checkboxCls} self-start disabled:cursor-not-allowed disabled:opacity-40 sm:mt-11`}
+          className={`${checkboxCls} self-center disabled:cursor-not-allowed disabled:opacity-40 sm:mt-11 sm:self-start`}
         />
       )}
       <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-xl border border-border bg-surface-2 sm:h-28 sm:w-28">
@@ -51,7 +55,7 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
           <div className="absolute inset-0 animate-pulse bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
         ) : detail?.image?.startsWith("http") ? (
           // Catalogue photo through next/image — contained so the whole product shows.
-          <Image src={detail.image} alt={detail.name} fill quality={75} sizes="(min-width: 640px) 112px, 100vw" className="bg-white object-contain p-2" />
+          <Image src={detail.image} alt={detail.name} fill quality={75} sizes="(min-width: 640px) 112px, 88px" className="bg-white object-contain p-2" />
         ) : (
           // No photo in the catalogue — a quiet placeholder, never a fake product image.
           <span className="absolute inset-0 flex items-center justify-center text-muted" aria-hidden="true">
@@ -60,8 +64,10 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
         )}
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-start justify-between gap-3">
+      {/* On phones this wrapper dissolves into the row's grid: the title block sits beside the
+          thumbnail and the rest spans the full width below. */}
+      <div className="contents min-w-0 flex-1 flex-col sm:flex">
+        <div className="flex items-start justify-between gap-3 self-center sm:self-auto">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-warn dark:text-gold">
               {detail?.category || line.category}
@@ -69,7 +75,7 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
             {loading && !detail ? (
               <span className="mt-1 block h-5 w-2/3 animate-pulse rounded bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
             ) : (
-              <h2 className="mt-0.5 truncate font-semibold text-foreground">
+              <h2 className="mt-0.5 line-clamp-2 font-semibold leading-snug! text-foreground sm:block sm:truncate sm:leading-[1.04]!">
                 {name}
               </h2>
             )}
@@ -89,7 +95,7 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
                 <span className="text-xs font-medium text-foreground">
                   {detail.rating.toFixed(1)}
                 </span>
-                <span className="text-xs text-muted">
+                <span className="hidden text-xs text-muted sm:inline">
                   · {detail.reviews.toLocaleString()} {t.cart.reviews}
                 </span>
               </div>
@@ -99,20 +105,20 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
             type="button"
             onClick={() => removeItem(line.id)}
             aria-label={`${t.cart.remove}: ${name}`}
-            className="rounded-md p-1 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="-m-2 rounded-md p-3 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:m-0 sm:p-1"
           >
             <CloseIcon className="h-4 w-4" />
           </button>
         </div>
 
         {detail && (
-          <p className="mt-2 line-clamp-2 text-sm text-muted">
+          <p className="col-span-full line-clamp-2 text-sm text-muted sm:mt-2">
             {detail.description}
           </p>
         )}
 
         {detail && (
-          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+          <div className="col-span-full flex flex-wrap items-center gap-1.5 sm:mt-2.5">
             {detail.tags.map((tag) => (
               <span
                 key={tag}
@@ -130,14 +136,15 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
           </div>
         )}
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
-          <div className="flex items-center gap-3">
+        {/* Tighter phone gaps keep the price beside the 40px controls instead of wrapping below them. */}
+        <div className="col-span-full flex flex-wrap items-center justify-between gap-x-2 gap-y-3 border-t border-border pt-3 sm:mt-4 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="inline-flex items-center rounded-full border border-border">
               <button
                 type="button"
                 onClick={() => setQty(line.id, line.qty - 1)}
                 aria-label={`${t.cart.decrease}: ${name}`}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-8 sm:w-8"
               >
                 <span aria-hidden="true">−</span>
               </button>
@@ -153,7 +160,7 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
                 onClick={() => setQty(line.id, line.qty + 1)}
                 disabled={line.availableUnits != null && line.qty >= line.availableUnits}
                 aria-label={`${t.cart.increase}: ${name}`}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:w-8"
               >
                 <span aria-hidden="true">+</span>
               </button>
@@ -162,7 +169,7 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
               <button
                 type="button"
                 onClick={() => moveToCart(line.id)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand-icon transition-colors hover:bg-primary hover:text-primary-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-2.5 py-3 text-xs font-semibold text-brand-icon transition-colors hover:bg-primary hover:text-primary-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-3 sm:py-1.5"
               >
                 <BagIcon className="h-4 w-4" />
                 {t.cart.moveToCart}
@@ -171,14 +178,14 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
               <button
                 type="button"
                 onClick={() => saveForLater(line.id)}
-                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex items-center gap-1.5 rounded-full px-2 py-3 text-xs font-medium text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-2.5 sm:py-1.5"
               >
                 <ClockIcon className="h-4 w-4" />
                 {t.cart.addToWishlist}
               </button>
             )}
           </div>
-          <div className="text-end">
+          <div className="ms-auto text-end">
             <span className="font-semibold text-foreground" dir="ltr">
               {formatMoney(line.price * line.qty, line.currency)}
             </span>
@@ -234,7 +241,7 @@ export function CartView() {
 
   if (!ready && items.length === 0 && savedItems.length === 0) {
     return (
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]" aria-busy>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px]" aria-busy>
         <div className="space-y-3">
           {Array.from({ length: 3 }, (_, i) => (
             <div
@@ -288,7 +295,7 @@ export function CartView() {
 
   return (
     <>
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* Items */}
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
@@ -390,7 +397,7 @@ export function CartView() {
 
           <Link
             href="/"
-            className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-muted transition-colors hover:text-foreground"
+            className="mt-2 inline-flex items-center gap-1 py-2 text-sm font-medium text-muted transition-colors hover:text-foreground sm:mt-4 sm:py-0"
           >
             <ChevronLeftIcon className="h-4 w-4 rtl:-scale-x-100" />
             {t.cart.continueShopping}
@@ -412,7 +419,7 @@ export function CartView() {
               type="text"
               placeholder={t.cart.promoPlaceholder}
               aria-label={t.cart.promo}
-              className="min-w-0 flex-1 rounded-full border border-border bg-surface-2 px-4 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-ring"
+              className="min-w-0 flex-1 rounded-full border border-border bg-surface-2 px-4 py-2 text-base text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
             />
             <button
               type="submit"

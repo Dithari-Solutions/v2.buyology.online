@@ -12,7 +12,7 @@ export async function ComingSoon({ title }: { title: string }) {
   return (
     <>
       <Header />
-      <main className="relative mx-auto flex w-full max-w-[820px] flex-col items-center overflow-hidden px-4 py-28 text-center sm:px-6">
+      <main className="relative mx-auto flex w-full max-w-[820px] flex-col items-center overflow-hidden px-4 py-20 text-center sm:px-6 sm:py-28">
         {/* Soft brand auras behind the content */}
         <div
           aria-hidden="true"
@@ -32,7 +32,7 @@ export async function ComingSoon({ title }: { title: string }) {
         <h1 className="relative mt-2 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
           {title}
         </h1>
-        <p className="relative mt-4 max-w-md text-muted">{t.pages.comingSoonHint}</p>
+        <p className="relative mt-4 max-w-md text-balance text-muted sm:text-wrap">{t.pages.comingSoonHint}</p>
         <div className="relative mt-9 flex flex-wrap justify-center gap-3">
           <Link
             href="/products"
@@ -47,7 +47,7 @@ export async function ComingSoon({ title }: { title: string }) {
             {t.pages.backHome}
           </Link>
         </div>
-        <p className="relative mt-8 text-xs text-muted">{t.pages.comingSoonNewsletter}</p>
+        <p className="relative mt-8 text-balance text-xs text-muted sm:text-wrap">{t.pages.comingSoonNewsletter}</p>
       </main>
     </>
   );

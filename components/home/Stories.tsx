@@ -61,9 +61,11 @@ export function Stories() {
     <section
       aria-label={t.stories.ariaRow}
       aria-busy={feed === null}
-      className="mx-auto w-full max-w-[1400px] px-4 pt-5 sm:px-6"
+      className="mx-auto w-full max-w-[1400px] pt-5 sm:px-6"
     >
-      <ul className="mx-auto flex w-fit max-w-full gap-4 overflow-x-auto pb-1 sm:gap-7 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* Phone gutter sits on the scroller, not the section, so an overflowing row scrolls to the
+          screen edge instead of being sliced off 16px short of it. */}
+      <ul className="mx-auto flex w-fit max-w-full gap-4 overflow-x-auto px-4 pb-1 sm:gap-7 sm:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {feed === null
           ? // Skeletons: same ring/label geometry as a real bubble, so the swap is jump-free.
             Array.from({ length: 6 }, (_, i) => (

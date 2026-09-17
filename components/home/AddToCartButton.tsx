@@ -57,7 +57,7 @@ export function AddToCartButton({ product }: { product: Product }) {
       <CartQuantityStepper
         productId={product.id}
         productName={product.name}
-        className="mt-3"
+        className="mt-2 sm:mt-3"
       />
     );
   }
@@ -69,7 +69,7 @@ export function AddToCartButton({ product }: { product: Product }) {
         onClick={onClick}
         disabled={soldOut}
         aria-label={soldOut ? t.pdp.outOfStock : t.deals.addToCart}
-        className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+        className={`mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-full py-2 text-xs font-semibold transition-colors sm:mt-3 sm:gap-2 sm:py-2.5 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
           added
             ? "bg-primary text-primary-fg"
             : "bg-surface-2 text-foreground hover:bg-primary hover:text-primary-fg"
@@ -79,12 +79,12 @@ export function AddToCartButton({ product }: { product: Product }) {
           t.pdp.outOfStock
         ) : added ? (
           <>
-            <CheckIcon className="buyo-pop h-[18px] w-[18px]" />
+            <CheckIcon className="buyo-pop h-4 w-4 sm:h-[18px] sm:w-[18px]" />
             {t.cart.added}
           </>
         ) : (
           <>
-            <BagIcon className="h-[18px] w-[18px]" />
+            <BagIcon className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
             {t.deals.addToCart}
           </>
         )}

@@ -436,6 +436,7 @@ export function SignupForm() {
               name="website"
               placeholder="https://"
               autoComplete="url"
+              dir="ltr"
             />
             <AuthPassword label={t.auth.password} autoComplete="new-password" />
           </>
@@ -481,6 +482,7 @@ export function SignupForm() {
                   {t.giveaway.followRequirement}{" "}
                   <a
                     href="https://instagram.com/buyology.online"
+                    dir="ltr"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-semibold text-brand-icon underline"
@@ -494,7 +496,7 @@ export function SignupForm() {
                   onChange={(e) => setGPhone(e.target.value)}
                   placeholder="+971 5X XXX XXXX"
                   aria-label={t.giveaway.phoneLabel}
-                  className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-base text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm"
                 />
                 <input
                   type="text"
@@ -503,7 +505,7 @@ export function SignupForm() {
                   placeholder={t.giveaway.handleLabel}
                   autoCapitalize="none"
                   aria-label={t.giveaway.handleLabel}
-                  className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-base text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm"
                 />
                 <p className="text-xs text-muted">{t.giveaway.signupVerifyNote}</p>
               </div>
@@ -535,7 +537,7 @@ export function SignupForm() {
         {s.hasAccount}{" "}
         <Link
           href="/login"
-          className="font-semibold text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="py-3 font-semibold text-brand-icon hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:py-0"
         >
           {s.cta}
         </Link>

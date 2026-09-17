@@ -67,10 +67,10 @@ export async function CategoryBanners() {
                 <li key={c.id} className="min-w-0">
                   <Link
                     href={categoryHref(c)}
-                    className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface-2 hover:text-brand-icon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-3"
+                    className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-2 hover:text-brand-icon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-3 sm:py-2"
                   >
                     <Icon className="h-[18px] w-[18px] shrink-0 text-brand-icon" />
-                    <span className="min-w-0 truncate">{c.name}</span>
+                    <span className="min-w-0 lg:truncate">{c.name}</span>
                   </Link>
                 </li>
               );
@@ -78,7 +78,7 @@ export async function CategoryBanners() {
           </ul>
           <Link
             href="/products"
-            className="mt-3 inline-flex items-center gap-1 px-2 text-sm font-semibold text-gold-deep transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-gold"
+            className="-mb-2.5 mt-0.5 inline-flex items-center gap-1 px-2 py-2.5 text-sm font-semibold text-gold-deep transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:mb-0 sm:mt-3 sm:py-0 dark:text-gold"
           >
             {t.departments.viewAll}
             <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />
@@ -87,7 +87,7 @@ export async function CategoryBanners() {
 
         {/* Center — the hero banners */}
         {hasHero && (
-          <div className="relative order-1 min-h-[16rem] sm:aspect-[21/9] sm:min-h-0 lg:order-2 lg:aspect-auto lg:h-full">
+          <div className="relative order-1 aspect-[2/1] sm:aspect-[21/9] lg:order-2 lg:aspect-auto lg:h-full">
             <FeaturedCarousel banners={hero} label={t.departments.label} />
           </div>
         )}

@@ -40,7 +40,7 @@ function CountBadge({ count, bump }: { count: number; bump?: boolean }) {
 
 /** Shared premium styling for the round icon actions (Buyology purple). */
 const actionButton =
-  "relative inline-flex h-9 w-9 items-center justify-center rounded-xl text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-10 sm:w-10";
+  "relative inline-flex h-10 w-10 items-center justify-center rounded-xl text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 const mobileServices = [...services, buyobot];
 
@@ -76,7 +76,7 @@ export function Header() {
       >
         {/* Main row: logo left · search centered · actions right (desktop) */}
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-3 py-3 sm:gap-x-4 lg:grid lg:grid-cols-[1fr_minmax(0,42rem)_1fr] lg:gap-4">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-3 py-2.5 sm:gap-x-4 sm:py-3 lg:grid lg:grid-cols-[1fr_minmax(0,42rem)_1fr] lg:gap-4">
             <div className="order-1 flex items-center gap-1.5 sm:gap-2 lg:justify-self-start">
               <button
                 type="button"
@@ -84,7 +84,7 @@ export function Header() {
                 aria-label={mobileOpen ? t.header.closeMenu : t.header.openMenu}
                 aria-expanded={mobileOpen}
                 aria-controls="mobile-menu"
-                className="-ms-1 inline-flex h-9 w-9 items-center justify-center rounded-xl text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-10 sm:w-10 lg:hidden"
+                className="-ms-1 inline-flex h-10 w-10 items-center justify-center rounded-xl text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
               >
                 {mobileOpen ? (
                   <CloseIcon className="h-5 w-5" />
@@ -100,7 +100,7 @@ export function Header() {
 
             {/* Actions */}
             <div className="order-2 ms-auto flex shrink-0 items-center gap-0 sm:gap-1 lg:order-3 lg:ms-0 lg:justify-self-end">
-              <AccountButton className="inline-flex items-center gap-2 rounded-xl px-1.5 py-2 text-sm font-medium text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-2.5" />
+              <AccountButton className="inline-flex items-center gap-2 rounded-xl p-[9px] text-sm font-medium text-brand-icon transition-colors hover:bg-brand-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-2.5 sm:py-2" />
 
               {/* Hidden only on ultra-narrow screens — the mobile menu still links the wishlist. */}
               <Link
@@ -135,12 +135,12 @@ export function Header() {
           <PrimaryNav />
         </div>
 
-        {/* Mobile dropdown menu */}
+        {/* Mobile dropdown menu — it opens inside the sticky header, so it scrolls itself on short screens */}
         {mobileOpen && (
           <nav
             id="mobile-menu"
             aria-label={t.nav.menu}
-            className="border-t border-border bg-background lg:hidden"
+            className="max-h-[calc(100dvh-10rem)] overflow-y-auto overscroll-contain border-t border-border bg-background lg:hidden"
           >
             <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6">
               <Link
@@ -172,9 +172,12 @@ export function Header() {
                             : "font-medium text-foreground"
                         }`}
                       >
-                        <Icon className="h-[18px] w-[18px] text-brand-icon" />
-                        {t.items[s.key].label}
-                        {s.key === "svc-announcements" && <AnnouncementsBadge />}
+                        <Icon className="h-[18px] w-[18px] shrink-0 text-brand-icon" />
+                        {/* The badge wraps under the label when the half-width cell is too narrow. */}
+                        <span className="flex min-w-0 flex-wrap items-center gap-x-2">
+                          {t.items[s.key].label}
+                          {s.key === "svc-announcements" && <AnnouncementsBadge />}
+                        </span>
                       </Link>
                     </li>
                   );
@@ -203,24 +206,24 @@ export function Header() {
               )}
             </div>
 
-            <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-5 gap-y-2 border-t border-border px-4 py-3 text-sm text-muted sm:px-6">
-              <Link href="/account" onClick={close} className="hover:text-foreground">
+            <div className="mx-auto grid max-w-[1400px] grid-cols-3 gap-1 border-t border-border px-4 py-2 text-sm text-muted sm:flex sm:flex-wrap sm:gap-x-5 sm:gap-y-2 sm:px-6 sm:py-3">
+              <Link href="/account" onClick={close} className="rounded-lg py-2.5 ps-3 pe-1 hover:bg-surface-2 hover:text-foreground sm:p-0 sm:hover:bg-transparent">
                 {t.header.account}
               </Link>
-              <Link href="/wishlist" onClick={close} className="hover:text-foreground">
+              <Link href="/wishlist" onClick={close} className="rounded-lg py-2.5 ps-3 pe-1 hover:bg-surface-2 hover:text-foreground sm:p-0 sm:hover:bg-transparent">
                 {t.header.wishlist}
                 {wishlistCount > 0 ? ` (${wishlistCount})` : ""}
               </Link>
-              <Link href="/track" onClick={close} className="hover:text-foreground">
+              <Link href="/track" onClick={close} className="rounded-lg py-2.5 ps-3 pe-1 hover:bg-surface-2 hover:text-foreground sm:p-0 sm:hover:bg-transparent">
                 {t.announcement.trackOrder}
               </Link>
-              <Link href="/help" onClick={close} className="hover:text-foreground">
+              <Link href="/help" onClick={close} className="rounded-lg py-2.5 ps-3 pe-1 hover:bg-surface-2 hover:text-foreground sm:p-0 sm:hover:bg-transparent">
                 {t.announcement.help}
               </Link>
-              <a href={WHO_WE_ARE_URL} onClick={close} className="hover:text-foreground">
+              <a href={WHO_WE_ARE_URL} onClick={close} className="rounded-lg py-2.5 ps-3 pe-1 hover:bg-surface-2 hover:text-foreground sm:p-0 sm:hover:bg-transparent">
                 {t.header.whoWeAre}
               </a>
-              <Link href="/contact" onClick={close} className="hover:text-foreground">
+              <Link href="/contact" onClick={close} className="rounded-lg py-2.5 ps-3 pe-1 hover:bg-surface-2 hover:text-foreground sm:p-0 sm:hover:bg-transparent">
                 {t.contact.eyebrow}
               </Link>
             </div>

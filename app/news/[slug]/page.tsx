@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header/Header";
+import { dirFor } from "@/lib/i18n/config";
 import { getDict, getLocale } from "@/lib/i18n/server";
 import { fetchAnnouncement } from "@/lib/news-api";
 import { sanitizeArticle } from "@/lib/news/sanitize";
@@ -10,6 +11,14 @@ import { breadcrumbSchema, jsonLdScript } from "@/lib/structured-data";
 import { site } from "@/lib/site";
 
 export const revalidate = 60;
+
+/** A post is written in one language whatever the site locale. Its title's first letter sets the
+    direction for the post's whole text block, so its lines share one edge. */
+function postDirFor(title: string, pageDir: "ltr" | "rtl"): "ltr" | "rtl" {
+  const letter = title.match(/\p{L}/u)?.[0];
+  if (!letter) return pageDir;
+  return /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/.test(letter) ? "rtl" : "ltr";
+}
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
@@ -54,6 +63,9 @@ export default async function AnnouncementPage(
       })
     : null;
 
+  const pageDir = dirFor(locale);
+  const postDir = postDirFor(article.title, pageDir);
+
   // Sanitised on the server, before it is ever markup in a browser.
   const body = sanitizeArticle(article.content);
 
@@ -95,16 +107,19 @@ export default async function AnnouncementPage(
       <main className="mx-auto w-full max-w-[760px] px-4 py-10 sm:px-6 sm:py-14">
         <Link
           href="/news"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-icon hover:underline"
+          className="-my-2.5 inline-flex items-center gap-1.5 py-2.5 text-sm font-semibold text-brand-icon hover:underline"
         >
           <span aria-hidden="true" className="rtl:-scale-x-100">&larr;</span>
           {t.news.backToAll}
         </Link>
 
         <article className="mt-8">
-          <header>
+          {/* The date keeps the page's language (and its own text order) but, being inline, sits
+              on the post's edge like the title under it. */}
+          <header dir={postDir}>
             {published && (
               <time
+                dir={pageDir}
                 dateTime={article.publishedAt ?? undefined}
                 className="font-mono text-xs uppercase tracking-wider text-muted"
               >
@@ -135,6 +150,7 @@ export default async function AnnouncementPage(
           {/* Sanitised above. Typography is set here rather than in the editor's markup, so a
               post written months apart still looks like the rest of the site. */}
           <div
+            dir={postDir}
             className="buyo-prose mt-10"
             dangerouslySetInnerHTML={{ __html: body }}
           />

@@ -94,9 +94,11 @@ function WriteReview({ productId, onPosted }: { productId: string; onPosted: () 
   useEffect(() => () => previewsRef.current.forEach((u) => URL.revokeObjectURL(u)), []);
 
   if (status === "loading") return null;
+  // first: = nothing above it in the overview card (no reviews yet). Below lg, drop the box
+  // chrome there so it isn't a card nested in a card.
   if (status === "guest") {
     return (
-      <div className="mt-4 rounded-2xl border border-border bg-surface p-5">
+      <div className="mt-4 rounded-2xl border border-border bg-surface p-5 first:mt-0 first:border-0 first:bg-transparent first:p-0 lg:first:mt-4 lg:first:border lg:first:bg-surface lg:first:p-5">
         <p className="text-sm text-muted">{r.signInToReview}</p>
         <Link
           href={`/login?next=/product/${productId}`}
@@ -109,7 +111,7 @@ function WriteReview({ productId, onPosted }: { productId: string; onPosted: () 
   }
   if (posted || already === true) {
     return (
-      <p className="mt-4 rounded-2xl border border-border bg-surface px-5 py-4 text-sm text-muted">
+      <p className="mt-4 rounded-2xl border border-border bg-surface px-5 py-4 text-sm text-muted first:mt-0 first:border-0 first:bg-transparent first:p-0 lg:first:mt-4 lg:first:border lg:first:bg-surface lg:first:px-5 lg:first:py-4">
         {posted ? r.posted : r.alreadyReviewed}
       </p>
     );

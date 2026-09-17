@@ -17,7 +17,7 @@ export function AuthField({
         {label}
       </span>
       <input
-        className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring"
+        className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-base text-foreground placeholder:text-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
         {...props}
       />
     </label>
@@ -46,13 +46,13 @@ export function AuthPassword({
           name={name}
           autoComplete={autoComplete}
           required
-          className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 pe-11 text-sm text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 pe-11 text-base text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
         />
         <button
           type="button"
           onClick={() => setShow((s) => !s)}
           aria-label={show ? t.gate.hide : t.gate.show}
-          className="absolute inset-y-0 end-2 my-auto flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute inset-y-0 end-1 my-auto flex h-10 w-10 items-center justify-center rounded-lg text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:end-2 sm:h-8 sm:w-8"
         >
           {show ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
         </button>
@@ -72,7 +72,7 @@ export function AuthSelect({
         {label}
       </span>
       <select
-        className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring"
+        className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-base text-foreground focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
         {...props}
       >
         {children}

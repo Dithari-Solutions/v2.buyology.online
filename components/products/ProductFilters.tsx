@@ -38,11 +38,11 @@ export function ProductFilters({
         <legend className="mb-2.5 text-sm font-semibold text-foreground">
           {t.shop.category}
         </legend>
-        <div className="max-h-52 space-y-2 overflow-y-auto pe-1">
+        <div className="pe-1 lg:max-h-52 lg:space-y-2 lg:overflow-y-auto">
           {categories.map((c) => (
             <label
               key={c.id}
-              className="flex cursor-pointer items-center gap-2.5 text-sm text-muted"
+              className="flex min-h-10 cursor-pointer items-center gap-2.5 text-sm text-muted lg:min-h-0"
             >
               <input
                 type="checkbox"
@@ -58,32 +58,35 @@ export function ProductFilters({
 
       {/* Price range */}
       <fieldset className="border-t border-border pt-5">
-        <legend className="mb-2.5 text-sm font-semibold text-foreground">
+        {/* Floated so the fieldset's top border runs above the heading instead of through it. */}
+        <legend className="float-start mb-2.5 w-full text-sm font-semibold text-foreground lg:float-none lg:w-auto">
           {t.shop.price}
         </legend>
-        <PriceRange
-          min={0}
-          max={priceCeil}
-          step={10}
-          value={[filters.priceMin ?? 0, filters.priceMax ?? priceCeil]}
-          onChange={([lo, hi]) =>
-            onChange({
-              ...filters,
-              // A thumb resting on its end of the scale means "unbounded on that side" — the
-              // server then never excludes items that arrive priced beyond the current scale.
-              priceMin: lo <= 0 ? null : lo,
-              priceMax: hi >= priceCeil ? null : hi,
-            })
-          }
-        />
+        <div className="clear-both">
+          <PriceRange
+            min={0}
+            max={priceCeil}
+            step={10}
+            value={[filters.priceMin ?? 0, filters.priceMax ?? priceCeil]}
+            onChange={([lo, hi]) =>
+              onChange({
+                ...filters,
+                // A thumb resting on its end of the scale means "unbounded on that side" — the
+                // server then never excludes items that arrive priced beyond the current scale.
+                priceMin: lo <= 0 ? null : lo,
+                priceMax: hi >= priceCeil ? null : hi,
+              })
+            }
+          />
+        </div>
       </fieldset>
 
       {/* Rating */}
       <fieldset className="border-t border-border pt-5">
-        <legend className="mb-2.5 text-sm font-semibold text-foreground">
+        <legend className="float-start mb-2.5 w-full text-sm font-semibold text-foreground lg:float-none lg:w-auto">
           {t.shop.rating}
         </legend>
-        <div className="flex flex-wrap gap-2">
+        <div className="clear-both flex flex-wrap gap-2">
           {RATING_OPTIONS.map((r) => {
             const on = filters.rating === r;
             return (
@@ -92,7 +95,7 @@ export function ProductFilters({
                 type="button"
                 onClick={() => onChange({ ...filters, rating: on ? 0 : r })}
                 aria-pressed={on}
-                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`inline-flex min-h-10 items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:min-h-0 ${
                   on
                     ? "border-brand bg-brand-soft text-brand-icon"
                     : "border-border text-muted hover:border-border-strong"
@@ -107,8 +110,8 @@ export function ProductFilters({
       </fieldset>
 
       {/* Toggles */}
-      <div className="space-y-2.5 border-t border-border pt-5">
-        <label className="flex cursor-pointer items-center gap-2.5 text-sm text-muted">
+      <div className="border-t border-border pt-5 lg:space-y-2.5">
+        <label className="flex min-h-10 cursor-pointer items-center gap-2.5 text-sm text-muted lg:min-h-0">
           <input
             type="checkbox"
             checked={filters.onSale}
@@ -117,7 +120,7 @@ export function ProductFilters({
           />
           {t.shop.onSale}
         </label>
-        <label className="flex cursor-pointer items-center gap-2.5 text-sm text-muted">
+        <label className="flex min-h-10 cursor-pointer items-center gap-2.5 text-sm text-muted lg:min-h-0">
           <input
             type="checkbox"
             checked={filters.bestseller}

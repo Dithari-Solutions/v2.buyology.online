@@ -164,7 +164,7 @@ export function Metrics() {
             return (
               <div
                 key={m.key}
-                className="flex flex-col justify-between rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-elevation)] transition-transform duration-300 hover:-translate-y-0.5"
+                className="flex flex-col sm:justify-between rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-elevation)] transition-transform duration-300 hover:-translate-y-0.5"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand-icon">
                   <Icon className="h-[22px] w-[22px]" />
