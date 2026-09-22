@@ -28,6 +28,16 @@ const nextConfig: NextConfig = {
   // storefront (copy static/ + public/ in, pm2 runs server.js).
   output: "standalone",
   generateBuildId: resolveBuildId,
+  async redirects() {
+    return [
+      // Sell became Trade-in, and neither it nor Repair is taking new requests on the new site
+      // yet. The forms are the part that must not stay open: a submitted request nobody answers
+      // is worse than a page that says "coming soon". The "my requests" and detail pages are
+      // deliberately NOT redirected, so anyone mid-request can still follow it.
+      { source: "/sell/new", destination: "/trade-in", permanent: false },
+      { source: "/repair/new", destination: "/repair", permanent: false },
+    ];
+  },
   images: {
     // Allow the higher-quality tier used for product imagery (Next 16 requires
     // every `quality` prop value to be allow-listed here).

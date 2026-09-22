@@ -2,6 +2,7 @@ import type { ComponentType, SVGProps } from "react";
 import {
   BatteryChargingIcon,
   BotIcon,
+  ExchangeIcon,
   GamepadIcon,
   GridIcon,
   HammerIcon,
@@ -12,7 +13,6 @@ import {
   RentIcon,
   SparklesIcon,
   TagIcon,
-  WalletIcon,
   WatchIcon,
   WrenchIcon,
   MegaphoneIcon,
@@ -47,12 +47,13 @@ export const services: NavItem[] = [
     keywords: "fix broken screen battery service warranty təmir إصلاح",
   },
   {
-    key: "svc-sell",
-    label: "Sell",
-    href: "/sell",
-    icon: WalletIcon,
-    hint: "Sell your device for cash",
-    keywords: "sell trade cash buy-back device sat بيع",
+    key: "svc-tradein",
+    label: "Trade-in",
+    href: "/trade-in",
+    icon: ExchangeIcon,
+    // "sell" stays in the keywords: the service was called Sell until now, and that is still
+    // what a shopper types when they want to hand over an old laptop.
+    keywords: "trade-in trade sell cash buy-back exchange device sat dəyişdir بيع مقايضة",
   },
   {
     key: "svc-announcements",
