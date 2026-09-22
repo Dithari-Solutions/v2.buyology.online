@@ -66,9 +66,13 @@ export function PaymentCallbackView() {
       // Courier-fee transactions carry no appOrderId; the redirect embeds the order id.
       const oid = tx?.appOrderId ?? storedOrder ?? all.orderId ?? null;
       setOrderId(oid ?? null);
+      // Tabby and Tamara come back with success=false AND pending=true: approved, not yet
+      // captured. That is money on its way, not a failure — telling the customer "you weren't
+      // charged" sent them to pay a second time. The order settles by itself when Paymob confirms.
+      const stillPending = all.pending === "true" || tx?.status === "PROCESSING";
       if (tx && TERMINAL.has(tx.status)) {
         setOutcome(tx.status === "FAILED" || tx.status === "CANCELLED" ? "failed" : "success");
-      } else if (paymobSuccess === "false") {
+      } else if (paymobSuccess === "false" && !stillPending) {
         setOutcome("failed");
       } else {
         // Includes success=true with no backend confirmation: an unverified URL flag must
@@ -90,6 +94,9 @@ export function PaymentCallbackView() {
     };
 
     (async () => {
+      // The backend's latest non-final answer, e.g. PROCESSING for an approved instalment
+      // payment — kept so the fallback below can tell "still settling" from "failed".
+      let lastSeen: PaymentTransaction | null = null;
       // 1. Signed verdict straight to the backend.
       if (all.hmac) {
         try {
@@ -98,6 +105,7 @@ export function PaymentCallbackView() {
             finish(tx, null);
             return;
           }
+          lastSeen = tx ?? lastSeen;
         } catch {
           /* offline right after the redirect — fall through to polling */
         }
@@ -112,6 +120,7 @@ export function PaymentCallbackView() {
               finish(tx, null);
               return;
             }
+            lastSeen = tx;
           } catch {
             /* transient — keep polling */
           }
@@ -119,7 +128,7 @@ export function PaymentCallbackView() {
         }
       }
       // 3. Best-effort display from Paymob's own (HMAC-covered) success flag.
-      finish(null, all.success ?? null);
+      finish(lastSeen, all.success ?? null);
     })();
   }, [authStatus, params, cart]);
 
