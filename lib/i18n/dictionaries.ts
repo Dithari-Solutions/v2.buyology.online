@@ -54,7 +54,13 @@ export interface Dict {
     itemsSuffix: string;
     whoWeAre: string;
   };
-  nav: { allCategories: string; shopByCategory: string; menu: string };
+  nav: {
+    allCategories: string;
+    shopByCategory: string;
+    brands: string;
+    noBrands: string;
+    menu: string;
+  };
   palette: {
     placeholder: string;
     products: string;
@@ -1213,6 +1219,8 @@ const en: Dict = {
   nav: {
     allCategories: "All Categories",
     shopByCategory: "Shop by category",
+    brands: "Brands",
+    noBrands: "No brands listed here yet — browse the department to see everything in it.",
     menu: "Main menu",
   },
   palette: {
@@ -2633,6 +2641,8 @@ const az: Dict = {
   nav: {
     allCategories: "Bütün Kateqoriyalar",
     shopByCategory: "Kateqoriya üzrə al",
+    brands: "Brendlər",
+    noBrands: "Burada hələ brend yoxdur — bölməyə baxın və içindəki hər şeyi görün.",
     menu: "Əsas menyu",
   },
   palette: {
@@ -4067,6 +4077,8 @@ const ar: Dict = {
   nav: {
     allCategories: "كل الفئات",
     shopByCategory: "تسوّق حسب الفئة",
+    brands: "العلامات التجارية",
+    noBrands: "لا توجد علامات تجارية هنا بعد — تصفّح القسم لرؤية كل ما فيه.",
     menu: "القائمة الرئيسية",
   },
   palette: {

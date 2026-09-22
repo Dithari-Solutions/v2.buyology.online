@@ -12,15 +12,15 @@ export const metadata: Metadata = {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; brand?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, brand } = await searchParams;
 
   return (
     <>
       <Header />
       <main className="mx-auto w-full max-w-[1400px] px-4 py-8 sm:px-6 sm:py-10">
-        <ProductsView initialCategory={category} />
+        <ProductsView initialCategory={category} initialBrand={brand} />
       </main>
     </>
   );

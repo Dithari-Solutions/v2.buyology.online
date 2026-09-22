@@ -3,6 +3,8 @@ import type { Product } from "@/lib/products";
 export type Filters = {
   /** Category IDs (the backend filters by UUID; names are only labels). */
   categories: string[];
+  /** Brand IDs, same story — set from the categories menu's brand tiles. */
+  brands: string[];
   /** Inclusive AED bounds from the slider; null = that side unbounded. */
   priceMin: number | null;
   priceMax: number | null;
@@ -14,6 +16,7 @@ export type Filters = {
 
 export const DEFAULT_FILTERS: Filters = {
   categories: [],
+  brands: [],
   priceMin: null,
   priceMax: null,
   rating: 0,
@@ -74,6 +77,7 @@ export function sortProducts(items: Product[], sort: SortKey): Product[] {
 export function activeFilterCount(f: Filters): number {
   return (
     f.categories.length +
+    f.brands.length +
     (f.priceMin != null || f.priceMax != null ? 1 : 0) +
     (f.rating > 0 ? 1 : 0) +
     (f.onSale ? 1 : 0) +

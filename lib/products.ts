@@ -37,6 +37,8 @@ export type Product = {
   currency?: string;
   /** Manufacturer name from the catalogue (Apple, Dell, …) — the brand in Product schema. */
   brand?: string;
+  /** The brand's UUID — what the catalogue filters by; the name above is only a label. */
+  brandId?: string;
   /** The store the price came from — required by the cart payload once checkout migrates. */
   storeId?: string;
   stock?: number;

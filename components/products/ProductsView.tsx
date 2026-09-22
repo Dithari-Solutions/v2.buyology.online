@@ -33,7 +33,13 @@ const PAGE = 9;
 // selected country — so one empty page is not the end of the catalogue; ten in a row effectively is.
 const MAX_EMPTY_PAGE_PULLS = 10;
 
-export function ProductsView({ initialCategory }: { initialCategory?: string }) {
+export function ProductsView({
+  initialCategory,
+  initialBrand,
+}: {
+  initialCategory?: string;
+  initialBrand?: string;
+}) {
   const { t, locale } = useI18n();
 
   // How many of the loaded products are revealed. Declared up here with the browse-mode state rather
@@ -131,7 +137,19 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
   const categoryName = (id: string) =>
     categories.find((c) => c.id === id)?.name ?? "";
 
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  // Brand names come off the rows themselves — every product carries its brand — so a brand chip
+  // can be labelled without a second endpoint. Kept in state, not a ref: the chip renders from it,
+  // and it arrives one fetch after the filter does. Merged, never replaced, so the label survives
+  // the next search.
+  const [brandNames, setBrandNames] = useState<Record<string, string>>({});
+
+  const [filters, setFilters] = useState<Filters>(() => {
+    const id = initialBrand?.trim().toLowerCase();
+    // Only a UUID: the backend filters brands by id, so a name here would silently match nothing.
+    return id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)
+      ? { ...DEFAULT_FILTERS, brands: [id] }
+      : DEFAULT_FILTERS;
+  });
   const [sort, setSort] = useState<SortKey>("featured");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -188,6 +206,7 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
       needsServerSearch(filters, sort)
         ? JSON.stringify({
             c: [...filters.categories].sort(),
+            b: [...filters.brands].sort(),
             lo: filters.priceMin,
             hi: filters.priceMax,
             sd: filters.bestseller,
@@ -213,18 +232,25 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
     const timer = setTimeout(() => {
       const q = JSON.parse(serverKey) as {
         c: string[];
+        b: string[];
         lo: number | null;
         hi: number | null;
         sd: boolean;
       };
       searchCatalogue(locale, {
         categoryIds: q.c,
+        brandIds: q.b,
         minPrice: q.lo ?? undefined,
         maxPrice: q.hi ?? undefined,
         superDealsOnly: q.sd,
       })
         .then((items) => {
           if (cancelled) return;
+          const named: Record<string, string> = {};
+          for (const item of items) {
+            if (item.brandId && item.brand) named[item.brandId] = item.brand;
+          }
+          if (Object.keys(named).length) setBrandNames((prev) => ({ ...prev, ...named }));
           setResults(items);
           setSearchError(false);
         })
@@ -358,6 +384,14 @@ export function ProductsView({ initialCategory }: { initialCategory?: string }) 
           ...filters,
           categories: filters.categories.filter((x) => x !== id),
         }),
+    }),
+  );
+  filters.brands.forEach((id) =>
+    chips.push({
+      key: `b-${id}`,
+      label: brandNames[id] || t.palette.products,
+      remove: () =>
+        update({ ...filters, brands: filters.brands.filter((x) => x !== id) }),
     }),
   );
   if (filters.priceMin != null || filters.priceMax != null)

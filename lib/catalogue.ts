@@ -43,6 +43,7 @@ export type ApiProduct = {
   description?: string | null;
   sku?: string | null;
   categoryId?: string | null;
+  brandId?: string | null;
   brandName?: string | null;
   storeId?: string | null;
   storePrice?: number | null;
@@ -150,6 +151,77 @@ export function fetchCategories(locale: Locale, market?: Market): Promise<Catego
   return cached;
 }
 
+// ── Brands per category (for the categories menu) ────────────────────────────
+
+/** A brand as the menu needs it: the id filters the catalogue, the name labels the tile. */
+export type CategoryBrand = { id: string; name: string };
+
+/**
+ * The brands each category actually has products from, biggest name in the category first.
+ *
+ * <p>Built from ONE catalogue read rather than a request per category: /api/product/search with no
+ * filters returns the whole matched list, every row carrying its categoryId, brandId and brandName,
+ * so the menu can show a category's brands the moment it is hovered instead of waiting on a fetch.
+ * There is no brands-by-category endpoint to call, and a per-category fan-out would be eight
+ * requests to fill one menu.
+ *
+ * <p>The ID travels with the name because the tile links into the catalogue, and the catalogue
+ * filters by brand UUID — a name would have to go through free-text search, which matches titles
+ * and so answers "HP" with a product nobody tagged HP.
+ *
+ * <p>Ordered by how many products carry the brand, so the biggest name in a category leads. Never
+ * throws: an empty map simply means the menu shows categories without brand marks.
+ */
+const CATEGORY_BRANDS_TTL_MS = 5 * 60_000;
+const categoryBrandsCache = new Map<
+  string,
+  { promise: Promise<Map<string, CategoryBrand[]>>; at: number }
+>();
+
+export function fetchCategoryBrands(
+  locale: Locale,
+  market?: Market,
+): Promise<Map<string, CategoryBrand[]>> {
+  const m = market ?? currentMarket();
+  const cacheKey = `${locale}:${m.countryCode}`;
+  const entry = categoryBrandsCache.get(cacheKey);
+  const fresh = entry && Date.now() - entry.at <= CATEGORY_BRANDS_TTL_MS ? entry.promise : undefined;
+  if (fresh) return fresh;
+
+  const promise = get<ApiProduct[]>("/api/product/search", params(locale, {}, market))
+    .then((rows) => {
+      const counts = new Map<string, Map<string, { brand: CategoryBrand; count: number }>>();
+      for (const row of rows) {
+        const categoryId = row.categoryId?.trim();
+        const brandId = row.brandId?.trim();
+        const name = row.brandName?.trim();
+        // A product with no brand tagged is simply not a brand the menu can offer.
+        if (!categoryId || !brandId || !name) continue;
+        const perCategory = counts.get(categoryId) ?? new Map<string, { brand: CategoryBrand; count: number }>();
+        const seen = perCategory.get(brandId);
+        if (seen) seen.count += 1;
+        else perCategory.set(brandId, { brand: { id: brandId, name }, count: 1 });
+        counts.set(categoryId, perCategory);
+      }
+      const byCategory = new Map<string, CategoryBrand[]>();
+      for (const [categoryId, perCategory] of counts) {
+        byCategory.set(
+          categoryId,
+          [...perCategory.values()]
+            .sort((a, b) => b.count - a.count || a.brand.name.localeCompare(b.brand.name))
+            .map((e) => e.brand),
+        );
+      }
+      return byCategory;
+    })
+    .catch(() => {
+      categoryBrandsCache.delete(cacheKey); // a failed fetch must not poison the session
+      return new Map<string, CategoryBrand[]>();
+    });
+  categoryBrandsCache.set(cacheKey, { promise, at: Date.now() });
+  return promise;
+}
+
 // ── The adapter ──────────────────────────────────────────────────────────────
 
 /** Spec chips for the card, the way the catalogue names them: "16 GB", "1 TB", "M4". */
@@ -195,6 +267,7 @@ export function toProduct(api: ApiProduct, categoryName?: string): Product {
     refurbished: api.isRefurbished ?? false,
     currency: api.currency ?? currentMarket().currency,
     brand: api.brandName ?? undefined,
+    brandId: api.brandId ?? undefined,
     storeId: api.storeId ?? undefined,
     stock: api.stockQuantity ?? undefined,
     // Left undefined when the server omits it, so "not tracked" survives the mapping. Coalescing to 0
@@ -239,6 +312,8 @@ export async function fetchProducts(
 
 export type CatalogueQuery = {
   categoryIds?: string[];
+  /** Brand IDs. Repeated keys on the wire (brandIds=a&brandIds=b) — see the module header. */
+  brandIds?: string[];
   /** Inclusive bounds in the display currency (AED). Omit a bound to leave it open. */
   minPrice?: number;
   maxPrice?: number;
@@ -260,6 +335,7 @@ export async function searchCatalogue(locale: Locale, q: CatalogueQuery): Promis
     minPrice: q.minPrice,
     maxPrice: q.maxPrice,
     isSuperDeal: q.superDealsOnly ? true : undefined,
+    brandIds: q.brandIds?.filter(Boolean),
   };
   const ids = q.categoryIds?.filter(Boolean) ?? [];
   const requests =
