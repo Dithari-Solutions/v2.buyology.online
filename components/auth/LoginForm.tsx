@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -21,7 +21,7 @@ import { AuthField, AuthPassword, AuthSocial } from "@/components/auth/auth-ui";
 export function LoginForm() {
   const { t } = useI18n();
   const router = useRouter();
-  const { signIn } = useAuth();
+  const { signIn, status } = useAuth();
   const a = t.auth;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +31,16 @@ export function LoginForm() {
     const next = new URLSearchParams(window.location.search).get("next");
     return next && next.startsWith("/") ? next : "/";
   }
+
+  // Someone who is already signed in has nothing to do here, and asking them for a password they
+  // have already given reads as a rejection. It matters most when a link sent them: the cart
+  // reminder's "Complete my order" points at /login?next=/cart precisely because the sender cannot
+  // know whether the reader's browser is signed in, and for the ones who are, this is the whole
+  // journey. Waits for "loading" to settle so the redirect is never decided on an unrestored
+  // session, and replaces rather than pushes so Back does not return to this form.
+  useEffect(() => {
+    if (status === "authed") router.replace(destination());
+  }, [status, router]);
 
   function messageFor(err: unknown): string {
     if (!(err instanceof AuthError)) return a.errors.generic;
