@@ -49,6 +49,10 @@ export function notificationRoute(type: string | null | undefined): string | nul
       return "/support/my";
     case "PROMO":
       return "/products";
+    // The bell's half of the abandoned-cart reminder. Without a case here the row renders and
+    // then does nothing when tapped, which is worse than not sending it.
+    case "CART_REMINDER":
+      return "/cart";
     default:
       return null;
   }
