@@ -13,25 +13,42 @@ import { formatMoney } from "@/lib/format";
 import type { Product } from "@/lib/products";
 import {
   ArrowRightIcon,
+  ClockIcon,
   CloseIcon,
   EnterKeyIcon,
   MicIcon,
   SearchIcon,
+  TrashIcon,
 } from "@/components/icons";
 import { useI18n } from "@/components/i18n/language-provider";
 import { lockBodyScroll } from "@/lib/scroll-lock";
+import {
+  clearRecentSearches,
+  readRecentSearches,
+  rememberSearch,
+} from "@/lib/search-history";
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 
 /** One selectable row, whatever its source (live product, live category, static page). */
 type Option = {
   id: string;
+  /** Where the row goes. Empty for a row that acts instead of navigating — see {@link Option.act}. */
   href: string;
   label: string;
   hint?: string;
   icon?: IconType;
   imageUrl?: string | null;
   priceLabel?: string;
+  /**
+   * What the row does instead of navigating.
+   *
+   * <p>"Clear recent searches" has to be an option like any other: the list is a
+   * {@code role="listbox"}, whose only valid children are options and groups, so a button next to
+   * the heading would be invalid ARIA and — worse — invisible to the arrow keys that are the only
+   * way through this panel.
+   */
+  act?: () => void;
 };
 type OptionGroup = { heading: string; options: Option[] };
 
@@ -88,6 +105,9 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
   const [active, setActive] = useState(0);
   const [voiceCommitted, setVoiceCommitted] = useState("");
   const [hitState, setHitState] = useState<{ forQ: string; list: Product[] } | null>(null);
+  // Read once, on open. Safe as a lazy initialiser because this component is mounted only after a
+  // click — it never renders on the server, so there is no hydration mismatch to cause.
+  const [recent, setRecent] = useState<string[]>(() => readRecentSearches());
 
   const liveCategories = useLiveCategories();
   const { isListening, transcript, interim, isSupported, error, start, stop } =
@@ -138,6 +158,28 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
 
   const groups = useMemo<OptionGroup[]>(() => {
     const out: OptionGroup[] = [];
+    // First, before trending: what this shopper actually looked for beats what we guessed they
+    // might. Only while the box is empty — once they type, the panel belongs to results.
+    if (!q && recent.length > 0) {
+      out.push({
+        heading: t.palette.recentSearches,
+        options: [
+          ...recent.map((term) => ({
+            id: `recent-${term}`,
+            href: `/search?q=${encodeURIComponent(term)}`,
+            label: term,
+            icon: ClockIcon,
+          })),
+          {
+            id: "recent-clear",
+            href: "",
+            label: t.palette.clearHistory,
+            icon: TrashIcon,
+            act: () => setRecent(clearRecentSearches()),
+          },
+        ],
+      });
+    }
     if (hits && hits.length > 0) {
       out.push({
         heading: t.palette.products,
@@ -189,7 +231,7 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
       }
     }
     return out;
-  }, [hits, liveCategories, q, query, locale, t]);
+  }, [hits, liveCategories, q, query, locale, t, recent]);
 
   const flatOptions = useMemo(() => groups.flatMap((g) => g.options), [groups]);
   // "Search for X" is always the final door out whenever there is a query.
@@ -218,6 +260,10 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
   }, [activeId]);
 
   function navigate(href: string) {
+    // Remember what was typed, not what was clicked: someone who types "thinkpad" and picks the
+    // third result has still searched for "thinkpad", and that is the more common ending than
+    // pressing Enter on the fallback row.
+    rememberSearch(query);
     stop();
     onClose();
     router.push(href);
@@ -229,7 +275,14 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
       return;
     }
     const option = flatOptions[index];
-    if (option) navigate(option.href);
+    if (!option) return;
+    // An acting row stays put: clearing the history should leave the panel open so the shopper
+    // sees that it worked.
+    if (option.act) {
+      option.act();
+      return;
+    }
+    navigate(option.href);
   }
 
   function toggleVoice() {
@@ -438,8 +491,11 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
                         </span>
                       )}
                       <span className="min-w-0 flex-1">
+                        {/* bdi because a row's text is data, not chrome: a remembered search or a
+                            product name can run the other way to the page, and without isolation it
+                            drags the punctuation around it. Same tool the results page uses. */}
                         <span className="block truncate text-sm font-medium text-foreground">
-                          {option.label}
+                          <bdi>{option.label}</bdi>
                         </span>
                         {(option.priceLabel ?? option.hint) && (
                           <span className="block truncate text-xs text-muted" dir={option.priceLabel ? "ltr" : undefined}>

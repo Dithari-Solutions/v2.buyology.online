@@ -70,6 +70,8 @@ export interface Dict {
     closeSearch: string;
     resultsLabel: string;
     trending: string;
+    recentSearches: string;
+    clearHistory: string;
     services: string;
     categories: string;
     quickActions: string;
@@ -1232,6 +1234,8 @@ const en: Dict = {
     closeSearch: "Close search",
     resultsLabel: "Search results",
     trending: "Trending",
+    recentSearches: "Recent searches",
+    clearHistory: "Clear recent searches",
     services: "Services",
     categories: "Categories",
     quickActions: "Quick actions",
@@ -2654,6 +2658,8 @@ const az: Dict = {
     closeSearch: "Axtarışı bağla",
     resultsLabel: "Axtarış nəticələri",
     trending: "Trenddə",
+    recentSearches: "Son axtarışlar",
+    clearHistory: "Son axtarışları təmizlə",
     services: "Xidmətlər",
     categories: "Kateqoriyalar",
     quickActions: "Sürətli əməliyyatlar",
@@ -4090,6 +4096,8 @@ const ar: Dict = {
     closeSearch: "إغلاق البحث",
     resultsLabel: "نتائج البحث",
     trending: "الأكثر رواجًا",
+    recentSearches: "عمليات البحث الأخيرة",
+    clearHistory: "مسح عمليات البحث الأخيرة",
     services: "الخدمات",
     categories: "الفئات",
     quickActions: "إجراءات سريعة",
