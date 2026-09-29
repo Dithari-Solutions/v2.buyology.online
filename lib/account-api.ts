@@ -1,4 +1,5 @@
 import { authedJson } from "@/lib/auth/client";
+import type { CancelFeedback } from "@/lib/cancel-reason";
 
 /**
  * The account area's data: the customer's orders and saved addresses.
@@ -44,10 +45,21 @@ export function fetchOrders(page = 0, size = 10): Promise<OrdersPage> {
   return authedJson<OrdersPage>(`/api/orders?page=${page}&size=${size}`);
 }
 
-export function cancelOrder(orderId: string, reason?: string): Promise<unknown> {
+/**
+ * Two components, both optional, from the same set of answers (lib/cancel-reason.ts): `reason` is
+ * the prose the customer reads back in their own order timeline, `feedback` is those answers
+ * structured for the dashboard and for counting. `feedback` is additive — the backend stores nothing
+ * and still cancels the order if it is absent or malformed — so it must never be the reason a
+ * cancellation is not attempted.
+ */
+export function cancelOrder(
+  orderId: string,
+  reason?: string,
+  feedback?: CancelFeedback | null,
+): Promise<unknown> {
   return authedJson(`/api/orders/${orderId}/cancel`, {
     method: "POST",
-    body: JSON.stringify({ reason: reason ?? null }),
+    body: JSON.stringify({ reason: reason ?? null, feedback: feedback ?? null }),
   });
 }
 

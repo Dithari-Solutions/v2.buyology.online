@@ -7,7 +7,6 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { useAuth } from "@/components/auth/auth-provider";
 import { AuthError } from "@/lib/auth/client";
 import {
-  cancelOrder,
   fetchOrder,
   fetchPaymentTransaction,
   isCancellable,
@@ -21,6 +20,7 @@ import { repayOrder } from "@/lib/checkout-api";
 import { currentMarket } from "@/lib/market";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import { RefundCard } from "@/components/account/RefundCard";
+import { CancelOrderFlow } from "@/components/account/CancelOrderFlow";
 import { PENDING_ORDER_KEY, PENDING_TX_KEY } from "@/components/checkout/CheckoutView";
 import { ChevronLeftIcon, StarIcon, TruckIcon, WalletIcon } from "@/components/icons";
 
@@ -125,7 +125,10 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [missing, setMissing] = useState(false);
   const [payment, setPayment] = useState<PaymentInfo | null>(null);
-  const [confirming, setConfirming] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  // A counter, not a flag: an aria-live region only speaks when its content changes, so a second
+  // cancellation carrying the same string would be announced to nobody.
+  const [justCancelled, setJustCancelled] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -159,24 +162,6 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
       cancelled = true;
     };
   }, [authStatus, orderId, router]);
-
-  async function onCancel() {
-    setBusy(true);
-    setError(null);
-    try {
-      await cancelOrder(orderId);
-      setOrder(await fetchOrder(orderId));
-    } catch (err) {
-      setError(
-        err instanceof AuthError && err.message && err.status !== 0
-          ? `${o.failed}: ${err.message}`
-          : t.auth.errors.generic,
-      );
-    } finally {
-      setBusy(false);
-      setConfirming(false);
-    }
-  }
 
   if (missing) {
     return (
@@ -227,6 +212,17 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
 
   return (
     <div>
+      {/* The dialog that told the customer their order is gone unmounts with the refresh below, and
+          a status badge flipping to CANCELLED is a silent change — so the outcome is announced from
+          the page, which outlives it. Rendered empty from the start: a live region only announces
+          what changes inside one that was already there. */}
+      <span className="sr-only" role="status" aria-live="polite">
+        {/* Keyed on the counter so the node is REPLACED each time. The string is the same every
+            cancellation, and a live region announces changed content — re-rendering identical text
+            says nothing, which silently loses every announcement after the first. */}
+        {justCancelled > 0 && <span key={justCancelled}>{o.cancelFlow.doneTitle}</span>}
+      </span>
+
       <Link
         href="/account"
         className="inline-flex items-center gap-1 text-sm text-muted transition-colors hover:text-foreground"
@@ -575,40 +571,41 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           {/* Cancel */}
           {isCancellable(order.status) && (
             <section className="rounded-2xl border border-border bg-surface p-5 text-sm">
-              {confirming ? (
-                <div className="space-y-3">
-                  <p className="text-muted">{o.cancelConfirm}</p>
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={onCancel}
-                      className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-60"
-                    >
-                      {busy ? t.auth.loading : o.cancelOrder}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setConfirming(false)}
-                      className="font-medium text-muted hover:text-foreground"
-                    >
-                      {o.cancelKeep}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setConfirming(true)}
-                  className="font-medium text-muted transition-colors hover:text-red-600 dark:hover:text-red-400"
-                >
-                  {o.cancelOrder}
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setCancelling(true)}
+                className="font-medium text-muted transition-colors hover:text-red-600 dark:hover:text-red-400"
+              >
+                {o.cancelOrder}
+              </button>
             </section>
           )}
         </div>
       </div>
+
+      {/* Deliberately outside the isCancellable gate above: the successful cancel refreshes the
+          order to CANCELLED, which would unmount that section — and with it the dialog, before
+          the customer has read that their order is gone. */}
+      {cancelling && (
+        <CancelOrderFlow
+          orderId={order.id}
+          orderNumber={`BUY-${shortId}`}
+          currency={order.currency}
+          onClose={() => setCancelling(false)}
+          onCancelled={async () => {
+            // Announced before the refetch, which may fail: the cancellation already happened.
+            setJustCancelled((n) => n + 1);
+            // The refetch's failure is caught HERE. The dialog swallows it on purpose so a failed
+            // refresh is never reported as a failed cancellation — which left this page showing the
+            // pre-cancel status and still offering "Cancel order", with no error shown anywhere.
+            try {
+              setOrder(await fetchOrder(orderId));
+            } catch {
+              setError(t.auth.errors.generic);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
