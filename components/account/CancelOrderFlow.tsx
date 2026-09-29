@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import type { ComponentType, SVGProps } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -20,7 +21,18 @@ import {
   type CancelFollowUp,
   type CancelReasonCode,
 } from "@/lib/cancel-reason";
-import { CloseIcon } from "@/components/icons";
+import {
+  BagIcon,
+  CloseIcon,
+  CreditCardIcon,
+  ExchangeIcon,
+  FileTextIcon,
+  HelpCircleIcon,
+  LaptopIcon,
+  PackageIcon,
+  TagIcon,
+  TruckIcon,
+} from "@/components/icons";
 
 const radioCls =
   "h-[18px] w-[18px] shrink-0 accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -34,6 +46,22 @@ const outlineBtn =
 const ghostBtn =
   "rounded-full px-4 py-3 text-sm font-semibold text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60";
 
+/**
+ * The face of each reason. It is a lookup here rather than a field on CANCEL_REASONS because that
+ * module composes the strings the backend stores and must not reach into the component tree.
+ */
+const REASON_ICONS: Record<CancelReasonCode, ComponentType<SVGProps<SVGSVGElement>>> = {
+  FOUND_CHEAPER: TagIcon,
+  CHANGED_MIND: BagIcon,
+  DELIVERY_TOO_SLOW: TruckIcon,
+  FOUND_DIFFERENT_PRODUCT: LaptopIcon,
+  PAYMENT_ISSUE: CreditCardIcon,
+  WRONG_PRODUCT: PackageIcon,
+  NO_LONGER_NEEDED: FileTextIcon,
+  WANT_TO_CHANGE_ORDER: ExchangeIcon,
+  OTHER: HelpCircleIcon,
+};
+
 /** 1 intro · 2 reason · 3 the reason's single follow-up · 4 thanks + confirm · 5 cancelled. */
 type Step = "intro" | "reason" | "followUp" | "thanks" | "done";
 
@@ -41,13 +69,13 @@ type Step = "intro" | "reason" | "followUp" | "thanks" | "done";
 function OptionRow({
   name,
   label,
-  emoji,
+  icon: Icon,
   checked,
   onChange,
 }: {
   name: string;
   label: string;
-  emoji?: string;
+  icon?: ComponentType<SVGProps<SVGSVGElement>>;
   checked: boolean;
   onChange: () => void;
 }) {
@@ -58,10 +86,13 @@ function OptionRow({
       }`}
     >
       <input type="radio" name={name} checked={checked} onChange={onChange} className={radioCls} />
-      {emoji && (
-        <span className="text-base leading-none" aria-hidden="true">
-          {emoji}
-        </span>
+      {/* Decorative: the label beside it says the reason, so the icon set's wrapper hides it. */}
+      {Icon && (
+        <Icon
+          className={`h-[18px] w-[18px] shrink-0 transition-colors ${
+            checked ? "text-brand-icon" : "text-muted"
+          }`}
+        />
       )}
       <span className="min-w-0 font-medium text-foreground">{label}</span>
     </label>
@@ -352,7 +383,7 @@ export function CancelOrderFlow({
                   key={r.code}
                   name="cancel-reason"
                   label={c.reasons[r.code] ?? r.code}
-                  emoji={r.emoji}
+                  icon={REASON_ICONS[r.code]}
                   checked={reasonCode === r.code}
                   onChange={() => chooseReason(r.code)}
                 />

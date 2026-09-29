@@ -57,23 +57,27 @@ export type CancelFollowUp = {
   options: readonly CancelFollowUpOption[];
 };
 
+/**
+ * A reason as the questionnaire needs it. Nothing presentational lives here: the row's label comes
+ * from the dictionaries and its icon is picked by the component that renders it, so this module
+ * stays free of the UI it feeds.
+ */
 export type CancelReason = {
   code: CancelReasonCode;
-  emoji: string;
   followUp: CancelFollowUpId | null;
 };
 
 /** The nine reasons, in display order. */
 export const CANCEL_REASONS: readonly CancelReason[] = [
-  { code: "FOUND_CHEAPER", emoji: "💰", followUp: "cheaperElsewhere" },
-  { code: "CHANGED_MIND", emoji: "🛒", followUp: "whatChanged" },
-  { code: "DELIVERY_TOO_SLOW", emoji: "🚚", followUp: "deliveryTime" },
-  { code: "FOUND_DIFFERENT_PRODUCT", emoji: "💻", followUp: "differentProduct" },
-  { code: "PAYMENT_ISSUE", emoji: "💳", followUp: null },
-  { code: "WRONG_PRODUCT", emoji: "📦", followUp: null },
-  { code: "NO_LONGER_NEEDED", emoji: "📝", followUp: "whatChanged" },
-  { code: "WANT_TO_CHANGE_ORDER", emoji: "🔄", followUp: null },
-  { code: "OTHER", emoji: "❓", followUp: "otherReason" },
+  { code: "FOUND_CHEAPER", followUp: "cheaperElsewhere" },
+  { code: "CHANGED_MIND", followUp: "whatChanged" },
+  { code: "DELIVERY_TOO_SLOW", followUp: "deliveryTime" },
+  { code: "FOUND_DIFFERENT_PRODUCT", followUp: "differentProduct" },
+  { code: "PAYMENT_ISSUE", followUp: null },
+  { code: "WRONG_PRODUCT", followUp: null },
+  { code: "NO_LONGER_NEEDED", followUp: "whatChanged" },
+  { code: "WANT_TO_CHANGE_ORDER", followUp: null },
+  { code: "OTHER", followUp: "otherReason" },
 ];
 
 /** One follow-up question per reason at most — a short conversation, not a questionnaire. */

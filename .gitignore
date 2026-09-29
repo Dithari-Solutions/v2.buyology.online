@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# macOS AppleDouble sidecars (._Foo) — metadata, never source. This tree is on an exFAT volume, so
+# the OS writes one beside any file it touches. Ignored so they cannot be committed; eslint.config.mjs
+# ignores them separately, because ESLint's flat config does not read this file.
+._*
