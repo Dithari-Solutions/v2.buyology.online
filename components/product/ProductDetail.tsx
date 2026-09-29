@@ -98,6 +98,19 @@ export function ProductDetail() {
       ? product.availableUnits
       : null;
 
+  // The ceiling on the pre-cart picker below. Null means stock is not tracked, so there is no cap —
+  // it must never be read as zero, or every untracked product becomes un-addable.
+  //
+  // The picker used to count up without ever consulting this, so a shopper could ask for 10 of
+  // something with 1 left, press Add, and only then be refused by the server. The number they typed
+  // was never possible; the only thing the old behaviour bought them was finding out later. The
+  // stepper that replaces this control once the item is in the basket has always capped
+  // (CartQuantityStepper), so before adding was the one place you could still overshoot.
+  const maxQty = !outOfStock && product.availableUnits != null && product.availableUnits > 0
+    ? product.availableUnits
+    : null;
+  const atMaxQty = maxQty != null && qty >= maxQty;
+
   function add(openDrawer: boolean) {
     // The configuration changes the unit price, so it is part of the line identity — otherwise
     // the cart would merge different configurations and keep a stale price. The cart resolves
@@ -388,9 +401,10 @@ export function ProductDetail() {
             </span>
             <button
               type="button"
-              onClick={() => setQty((q) => q + 1)}
+              onClick={() => setQty((q) => (maxQty != null ? Math.min(maxQty, q + 1) : q + 1))}
+              disabled={atMaxQty}
               aria-label={t.cart.increase}
-              className="flex h-11 w-10 sm:w-11 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-11 w-10 sm:w-11 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
             >
               <span aria-hidden="true">+</span>
             </button>
@@ -434,6 +448,16 @@ export function ProductDetail() {
             <HeartIcon className={`h-5 w-5 ${saved ? "fill-brand text-brand" : ""}`} />
           </button>
         </div>
+
+        {/* Why the + stopped. A disabled button with no explanation reads as a broken page, and this is
+            the moment the shopper actually wants the number: they have just tried to ask for more than
+            exists. Announced as a status because for a keyboard or screen-reader user the button simply
+            going quiet is the only other signal. */}
+        {atMaxQty && !cartLine && (
+          <p role="status" aria-live="polite" className="mt-2 text-sm font-medium text-warn">
+            {t.pdp.onlyLeft.replace("{n}", String(maxQty))}
+          </p>
+        )}
 
         <button
           type="button"
