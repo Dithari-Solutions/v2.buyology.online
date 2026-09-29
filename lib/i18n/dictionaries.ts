@@ -156,7 +156,14 @@ export interface Dict {
     b2b: {
       metaTitle: string;
       badge: string;
-      hero: { title: string; titleHighlight: string; subtitle: string; cta: string; ctaSecondary: string };
+      hero: {
+        title: string;
+        titleHighlight: string;
+        subtitle: string;
+        cta: string;
+        ctaSecondary: string;
+        ctaMember: string;
+      };
       tiers: {
         title: string;
         subtitle: string;
@@ -1340,8 +1347,9 @@ const en: Dict = {
         titleHighlight: "Save More",
         subtitle:
           "Exclusive bulk pricing for businesses, schools and organisations. The more you order, the more you save — with dedicated support every step of the way.",
-        cta: "Request a Quote",
+        cta: "Become a B2B Member",
         ctaSecondary: "Browse Products",
+        ctaMember: "Request a Quote",
       },
       tiers: {
         title: "Bulk Pricing Tiers",
@@ -2813,8 +2821,9 @@ const az: Dict = {
         titleHighlight: "Çox Qazan",
         subtitle:
           "Bizneslər, məktəblər və təşkilatlar üçün eksklüziv topdan qiymətlər. Nə qədər çox sifariş etsəniz, bir o qədər çox qənaət edirsiniz — hər addımda fərdi dəstəklə.",
-        cta: "Təklif istə",
+        cta: "B2B üzvü ol",
         ctaSecondary: "Məhsullara bax",
+        ctaMember: "Təklif istə",
       },
       tiers: {
         title: "Topdan Qiymət Səviyyələri",
@@ -4300,8 +4309,9 @@ const ar: Dict = {
         titleHighlight: "ووفّر أكثر",
         subtitle:
           "أسعار جملة حصرية للشركات والمدارس والمؤسسات. كلما زادت كميتك زاد توفيرك — مع دعم مخصص في كل خطوة.",
-        cta: "اطلب عرض سعر",
+        cta: "انضم كعضو B2B",
         ctaSecondary: "تصفّح المنتجات",
+        ctaMember: "اطلب عرض سعر",
       },
       tiers: {
         title: "مستويات أسعار الجملة",

@@ -57,9 +57,12 @@ export default async function B2bPage() {
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
             {p.hero.subtitle}
           </p>
+          {/* Becoming a member leads, because it is the thing that unlocks the pricing below —
+              ?type=business opens the signup form on its business tab rather than dropping somebody
+              on Personal with a tab still to find. Browsing and asking for a quote sit beside it. */}
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              href="/contact?subject=b2b"
+              href="/signup?type=business"
               className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {p.hero.cta}
@@ -69,6 +72,12 @@ export default async function B2bPage() {
               className="inline-flex h-11 items-center justify-center rounded-full border border-border px-6 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {p.hero.ctaSecondary}
+            </Link>
+            <Link
+              href="/contact?subject=b2b"
+              className="inline-flex h-11 items-center justify-center rounded-full px-4 text-sm font-semibold text-brand underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-gold"
+            >
+              {p.hero.ctaMember}
             </Link>
           </div>
         </section>
@@ -153,12 +162,20 @@ export default async function B2bPage() {
             {p.closing.title}
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-sm text-muted">{p.closing.subtitle}</p>
-          <Link
-            href="/contact?subject=b2b"
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {p.hero.cta}
-          </Link>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/signup?type=business"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {p.hero.cta}
+            </Link>
+            <Link
+              href="/products"
+              className="inline-flex h-11 items-center justify-center rounded-full border border-border px-6 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {p.hero.ctaSecondary}
+            </Link>
+          </div>
         </section>
       </main>
     </>

@@ -44,7 +44,21 @@ export function SignupForm() {
   const s = t.auth.signup;
   const a = t.auth;
 
-  const [type, setType] = useState<"personal" | "business">("personal");
+  /**
+   * Which tab opens first. ?type=business preselects the business one, so a link from the B2B page
+   * lands somebody where they meant to go instead of on Personal with a tab still to find.
+   *
+   * <p>Read in the initialiser rather than an effect: setting it afterwards would render the personal
+   * tab first and visibly swap it. useState's initialiser runs on the client for this component
+   * ("use client", and the form is not prerendered with a meaningful value), and the guard keeps it
+   * safe if that ever changes.
+   */
+  const [type, setType] = useState<"personal" | "business">(() => {
+    if (typeof window === "undefined") return "personal";
+    return new URLSearchParams(window.location.search).get("type") === "business"
+      ? "business"
+      : "personal";
+  });
   const [licence, setLicence] = useState<File | null>(null);
   const [step, setStep] = useState<"form" | "otp">("form");
   const [busy, setBusy] = useState(false);
