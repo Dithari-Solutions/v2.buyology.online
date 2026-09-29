@@ -152,6 +152,20 @@ export interface Dict {
       point2: string;
       point3: string;
     };
+    /** B2B — bulk pricing, carried over from the previous storefront's B2B page. */
+    b2b: {
+      metaTitle: string;
+      badge: string;
+      hero: { title: string; titleHighlight: string; subtitle: string; cta: string; ctaSecondary: string };
+      tiers: {
+        title: string;
+        subtitle: string;
+        rows: { label: string; range: string; discount: string; discountNote: string; badge?: string }[];
+      };
+      benefits: { title: string; subtitle: string; items: { title: string; description: string }[] };
+      howItWorks: { title: string; subtitle: string; steps: { number: string; title: string; description: string }[] };
+      closing: { title: string; subtitle: string };
+    };
     diy: {
       kicker: string;
       title: string;
@@ -1318,6 +1332,54 @@ const en: Dict = {
       point2: "Pay only for the time you hold it",
       point3: "Find the nearest station in the app",
     },
+    b2b: {
+      metaTitle: "B2B Wholesale — bulk pricing for businesses",
+      badge: "B2B Wholesale",
+      hero: {
+        title: "Buy More,",
+        titleHighlight: "Save More",
+        subtitle:
+          "Exclusive bulk pricing for businesses, schools and organisations. The more you order, the more you save — with dedicated support every step of the way.",
+        cta: "Request a Quote",
+        ctaSecondary: "Browse Products",
+      },
+      tiers: {
+        title: "Bulk Pricing Tiers",
+        subtitle: "Transparent pricing based on your order quantity. All discounts apply per unit.",
+        rows: [
+          { label: "Starter", range: "1–4 units", discount: "—", discountNote: "standard pricing" },
+          { label: "Bronze", range: "5–9 units", discount: "5%", discountNote: "off per unit" },
+          { label: "Silver", range: "10–14 units", discount: "10%", discountNote: "off per unit" },
+          { label: "Gold", range: "15–19 units", discount: "15%", discountNote: "off per unit", badge: "Most Popular" },
+          { label: "Platinum", range: "20–49 units", discount: "20%", discountNote: "off per unit" },
+          { label: "Diamond", range: "50+ units", discount: "Custom", discountNote: "contact us for a deal", badge: "Custom Deal" },
+        ],
+      },
+      benefits: {
+        title: "Why Choose B2B?",
+        subtitle: "Everything your business needs — from pricing to post-sale support.",
+        items: [
+          { title: "Guaranteed Lower Prices", description: "Tier-based discounts that grow with your order — always cheaper than retail." },
+          { title: "Dedicated Account Manager", description: "A single point of contact who knows your business and is ready to help." },
+          { title: "Priority Bulk Delivery", description: "Bulk orders get priority scheduling with coordinated fleet delivery." },
+          { title: "Extended Warranty Options", description: "Optional extended coverage plans tailored for corporate fleets." },
+        ],
+      },
+      howItWorks: {
+        title: "How It Works",
+        subtitle: "Getting started with B2B is quick and straightforward.",
+        steps: [
+          { number: "01", title: "Submit Your Request", description: "Tell us your company details and the quantities you need." },
+          { number: "02", title: "Get Your Quote", description: "Our B2B team reviews your request and sends a tailored quote within 24 hours." },
+          { number: "03", title: "Confirm & Pay", description: "Approve the quote, choose your payment terms, and we handle the rest." },
+          { number: "04", title: "Fast Delivery", description: "Your order is packed and dispatched with priority shipping to your door." },
+        ],
+      },
+      closing: {
+        title: "Ready to talk numbers?",
+        subtitle: "Send us your requirements and we will come back with a tailored quote within 24 hours.",
+      },
+    },
     diy: {
       kicker: "On the workbench",
       title: "Build it yourself",
@@ -1960,6 +2022,7 @@ const en: Dict = {
       hint: "Find a charging station",
     },
     "svc-diy": { label: "DIY", hint: "Kits & build-it-yourself" },
+    "svc-b2b": { label: "B2B", hint: "Bulk pricing for businesses" },
     "svc-buyobot": { label: "Buyobot", hint: "Robots by Buyology" },
     "svc-tradein": {
       label: "Trade-in",
@@ -2742,6 +2805,54 @@ const az: Dict = {
       point2: "Yalnız istifadə etdiyin vaxta ödə",
       point3: "Ən yaxın stansiyanı tətbiqdə tap",
     },
+    b2b: {
+      metaTitle: "B2B Topdan — biznes üçün topdan qiymətlər",
+      badge: "B2B Topdan",
+      hero: {
+        title: "Çox Al,",
+        titleHighlight: "Çox Qazan",
+        subtitle:
+          "Bizneslər, məktəblər və təşkilatlar üçün eksklüziv topdan qiymətlər. Nə qədər çox sifariş etsəniz, bir o qədər çox qənaət edirsiniz — hər addımda fərdi dəstəklə.",
+        cta: "Təklif istə",
+        ctaSecondary: "Məhsullara bax",
+      },
+      tiers: {
+        title: "Topdan Qiymət Səviyyələri",
+        subtitle: "Sifariş sayına əsaslanan şəffaf qiymətlər. Bütün endirimlər vahid başına tətbiq olunur.",
+        rows: [
+          { label: "Starter", range: "1–4 ədəd", discount: "—", discountNote: "standart qiymət" },
+          { label: "Bronze", range: "5–9 ədəd", discount: "5%", discountNote: "vahid başına endirim" },
+          { label: "Silver", range: "10–14 ədəd", discount: "10%", discountNote: "vahid başına endirim" },
+          { label: "Gold", range: "15–19 ədəd", discount: "15%", discountNote: "vahid başına endirim", badge: "Ən populyar" },
+          { label: "Platinum", range: "20–49 ədəd", discount: "20%", discountNote: "vahid başına endirim" },
+          { label: "Diamond", range: "50+ ədəd", discount: "Fərdi", discountNote: "razılaşma üçün bizimlə əlaqə saxlayın", badge: "Fərdi razılaşma" },
+        ],
+      },
+      benefits: {
+        title: "Niyə B2B?",
+        subtitle: "Biznesinizə lazım olan hər şey — qiymətdən satışdan sonrakı dəstəyə qədər.",
+        items: [
+          { title: "Zəmanətli aşağı qiymətlər", description: "Sifarişinizlə birlikdə artan səviyyəli endirimlər — həmişə pərakəndədən sərfəli." },
+          { title: "Fərdi hesab meneceri", description: "Biznesinizi tanıyan və kömək etməyə hazır bir əlaqə şəxsi." },
+          { title: "Prioritet topdan çatdırılma", description: "Topdan sifarişlər koordinasiya olunmuş çatdırılma ilə prioritet alır." },
+          { title: "Genişləndirilmiş zəmanət", description: "Korporativ parklar üçün uyğunlaşdırılmış əlavə zəmanət planları." },
+        ],
+      },
+      howItWorks: {
+        title: "Necə işləyir",
+        subtitle: "B2B-ə başlamaq sürətli və sadədir.",
+        steps: [
+          { number: "01", title: "Sorğunuzu göndərin", description: "Şirkət məlumatlarınızı və lazım olan sayı bizə bildirin." },
+          { number: "02", title: "Təklifinizi alın", description: "B2B komandamız sorğunuzu nəzərdən keçirir və 24 saat ərzində fərdi təklif göndərir." },
+          { number: "03", title: "Təsdiqlə və ödə", description: "Təklifi təsdiqləyin, ödəniş şərtlərini seçin, qalanını biz həll edirik." },
+          { number: "04", title: "Sürətli çatdırılma", description: "Sifarişiniz yığılır və prioritet çatdırılma ilə qapınıza göndərilir." },
+        ],
+      },
+      closing: {
+        title: "Rəqəmlərdən danışmağa hazırsınız?",
+        subtitle: "Tələblərinizi göndərin, 24 saat ərzində fərdi təkliflə qayıdacağıq.",
+      },
+    },
     diy: {
       kicker: "Emalatxanada",
       title: "Özün qur",
@@ -3386,6 +3497,7 @@ const az: Dict = {
       hint: "Şarj stansiyası tap",
     },
     "svc-diy": { label: "Özün Düzəlt", hint: "Dəstlər və özün-düzəlt" },
+    "svc-b2b": { label: "B2B", hint: "Biznes üçün topdan qiymətlər" },
     "svc-buyobot": {
       label: "Buyobot",
       hint: "Buyology-dən robotlar",
@@ -4180,6 +4292,54 @@ const ar: Dict = {
       point2: "ادفع فقط مقابل مدة استخدامك",
       point3: "اعثر على أقرب محطة في التطبيق",
     },
+    b2b: {
+      metaTitle: "الجملة B2B — أسعار الجملة للشركات",
+      badge: "الجملة B2B",
+      hero: {
+        title: "اشترِ أكثر،",
+        titleHighlight: "ووفّر أكثر",
+        subtitle:
+          "أسعار جملة حصرية للشركات والمدارس والمؤسسات. كلما زادت كميتك زاد توفيرك — مع دعم مخصص في كل خطوة.",
+        cta: "اطلب عرض سعر",
+        ctaSecondary: "تصفّح المنتجات",
+      },
+      tiers: {
+        title: "مستويات أسعار الجملة",
+        subtitle: "أسعار واضحة حسب كمية طلبك. تُطبّق جميع الخصومات على الوحدة.",
+        rows: [
+          { label: "Starter", range: "1–4 وحدات", discount: "—", discountNote: "السعر العادي" },
+          { label: "Bronze", range: "5–9 وحدات", discount: "5%", discountNote: "خصم لكل وحدة" },
+          { label: "Silver", range: "10–14 وحدة", discount: "10%", discountNote: "خصم لكل وحدة" },
+          { label: "Gold", range: "15–19 وحدة", discount: "15%", discountNote: "خصم لكل وحدة", badge: "الأكثر شعبية" },
+          { label: "Platinum", range: "20–49 وحدة", discount: "20%", discountNote: "خصم لكل وحدة" },
+          { label: "Diamond", range: "50+ وحدة", discount: "مخصّص", discountNote: "تواصل معنا لاتفاق خاص", badge: "اتفاق مخصّص" },
+        ],
+      },
+      benefits: {
+        title: "لماذا B2B؟",
+        subtitle: "كل ما يحتاجه عملك — من السعر إلى الدعم بعد البيع.",
+        items: [
+          { title: "أسعار أقل مضمونة", description: "خصومات متدرجة تكبر مع طلبك — أرخص من التجزئة دائمًا." },
+          { title: "مدير حساب مخصّص", description: "جهة تواصل واحدة تعرف عملك وجاهزة للمساعدة." },
+          { title: "توصيل جملة بأولوية", description: "طلبات الجملة تحصل على جدولة أولوية وتوصيل منسّق." },
+          { title: "خيارات ضمان ممتد", description: "خطط تغطية ممتدة مصممة لأساطيل الشركات." },
+        ],
+      },
+      howItWorks: {
+        title: "كيف يعمل",
+        subtitle: "البدء مع B2B سريع وبسيط.",
+        steps: [
+          { number: "01", title: "أرسل طلبك", description: "أخبرنا ببيانات شركتك والكميات التي تحتاجها." },
+          { number: "02", title: "استلم عرض السعر", description: "يراجع فريق B2B طلبك ويرسل عرضًا مخصصًا خلال 24 ساعة." },
+          { number: "03", title: "أكّد وادفع", description: "اعتمد العرض، اختر شروط الدفع، ونتولى الباقي." },
+          { number: "04", title: "توصيل سريع", description: "يُجهّز طلبك ويُشحن بأولوية إلى بابك." },
+        ],
+      },
+      closing: {
+        title: "جاهز للحديث عن الأرقام؟",
+        subtitle: "أرسل لنا احتياجاتك وسنعود إليك بعرض مخصص خلال 24 ساعة.",
+      },
+    },
     diy: {
       kicker: "على طاولة العمل",
       title: "اصنعه بنفسك",
@@ -4816,6 +4976,7 @@ const ar: Dict = {
     "svc-rent": { label: "تأجير", hint: "استأجر الأجهزة يوميًا" },
     "svc-powerbank": { label: "محطات الشحن", hint: "اعثر على محطة شحن" },
     "svc-diy": { label: "اصنعها بنفسك", hint: "أطقم وتجميع ذاتي" },
+    "svc-b2b": { label: "B2B", hint: "أسعار الجملة للشركات" },
     "svc-buyobot": {
       label: "Buyobot",
       hint: "روبوتات من Buyology",

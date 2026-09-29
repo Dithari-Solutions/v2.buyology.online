@@ -2,6 +2,7 @@ import type { ComponentType, SVGProps } from "react";
 import {
   BatteryChargingIcon,
   BotIcon,
+  BuildingIcon,
   ExchangeIcon,
   GamepadIcon,
   GridIcon,
@@ -86,6 +87,14 @@ export const services: NavItem[] = [
     icon: HammerIcon,
     hint: "Kits & build-it-yourself",
     keywords: "build kit maker projects parts mod düzəlt اصنع",
+  },
+  {
+    key: "svc-b2b",
+    label: "B2B",
+    href: "/b2b",
+    icon: BuildingIcon,
+    hint: "Bulk pricing for businesses",
+    keywords: "b2b wholesale bulk business corporate school quote rfq tender toptan جملة أعمال",
   },
 ];
 
