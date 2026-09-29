@@ -784,7 +784,6 @@ export interface Dict {
       empty: string;
       loadMore: string;
       cancelOrder: string;
-      cancelConfirm: string;
       cancelKeep: string;
       cancelled: string;
       track: string;
@@ -820,6 +819,65 @@ export interface Dict {
         errMinImages: string;
         errNotImage: string;
         errFileSize: string;
+      };
+      /**
+       * The cancellation questionnaire — see components/account/CancelOrderFlow.tsx. Display only:
+       * the sentence stored on the order is composed in English by lib/cancel-reason.ts, so none of
+       * this copy ever travels to the backend. The records are keyed by that module's codes.
+       */
+      cancelFlow: {
+        introTitle: string;
+        introBody: string;
+        reasonTitle: string;
+        reasonHint: string;
+        reasonRequired: string;
+        reasons: Record<string, string>;
+        optionalHint: string;
+        priceQuestion: string;
+        /** Carries {{currency}} — the ORDER's ISO code, never the app's or the market's. */
+        priceLabel: string;
+        pricePlaceholder: string;
+        priceInvalid: string;
+        priceTooLarge: string;
+        placeQuestion: string;
+        places: Record<string, string>;
+        placeOtherLabel: string;
+        placeOtherPlaceholder: string;
+        deliveryTimeQuestion: string;
+        deliveryTimes: Record<string, string>;
+        deliveryTimeOtherLabel: string;
+        deliveryTimeOtherPlaceholder: string;
+        whatChangedQuestion: string;
+        whatChangedOptions: Record<string, string>;
+        whatChangedOtherLabel: string;
+        whatChangedOtherPlaceholder: string;
+        differentProductQuestion: string;
+        differentProductLabel: string;
+        differentProductPlaceholder: string;
+        otherReasonQuestion: string;
+        otherReasonLabel: string;
+        otherReasonPlaceholder: string;
+        /** Carries {{count}}. */
+        charactersLeft: string;
+        thanksTitle: string;
+        thanksBody: string;
+        pending: string;
+        errorTitle: string;
+        errorFallback: string;
+        retry: string;
+        backToOrder: string;
+        doneTitle: string;
+        /** Carries {{orderNumber}}. */
+        doneBody: string;
+        refundNote: string;
+        continueToCancellation: string;
+        keepOrder: string;
+        continue: string;
+        back: string;
+        skip: string;
+        confirmCancellation: string;
+        continueShopping: string;
+        close: string;
       };
       detail: {
         heading: string;
@@ -2223,7 +2281,6 @@ const en: Dict = {
       empty: "No orders yet — your purchases will appear here.",
       loadMore: "Load more",
       cancelOrder: "Cancel order",
-      cancelConfirm: "Cancel this order? If you already paid, the amount is refunded once the courier is confirmed stopped.",
       cancelKeep: "Keep order",
       cancelled: "Order cancelled.",
       track: "Track parcel",
@@ -2269,6 +2326,84 @@ const en: Dict = {
         errMinImages: "Please upload at least 3 photos.",
         errNotImage: "Only image files are allowed.",
         errFileSize: "Each photo must be 5 MB or smaller.",
+      },
+      cancelFlow: {
+        introTitle: "Cancel your order?",
+        introBody: "We're sorry to see you go. Before you cancel, could you tell us why?",
+        reasonTitle: "Why are you cancelling this order?",
+        reasonHint: "Select one",
+        reasonRequired: "Please choose a reason to continue.",
+        reasons: {
+          FOUND_CHEAPER: "I found it cheaper elsewhere",
+          CHANGED_MIND: "I changed my mind",
+          DELIVERY_TOO_SLOW: "Delivery is taking too long",
+          FOUND_DIFFERENT_PRODUCT: "I found a different product",
+          PAYMENT_ISSUE: "Payment / pricing issue",
+          WRONG_PRODUCT: "I ordered the wrong product",
+          NO_LONGER_NEEDED: "I no longer need the product",
+          WANT_TO_CHANGE_ORDER: "I want to change something in my order",
+          OTHER: "Other",
+        },
+        optionalHint: "Optional — you can skip this.",
+        priceQuestion: "If you don't mind us asking, what price did you find elsewhere?",
+        priceLabel: "Price you found ({{currency}})",
+        pricePlaceholder: "0.00",
+        priceInvalid: "Enter a price like 249.00, or skip this.",
+        priceTooLarge: "That is higher than we can record — up to 9999999.99, or skip this.",
+        placeQuestion: "Where did you find it?",
+        places: {
+          AMAZON: "Amazon",
+          NOON: "Noon",
+          RETAIL_STORE: "Retail store",
+          ANOTHER_WEBSITE: "Another website",
+          OTHER: "Other",
+        },
+        placeOtherLabel: "Where did you find it?",
+        placeOtherPlaceholder: "Shop or website name",
+        deliveryTimeQuestion: "What delivery time would have worked for you?",
+        deliveryTimes: {
+          SAME_DAY: "Same day",
+          NEXT_DAY: "Next day",
+          TWO_TO_THREE_DAYS: "2–3 days",
+          OTHER: "Other",
+        },
+        deliveryTimeOtherLabel: "What would have worked?",
+        deliveryTimeOtherPlaceholder: "e.g. within 4 hours",
+        whatChangedQuestion: "What changed?",
+        whatChangedOptions: {
+          DECIDED_NOT_TO_BUY: "Decided not to buy",
+          BUDGET_CHANGED: "Budget changed",
+          BOUGHT_SOMETHING_ELSE: "Bought something else",
+          PURCHASED_ELSEWHERE: "Purchased elsewhere",
+          OTHER: "Other",
+        },
+        whatChangedOtherLabel: "What changed?",
+        whatChangedOtherPlaceholder: "Tell us what changed",
+        differentProductQuestion: "What product did you choose instead?",
+        differentProductLabel: "Product you chose",
+        differentProductPlaceholder: "Product name or link",
+        otherReasonQuestion: "Could you tell us a little more?",
+        otherReasonLabel: "Your reason",
+        otherReasonPlaceholder: "What made you cancel?",
+        charactersLeft: "{{count}} characters left",
+        thanksTitle: "Thanks for letting us know. ❤️",
+        thanksBody: "Your feedback helps us improve Buyology.",
+        pending: "Cancelling…",
+        errorTitle: "This order was not cancelled",
+        errorFallback: "We couldn't cancel this order. Nothing has been changed — please try again.",
+        retry: "Try again",
+        backToOrder: "Back to order",
+        doneTitle: "Order cancelled successfully",
+        doneBody: "Your order {{orderNumber}} has been cancelled.",
+        refundNote: "If you've already made a payment, your refund will be processed according to our refund policy.",
+        continueToCancellation: "Continue to Cancellation",
+        keepOrder: "Keep My Order",
+        continue: "Continue",
+        back: "Back",
+        skip: "Skip",
+        confirmCancellation: "Confirm Cancellation",
+        continueShopping: "Continue Shopping",
+        close: "Close",
       },
       detail: {
         heading: "Order",
@@ -3711,7 +3846,6 @@ const az: Dict = {
       empty: "Hələ sifariş yoxdur — alışlarınız burada görünəcək.",
       loadMore: "Daha çox göstər",
       cancelOrder: "Sifarişi ləğv et",
-      cancelConfirm: "Bu sifariş ləğv edilsin? Ödəniş etmisinizsə, kuryer dayandırıldığı təsdiqlənən kimi məbləğ geri qaytarılır.",
       cancelKeep: "Sifarişi saxla",
       cancelled: "Sifariş ləğv edildi.",
       track: "Bağlamanı izlə",
@@ -3757,6 +3891,84 @@ const az: Dict = {
         errMinImages: "Ən azı 3 şəkil yükləyin.",
         errNotImage: "Yalnız şəkil faylları icazəlidir.",
         errFileSize: "Hər şəkil ən çox 5 MB ola bilər.",
+      },
+      cancelFlow: {
+        introTitle: "Sifariş ləğv edilsin?",
+        introBody: "Ayrıldığınıza üzülürük. Ləğv etməzdən əvvəl səbəbini bizə bildirə bilərsinizmi?",
+        reasonTitle: "Bu sifarişi niyə ləğv edirsiniz?",
+        reasonHint: "Bir variant seçin",
+        reasonRequired: "Davam etmək üçün bir səbəb seçin.",
+        reasons: {
+          FOUND_CHEAPER: "Başqa yerdə daha ucuz tapdım",
+          CHANGED_MIND: "Fikrimi dəyişdim",
+          DELIVERY_TOO_SLOW: "Çatdırılma çox uzun sürür",
+          FOUND_DIFFERENT_PRODUCT: "Başqa bir məhsul tapdım",
+          PAYMENT_ISSUE: "Ödəniş / qiymət problemi",
+          WRONG_PRODUCT: "Səhv məhsul sifariş etdim",
+          NO_LONGER_NEEDED: "Məhsula artıq ehtiyacım yoxdur",
+          WANT_TO_CHANGE_ORDER: "Sifarişimdə nəyi isə dəyişmək istəyirəm",
+          OTHER: "Digər",
+        },
+        optionalHint: "İstəyə bağlı — bunu keçə bilərsiniz.",
+        priceQuestion: "Soruşmağımıza etiraz etmirsinizsə, başqa yerdə hansı qiymətə tapdınız?",
+        priceLabel: "Tapdığınız qiymət ({{currency}})",
+        pricePlaceholder: "0.00",
+        priceInvalid: "249.00 formatında qiymət daxil edin və ya bu addımı keçin.",
+        priceTooLarge: "Bu, qeyd edə biləcəyimizdən yüksəkdir — ən çox 9999999.99, ya da bu addımı keçin.",
+        placeQuestion: "Onu harada tapdınız?",
+        places: {
+          AMAZON: "Amazon",
+          NOON: "Noon",
+          RETAIL_STORE: "Pərakəndə mağaza",
+          ANOTHER_WEBSITE: "Başqa veb sayt",
+          OTHER: "Digər",
+        },
+        placeOtherLabel: "Onu harada tapdınız?",
+        placeOtherPlaceholder: "Mağaza və ya veb saytın adı",
+        deliveryTimeQuestion: "Sizə hansı çatdırılma vaxtı uyğun olardı?",
+        deliveryTimes: {
+          SAME_DAY: "Eyni gün",
+          NEXT_DAY: "Növbəti gün",
+          TWO_TO_THREE_DAYS: "2–3 gün",
+          OTHER: "Digər",
+        },
+        deliveryTimeOtherLabel: "Sizə nə uyğun olardı?",
+        deliveryTimeOtherPlaceholder: "məsələn, 4 saat ərzində",
+        whatChangedQuestion: "Nə dəyişdi?",
+        whatChangedOptions: {
+          DECIDED_NOT_TO_BUY: "Almamaq qərarına gəldim",
+          BUDGET_CHANGED: "Büdcəm dəyişdi",
+          BOUGHT_SOMETHING_ELSE: "Başqa bir şey aldım",
+          PURCHASED_ELSEWHERE: "Başqa yerdən aldım",
+          OTHER: "Digər",
+        },
+        whatChangedOtherLabel: "Nə dəyişdi?",
+        whatChangedOtherPlaceholder: "Nəyin dəyişdiyini yazın",
+        differentProductQuestion: "Onun yerinə hansı məhsulu seçdiniz?",
+        differentProductLabel: "Seçdiyiniz məhsul",
+        differentProductPlaceholder: "Məhsulun adı və ya linki",
+        otherReasonQuestion: "Bizə bir az daha ətraflı danışa bilərsinizmi?",
+        otherReasonLabel: "Səbəbiniz",
+        otherReasonPlaceholder: "Ləğv etməyinizə nə səbəb oldu?",
+        charactersLeft: "{{count}} simvol qalıb",
+        thanksTitle: "Bildirdiyiniz üçün təşəkkür edirik. ❤️",
+        thanksBody: "Rəyiniz Buyology-ni yaxşılaşdırmağa kömək edir.",
+        pending: "Ləğv edilir…",
+        errorTitle: "Bu sifariş ləğv edilmədi",
+        errorFallback: "Bu sifarişi ləğv edə bilmədik. Heç nə dəyişməyib — yenidən cəhd edin.",
+        retry: "Yenidən cəhd et",
+        backToOrder: "Sifarişə qayıt",
+        doneTitle: "Sifariş uğurla ləğv edildi",
+        doneBody: "{{orderNumber}} nömrəli sifarişiniz ləğv edildi.",
+        refundNote: "Ödəniş etmisinizsə, məbləğ geri qaytarma siyasətimizə uyğun olaraq geri qaytarılacaq.",
+        continueToCancellation: "Ləğv etməyə davam et",
+        keepOrder: "Sifarişimi saxla",
+        continue: "Davam et",
+        back: "Geri",
+        skip: "Keç",
+        confirmCancellation: "Ləğvi təsdiqlə",
+        continueShopping: "Alış-verişə davam et",
+        close: "Bağla",
       },
       detail: {
         heading: "Sifariş",
@@ -5182,7 +5394,6 @@ const ar: Dict = {
       empty: "لا توجد طلبات بعد — ستظهر مشترياتك هنا.",
       loadMore: "عرض المزيد",
       cancelOrder: "إلغاء الطلب",
-      cancelConfirm: "هل تريد إلغاء هذا الطلب؟ إذا كنت قد دفعت، يُعاد المبلغ فور تأكيد إيقاف المندوب.",
       cancelKeep: "الاحتفاظ بالطلب",
       cancelled: "تم إلغاء الطلب.",
       track: "تتبّع الشحنة",
@@ -5228,6 +5439,84 @@ const ar: Dict = {
         errMinImages: "يُرجى رفع 3 صور على الأقل.",
         errNotImage: "يُسمح بملفات الصور فقط.",
         errFileSize: "يجب ألّا يتجاوز حجم كل صورة 5 ميجابايت.",
+      },
+      cancelFlow: {
+        introTitle: "هل تريد إلغاء طلبك؟",
+        introBody: "نأسف لرغبتك في الإلغاء. قبل أن تتابع، هل يمكنك إخبارنا بالسبب؟",
+        reasonTitle: "لماذا تُلغي هذا الطلب؟",
+        reasonHint: "اختر سببًا واحدًا",
+        reasonRequired: "يُرجى اختيار سبب للمتابعة.",
+        reasons: {
+          FOUND_CHEAPER: "وجدته بسعر أقل في مكان آخر",
+          CHANGED_MIND: "غيّرت رأيي",
+          DELIVERY_TOO_SLOW: "التوصيل يستغرق وقتًا طويلًا",
+          FOUND_DIFFERENT_PRODUCT: "وجدت منتجًا مختلفًا",
+          PAYMENT_ISSUE: "مشكلة في الدفع أو السعر",
+          WRONG_PRODUCT: "طلبت المنتج الخطأ",
+          NO_LONGER_NEEDED: "لم أعد بحاجة إلى المنتج",
+          WANT_TO_CHANGE_ORDER: "أريد تغيير شيء في طلبي",
+          OTHER: "سبب آخر",
+        },
+        optionalHint: "اختياري — يمكنك تخطّي هذه الخطوة.",
+        priceQuestion: "إن لم يكن لديك مانع، ما السعر الذي وجدته في المكان الآخر؟",
+        priceLabel: "السعر الذي وجدته ({{currency}})",
+        pricePlaceholder: "0.00",
+        priceInvalid: "أدخل سعرًا مثل 249.00، أو تخطَّ هذه الخطوة.",
+        priceTooLarge: "هذا أعلى مما يمكننا تسجيله — حتى 9999999.99، أو تخطَّ هذه الخطوة.",
+        placeQuestion: "أين وجدته؟",
+        places: {
+          AMAZON: "Amazon",
+          NOON: "Noon",
+          RETAIL_STORE: "متجر تجزئة",
+          ANOTHER_WEBSITE: "موقع إلكتروني آخر",
+          OTHER: "مكان آخر",
+        },
+        placeOtherLabel: "أين وجدته؟",
+        placeOtherPlaceholder: "اسم المتجر أو الموقع",
+        deliveryTimeQuestion: "ما مدة التوصيل التي كانت ستناسبك؟",
+        deliveryTimes: {
+          SAME_DAY: "في اليوم نفسه",
+          NEXT_DAY: "في اليوم التالي",
+          TWO_TO_THREE_DAYS: "2–3 أيام",
+          OTHER: "مدة أخرى",
+        },
+        deliveryTimeOtherLabel: "ما المدة التي كانت ستناسبك؟",
+        deliveryTimeOtherPlaceholder: "مثلًا: خلال 4 ساعات",
+        whatChangedQuestion: "ما الذي تغيّر؟",
+        whatChangedOptions: {
+          DECIDED_NOT_TO_BUY: "قررت عدم الشراء",
+          BUDGET_CHANGED: "تغيّرت ميزانيتي",
+          BOUGHT_SOMETHING_ELSE: "اشتريت شيئًا آخر",
+          PURCHASED_ELSEWHERE: "اشتريته من مكان آخر",
+          OTHER: "شيء آخر",
+        },
+        whatChangedOtherLabel: "ما الذي تغيّر؟",
+        whatChangedOtherPlaceholder: "أخبرنا بما تغيّر",
+        differentProductQuestion: "ما المنتج الذي اخترته بدلًا منه؟",
+        differentProductLabel: "المنتج الذي اخترته",
+        differentProductPlaceholder: "اسم المنتج أو رابطه",
+        otherReasonQuestion: "هل يمكنك إخبارنا بالمزيد؟",
+        otherReasonLabel: "سببك",
+        otherReasonPlaceholder: "ما الذي دفعك إلى الإلغاء؟",
+        charactersLeft: "بقي {{count}} حرفًا",
+        thanksTitle: "شكرًا لإخبارنا. ❤️",
+        thanksBody: "ملاحظاتك تساعدنا على تحسين Buyology.",
+        pending: "جارٍ الإلغاء…",
+        errorTitle: "لم يُلغَ هذا الطلب",
+        errorFallback: "تعذّر إلغاء هذا الطلب. لم يتغيّر أي شيء — يُرجى المحاولة مرة أخرى.",
+        retry: "حاول مرة أخرى",
+        backToOrder: "العودة إلى الطلب",
+        doneTitle: "تم إلغاء الطلب بنجاح",
+        doneBody: "تم إلغاء طلبك {{orderNumber}}.",
+        refundNote: "إذا كنت قد دفعت بالفعل، فستُعالج عملية الاسترداد وفقًا لسياسة الاسترداد لدينا.",
+        continueToCancellation: "متابعة الإلغاء",
+        keepOrder: "الاحتفاظ بطلبي",
+        continue: "متابعة",
+        back: "رجوع",
+        skip: "تخطّي",
+        confirmCancellation: "تأكيد الإلغاء",
+        continueShopping: "مواصلة التسوّق",
+        close: "إغلاق",
       },
       detail: {
         heading: "الطلب",

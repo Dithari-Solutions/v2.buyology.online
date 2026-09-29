@@ -12,9 +12,9 @@ import { updateProfile, uploadAvatar, AuthError, forgotPassword, resetPassword }
 import { useAuth } from "@/components/auth/auth-provider";
 import { GiveawayProfileCard } from "@/components/account/GiveawayBadge";
 import { PhoneVerification } from "@/components/account/PhoneVerification";
+import { CancelOrderFlow } from "@/components/account/CancelOrderFlow";
 import { MapPicker } from "@/components/account/MapPicker";
 import {
-  cancelOrder,
   deleteAddress,
   fetchAddresses,
   fetchOrders,
@@ -192,8 +192,9 @@ export function OrdersSection() {
   const [orders, setOrders] = useState<OrderSummary[] | null>(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<OrderSummary | null>(null);
+  // A counter, not a flag: see the onCancelled handler for why an aria-live region needs it.
+  const [justCancelled, setJustCancelled] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const load = async (nextPage: number) => {
@@ -208,31 +209,22 @@ export function OrdersSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function onCancel(id: string) {
-    setBusyId(id);
-    setError(null);
-    try {
-      await cancelOrder(id);
-      await load(0);
-    } catch (err) {
-      // The backend may refuse for a customer-readable reason — the courier already collected
-      // the parcel, or it could not be reached to stop the delivery. Show its words.
-      setError(
-        err instanceof AuthError && err.message && err.status !== 0
-          ? `${o.failed}: ${err.message}`
-          : t.auth.errors.generic,
-      );
-    } finally {
-      setBusyId(null);
-      setConfirmId(null);
-    }
-  }
-
   const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
 
   return (
     <Panel>
       <SectionHead title={o.title} subtitle={o.subtitle} />
+
+      {/* The dialog that told the customer their order is gone unmounts with the reload below, and a
+          row losing its Cancel link is a silent change — so the outcome is announced from the list,
+          which outlives it. Rendered empty from the start: a live region only announces what changes
+          inside one that was already there. */}
+      <span className="sr-only" role="status" aria-live="polite">
+        {/* Keyed on the counter so the node is REPLACED each time. The string is the same every
+            cancellation, and a live region announces changed content — re-rendering identical text
+            says nothing, which silently loses every announcement after the first. */}
+        {justCancelled > 0 && <span key={justCancelled}>{o.cancelFlow.doneTitle}</span>}
+      </span>
 
       {error && (
         <p role="alert" className="mb-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-400">
@@ -297,35 +289,15 @@ export function OrdersSection() {
                           {order.trackingCode}
                         </span>
                       ))}
-                    {isCancellable(order.status) &&
-                      (confirmId === order.id ? (
-                        <span className="flex flex-wrap items-center gap-2 text-sm">
-                          <span className="text-muted">{o.cancelConfirm}</span>
-                          <button
-                            type="button"
-                            disabled={busyId === order.id}
-                            onClick={() => onCancel(order.id)}
-                            className="font-semibold text-red-600 hover:underline disabled:opacity-60 dark:text-red-400"
-                          >
-                            {busyId === order.id ? t.auth.loading : o.cancelOrder}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setConfirmId(null)}
-                            className="font-medium text-muted hover:text-foreground"
-                          >
-                            {o.cancelKeep}
-                          </button>
-                        </span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setConfirmId(order.id)}
-                          className="ms-auto text-sm font-medium text-muted transition-colors hover:text-red-600 dark:hover:text-red-400"
-                        >
-                          {o.cancelOrder}
-                        </button>
-                      ))}
+                    {isCancellable(order.status) && (
+                      <button
+                        type="button"
+                        onClick={() => setCancelling(order)}
+                        className="ms-auto text-sm font-medium text-muted transition-colors hover:text-red-600 dark:hover:text-red-400"
+                      >
+                        {o.cancelOrder}
+                      </button>
+                    )}
                   </div>
                 )}
               </li>
@@ -342,6 +314,35 @@ export function OrdersSection() {
         >
           {o.loadMore}
         </button>
+      )}
+
+      {/* Outside the row on purpose: cancelling reloads the list, and the reloaded row no longer
+          offers to cancel — mounting the dialog there would close it on success, before the
+          customer has read that it worked. The order number is derived exactly as the row's is, and
+          the row is held whole because the dialog asks its price question in the order's currency. */}
+      {cancelling && (
+        <CancelOrderFlow
+          orderId={cancelling.id}
+          orderNumber={`BUY-${cancelling.id.slice(0, 8).toUpperCase()}`}
+          currency={cancelling.currency}
+          onClose={() => setCancelling(null)}
+          onCancelled={async () => {
+            // Announced before the reload, which may fail: the cancellation already happened.
+            // Counted, not latched — an aria-live region only speaks when its text CHANGES, and this
+            // list can hold several cancellable orders, so a second cancellation with the same string
+            // already in the region is announced to nobody.
+            setJustCancelled((n) => n + 1);
+            // The reload's own failure has to be caught HERE. The dialog deliberately swallows it so
+            // a failed refresh is never reported as a failed cancellation — which left the row still
+            // showing its old status and still offering "Cancel order", with no error anywhere, and a
+            // second click earning a backend refusal about an order that was already cancelled.
+            try {
+              await load(0);
+            } catch {
+              setError(t.auth.errors.generic);
+            }
+          }}
+        />
       )}
     </Panel>
   );
