@@ -6,8 +6,7 @@ import { RefurbishedIntro } from "@/components/home/RefurbishedIntro";
 import { HomeFaq } from "@/components/home/HomeFaq";
 import { CategoryBanners } from "@/components/home/CategoryBanners";
 import { FeatureStrip } from "@/components/home/FeatureStrip";
-// Flash-sale rail: mock data — parked until a real flash-sale feed exists.
-// import { ProductCarousel } from "@/components/home/ProductCarousel";
+import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { BuyologyAI } from "@/components/home/BuyologyAI";
 import { Metrics } from "@/components/home/Metrics";
 import { BuyologyServices } from "@/components/home/BuyologyServices";
@@ -48,7 +47,9 @@ export default function Home() {
         <GiveawayBanner />
         <CategoryBanners />
         <FeatureStrip />
-        {/* <ProductCarousel /> */}
+        {/* Flash sale. Fetches in the browser and renders nothing until it has something on sale,
+            so it never delays this page and never leaves an empty rail behind. */}
+        <ProductCarousel />
         <BuyologyAI />
         <BuyologyServices />
         {/* Closing statement: what this shop actually sells, in the words people search for.

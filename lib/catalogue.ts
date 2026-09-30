@@ -58,6 +58,14 @@ export type ApiProduct = {
    * absent is not zero, and treating it as zero marks the whole catalogue sold out.
    */
   availableQuantity?: number | null;
+  /**
+   * True while this product's store discount is LIVE and has an end date. @JsonInclude(NON_NULL),
+   * so absent means "not on a flash sale" — never false. Unrelated to `isSuperDeal`, which is an
+   * editorial flag with no dates.
+   */
+  onFlashSale?: boolean | null;
+  /** ISO-8601 instant the live discount ends — the countdown target. Absent unless onFlashSale. */
+  flashSaleEndsAt?: string | null;
   isSuperDeal?: boolean | null;
   isLimitedStock?: boolean | null;
   isRefurbished?: boolean | null;
@@ -117,11 +125,17 @@ function params(locale: Locale, extra: Record<string, unknown> = {}, market?: Ma
   return p;
 }
 
-async function get<T>(path: string, search: URLSearchParams): Promise<T> {
+async function get<T>(path: string, search: URLSearchParams, cache?: "no-store"): Promise<T> {
   // Server side this opts into Next's data cache (60s — matching the backend's own
   // micro-cache TTL); in the browser the `next` option is inert and the default HTTP
   // cache honours the backend's `max-age=60`, so repeat navigations stop refetching.
-  const res = await fetch(backendUrl(`${path}?${search}`), { next: { revalidate: 60 } });
+  //
+  // `no-store` is for the endpoints the backend deliberately leaves uncached — anything whose body
+  // carries a countdown, where a minute-old response is a minute of lost sale.
+  const res = await fetch(
+    backendUrl(`${path}?${search}`),
+    cache === "no-store" ? { cache: "no-store" } : { next: { revalidate: 60 } },
+  );
   if (!res.ok) throw new Error(`${path} ${res.status}`);
   const body = (await res.json()) as ApiEnvelope<T>;
   if (body.data == null) throw new Error(`${path}: empty`);
@@ -428,6 +442,58 @@ export async function fetchPopularFor(locale: Locale, productIds: string[]): Pro
 export async function fetchSuperDeals(locale: Locale): Promise<Product[]> {
   const rows = await get<ApiProduct[]>("/api/product/super-deals", params(locale));
   return withCategoryNames(locale, rows);
+}
+
+// ── Flash sale ───────────────────────────────────────────────────────────────
+
+/**
+ * A rail row: the card's Product, plus the absolute instant ITS OWN sale ends.
+ *
+ * The end instant is kept beside the Product rather than folded into it because it is the one field
+ * a caller must not treat as optional — a flash-sale row without a countdown target is not a flash
+ * sale, and the type says so.
+ */
+export type FlashSaleItem = { product: Product; endsAt: string };
+
+/** The endpoint's own default page size; the rail shows one page and does not paginate. */
+export const FLASH_SALE_SIZE = 60;
+
+/**
+ * Products whose store discount is live and ends in the future, soonest-ending first.
+ *
+ * Three properties of GET /api/product/flash-sale shape this:
+ *  - it is NOT cached server-side, deliberately, so a countdown is never read from a stale body —
+ *    hence `no-store` here rather than the shared 60s cache every other catalogue call uses;
+ *  - only products whose RESOLVED price for THIS market is discounted right now come back, so a
+ *    page is routinely shorter than the size asked for. A short page is the normal case, not an
+ *    error, and never a reason to pad the rail out with placeholders;
+ *  - a product leaves the rail by itself when its sale ends. There is no flag to go stale, which is
+ *    why the only thing this has to hand the UI is the end instant.
+ *
+ * Rows arriving without a usable future `flashSaleEndsAt` are dropped: the server sets the flag and
+ * the instant together, so a row missing one has nothing honest to count down to, and a row already
+ * past its end would render a card sitting at 00:00:00 still claiming a discount.
+ */
+export async function fetchFlashSale(locale: Locale, market?: Market): Promise<FlashSaleItem[]> {
+  const rows = await get<ApiProduct[]>(
+    "/api/product/flash-sale",
+    params(locale, { page: 0, size: FLASH_SALE_SIZE }, market),
+    "no-store",
+  );
+  // withCategoryNames also drops rows this market cannot buy, so match end instants back by id
+  // rather than by position.
+  const endsAtById = new Map(rows.map((r) => [r.id, r.flashSaleEndsAt]));
+  const now = Date.now();
+  const items: FlashSaleItem[] = [];
+  for (const product of await withCategoryNames(locale, rows)) {
+    const endsAt = endsAtById.get(product.id);
+    if (!endsAt) continue;
+    const at = Date.parse(endsAt);
+    if (!Number.isFinite(at) || at <= now) continue;
+    items.push({ product, endsAt });
+  }
+  // Server order (soonest-ending first) survives the filter, so it is not re-derived here.
+  return items;
 }
 
 // ── Single-product lookup with a session cache (cart/wishlist enrichment) ───
