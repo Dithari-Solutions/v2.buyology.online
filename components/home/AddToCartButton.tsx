@@ -69,11 +69,15 @@ export function AddToCartButton({ product }: { product: Product }) {
         onClick={onClick}
         disabled={soldOut}
         aria-label={soldOut ? t.pdp.outOfStock : t.deals.addToCart}
+        // Sold out is the one stock state a card announces — in red, at full strength, because a
+        // faded grey button reads as "still loading" rather than "you cannot buy this".
         className={`mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-full py-2 text-xs font-semibold transition-colors sm:mt-3 sm:gap-2 sm:py-2.5 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-          added
-            ? "bg-primary text-primary-fg"
-            : "bg-surface-2 text-foreground hover:bg-primary hover:text-primary-fg"
-        } disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-surface-2 disabled:hover:text-foreground`}
+          soldOut
+            ? "cursor-not-allowed bg-red-600 text-white"
+            : added
+              ? "bg-primary text-primary-fg"
+              : "bg-surface-2 text-foreground hover:bg-primary hover:text-primary-fg"
+        }`}
       >
         {soldOut ? (
           t.pdp.outOfStock

@@ -127,10 +127,10 @@ function CartRow({ line, savedRow }: { line: CartLine; savedRow?: boolean }) {
                 {tag}
               </span>
             ))}
-            {detail.inStock !== false && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-                {t.cart.inStock}
+            {/* Same rule as the product cards: in stock goes unsaid, sold out is said in red. */}
+            {(detail.inStock === false || detail.availableUnits === 0) && (
+              <span className="inline-flex items-center rounded-md bg-red-600 px-2 py-0.5 text-[11px] font-semibold text-white">
+                {t.pdp.outOfStock}
               </span>
             )}
           </div>

@@ -92,11 +92,6 @@ export function ProductDetail() {
   // is all this used to consult. `undefined` means stock is not tracked at all — no ceiling, never
   // sold out, which is why this is a strict === 0 and not a falsy check.
   const outOfStock = product.inStock === false || product.availableUnits === 0;
-  // Enough left to mention, and low enough to be worth mentioning.
-  const lowStock =
-    !outOfStock && product.availableUnits != null && product.availableUnits > 0 && product.availableUnits < 5
-      ? product.availableUnits
-      : null;
 
   // The ceiling on the pre-cart picker below. Null means stock is not tracked, so there is no cap —
   // it must never be read as zero, or every untracked product becomes un-addable.
@@ -416,9 +411,15 @@ export function ProductDetail() {
               type="button"
               onClick={onAdd}
               disabled={outOfStock}
-              className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 sm:px-6 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+              className={`inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 sm:px-6 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                outOfStock
+                  ? "cursor-not-allowed bg-red-600 text-white"
+                  : "bg-primary text-primary-fg hover:bg-primary-hover"
+              }`}
             >
-              {added ? (
+              {outOfStock ? (
+                t.pdp.outOfStock
+              ) : added ? (
                 <>
                   <CheckIcon className="buyo-pop h-5 w-5" />
                   {t.cart.added}
@@ -506,14 +507,8 @@ export function ProductDetail() {
             },
             { icon: ShieldCheckIcon, label: t.pdp.warranty, sub: t.pdp.secure },
             { icon: RentIcon, label: t.pdp.returns, sub: "" },
-            {
-              icon: CheckIcon,
-              // Was reusing the ORDER STATUS dictionary here, so an out-of-stock product announced
-              // "Delivery failed" — and the low-stock hint printed a bare integer with no label at all,
-              // so a product with 3 left simply said "3".
-              label: outOfStock ? t.pdp.outOfStock : t.pdp.inStock,
-              sub: lowStock != null ? t.pdp.onlyLeft.replace("{n}", String(lowStock)) : "",
-            },
+            // No stock row: in stock is the default and needs no saying, and sold out is said by the
+            // red add-to-cart button above, where the shopper is actually looking.
           ].map(({ icon: Icon, label, sub }) => (
             <li key={label} className="flex items-center gap-2.5">
               <Icon className="h-5 w-5 shrink-0 text-gold" />

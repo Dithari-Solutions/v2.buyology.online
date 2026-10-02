@@ -137,7 +137,6 @@ export interface Dict {
     syncErrorNote: string;
     paymentsSoon: string;
     reviews: string;
-    inStock: string;
   };
   pages: {
     comingSoonHint: string;
@@ -613,8 +612,7 @@ export interface Dict {
     qty: string;
     color: string;
     configuration: string;
-    inStock: string;
-    /** Shown in place of inStock when the product cannot be bought. */
+    /** On the add-to-cart button, in red, when the product cannot be bought. */
     outOfStock: string;
     /** Low-stock urgency. {n} is the number of units left. */
     onlyLeft: string;
@@ -1389,7 +1387,6 @@ const en: Dict = {
     paymentsSoon: "Online payment isn't available in your region yet — it's coming soon.",
     saved: "Saved",
     reviews: "reviews",
-    inStock: "In stock",
   },
   pages: {
     comingSoonHint: "This service is moving to the new Buyology experience and isn't here quite yet. It's on its way.",
@@ -2004,7 +2001,6 @@ const en: Dict = {
     qty: "Quantity",
     color: "Color",
     configuration: "Configuration",
-    inStock: "In stock",
     outOfStock: "Out of stock",
     onlyLeft: "Only {n} left",
     freeDelivery: "Free next-day delivery",
@@ -2950,7 +2946,6 @@ const az: Dict = {
     paymentsSoon: "Regionunuzda onlayn ödəniş hələ mövcud deyil — tezliklə olacaq.",
     saved: "Saxlanıldı",
     reviews: "rəy",
-    inStock: "Stokda var",
   },
   pages: {
     comingSoonHint: "Bu xidmət yeni Buyology təcrübəsinə köçürülür və hələ burada deyil. Yoldadır.",
@@ -3564,7 +3559,6 @@ const az: Dict = {
     qty: "Miqdar",
     color: "Rəng",
     configuration: "Konfiqurasiya",
-    inStock: "Stokda var",
     outOfStock: "Stokda yoxdur",
     onlyLeft: "Yalnız {n} ədəd qaldı",
     freeDelivery: "Pulsuz növbəti gün çatdırılma",
@@ -4525,7 +4519,6 @@ const ar: Dict = {
     paymentsSoon: "الدفع الإلكتروني غير متاح في منطقتك بعد — قريبًا.",
     saved: "محفوظ",
     reviews: "تقييم",
-    inStock: "متوفّر",
   },
   pages: {
     comingSoonHint: "تنتقل هذه الخدمة إلى تجربة Buyology الجديدة وليست هنا بعد. إنها في الطريق.",
@@ -5137,7 +5130,6 @@ const ar: Dict = {
     qty: "الكمية",
     color: "اللون",
     configuration: "التهيئة",
-    inStock: "متوفّر",
     outOfStock: "غير متوفّر",
     onlyLeft: "بقي {n} فقط",
     freeDelivery: "توصيل مجاني في اليوم التالي",
