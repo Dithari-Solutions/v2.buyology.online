@@ -15,6 +15,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { VisitTracker } from "@/components/analytics/VisitTracker";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { Footer } from "@/components/footer/Footer";
 import { HideOnAuth } from "@/components/layout/HideOnAuth";
 import { GiveawayPromo } from "@/components/home/GiveawayPromo";
@@ -139,6 +140,8 @@ export default async function RootLayout({
                 </HideOnAuth>
                 <GiveawayPromo />
                 <CartDrawer />
+                {/* Outside HideOnAuth: the pixel belongs on every page, sign-up included. */}
+                <MetaPixel />
               </FlyProvider>
             </WishlistProvider>
           </CartProvider>
