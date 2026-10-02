@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { Banner } from "@/lib/banners";
@@ -15,8 +15,14 @@ const AUTOPLAY_MS = 5000;
 
 /**
  * Auto-rotating promotional carousel over the REAL banners managed in the dashboard.
- * Autoplay pauses on hover/focus and is disabled under reduced-motion; dots + arrow keys
+ * Autoplay pauses on hover/focus/touch and is disabled under reduced-motion; dots + arrow keys
  * provide manual control.
+ *
+ * Two layouts, one state. From lg up the slides stack and cross-fade, driven by the arrows. Below
+ * lg — where those arrows are hidden — they sit side by side in a native scroll track with
+ * mandatory snapping, so a finger drags the banner and it settles on a whole slide. The track's
+ * scroll position is the source of truth there: scrolling sets the index, and autoplay or a dot
+ * scrolls the track rather than swapping opacity.
  *
  * Today's live banners are finished artwork with the copy baked into the image and no
  * text/button fields set, so this renders image-first: the overlay text, the CTA and the
@@ -35,14 +41,42 @@ export function FeaturedCarousel({
   const [paused, setPaused] = useState(false);
   const reduced = usePrefersReducedMotion();
   const count = banners.length;
+  const trackRef = useRef<HTMLDivElement>(null);
 
+  const go = useCallback(
+    (next: number) => {
+      const target = (next + count) % count;
+      setIndex(target);
+      // Only the swipe layout scrolls. From lg up the slides are stacked, nothing overflows, and
+      // the index alone drives the fade.
+      const el = trackRef.current;
+      if (el && el.scrollWidth > el.clientWidth) {
+        const rtl = getComputedStyle(el).direction === "rtl";
+        el.scrollTo({
+          left: (rtl ? -1 : 1) * target * el.clientWidth,
+          behavior: reduced ? "auto" : "smooth",
+        });
+      }
+    },
+    [count, reduced],
+  );
+
+  // A timeout re-armed on every slide change rather than a fixed interval, so a slide somebody
+  // has just swiped to gets its full five seconds before autoplay moves on.
   useEffect(() => {
     if (paused || reduced || count <= 1) return;
-    const id = setInterval(() => setIndex((i) => (i + 1) % count), AUTOPLAY_MS);
-    return () => clearInterval(id);
-  }, [paused, reduced, count]);
+    const id = setTimeout(() => go(index + 1), AUTOPLAY_MS);
+    return () => clearTimeout(id);
+  }, [index, paused, reduced, count, go]);
 
-  const go = (next: number) => setIndex((next + count) % count);
+  /** Swipe layout: whichever slide the track has settled nearest is the current one. */
+  function onScroll() {
+    const el = trackRef.current;
+    if (!el || el.clientWidth === 0) return;
+    // scrollLeft runs negative in RTL; the distance from the start is what counts.
+    const nearest = Math.round(Math.abs(el.scrollLeft) / el.clientWidth);
+    setIndex(Math.min(count - 1, Math.max(0, nearest)));
+  }
 
   function onKeyDown(e: React.KeyboardEvent) {
     if (e.key === "ArrowLeft") {
@@ -64,9 +98,20 @@ export function FeaturedCarousel({
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
+      // A finger on the banner holds it still; autoplay must not yank a slide out from under a swipe.
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => setPaused(false)}
+      onTouchCancel={() => setPaused(false)}
       onKeyDown={onKeyDown}
       className="group relative h-full w-full overflow-hidden rounded-2xl border border-border"
     >
+      {/* overscroll-x-contain keeps a hard swipe at either end from turning into the browser's
+          back/forward gesture. */}
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:block lg:overflow-hidden"
+      >
       {banners.map((banner, i) => {
         const active = i === index;
         const headline = banner.text?.trim();
@@ -81,6 +126,10 @@ export function FeaturedCarousel({
               alt={headline ?? `${label} ${i + 1}`}
               fill
               priority={i === 0}
+              // Eager for all: side by side, slides 2–4 start outside the track's visible area, and
+              // lazy-loading would let a swipe or autoplay land on a blank slide. Stacked, as they
+              // were before, they were all in view and loaded at once anyway.
+              loading={i === 0 ? undefined : "eager"}
               quality={90}
               sizes="(min-width: 1024px) 760px, 100vw"
               className="object-cover"
@@ -121,8 +170,8 @@ export function FeaturedCarousel({
             aria-roledescription="slide"
             aria-label={`${i + 1} / ${count}`}
             aria-hidden={!active}
-            className={`absolute inset-0 transition-opacity duration-700 ${
-              active ? "opacity-100" : "pointer-events-none opacity-0"
+            className={`relative h-full w-full shrink-0 snap-center snap-always lg:absolute lg:inset-0 lg:transition-opacity lg:duration-700 ${
+              active ? "lg:opacity-100" : "lg:pointer-events-none lg:opacity-0"
             }`}
           >
             {linkWholeBanner ? (
@@ -140,6 +189,7 @@ export function FeaturedCarousel({
           </div>
         );
       })}
+      </div>
 
       {/* Prev / next — pointer affordances, revealed on hover (keyboard uses arrow keys) */}
       {count > 1 && (
