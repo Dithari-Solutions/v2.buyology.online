@@ -19,20 +19,20 @@ import { BuyologyServices } from "@/components/home/BuyologyServices";
  */
 export const metadata: Metadata = {
   title: {
-    absolute: "Buy Certified Refurbished Laptops in Dubai – Buyology",
+    absolute: "Buy Certified Renewed Laptops in Dubai – Buyology",
   },
   description:
     "Buy certified refurbished laptops in the UAE with warranty included. Fast delivery across the UAE. MacBooks, Dell, HP, Lenovo & more — inspected & tested.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Buy Certified Refurbished Laptops in Dubai – Buyology",
+    title: "Buy Certified Renewed Laptops in Dubai – Buyology",
     description:
       "Certified refurbished laptops with warranty, delivered across the UAE. MacBooks, Dell, HP, Lenovo & more — inspected & tested.",
     url: "/",
     type: "website",
   },
   twitter: {
-    title: "Buy Certified Refurbished Laptops in Dubai – Buyology",
+    title: "Buy Certified Renewed Laptops in Dubai – Buyology",
     description:
       "Certified refurbished laptops with warranty, delivered across the UAE. Inspected & tested.",
   },
