@@ -19,6 +19,7 @@ import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { Footer } from "@/components/footer/Footer";
 import { HideOnAuth } from "@/components/layout/HideOnAuth";
 import { GiveawayPromo } from "@/components/home/GiveawayPromo";
+import { SignupPrompt } from "@/components/auth/SignupPrompt";
 
 // Raleway is the site typeface, carrying both body and headings. This
 // supersedes the Brand Identity Guidelines (Biennale for display, Manrope for
@@ -139,6 +140,7 @@ export default async function RootLayout({
                   <GoogleAnalytics />
                 </HideOnAuth>
                 <GiveawayPromo />
+                <SignupPrompt />
                 <CartDrawer />
                 {/* Outside HideOnAuth: the pixel belongs on every page, sign-up included. */}
                 <MetaPixel />

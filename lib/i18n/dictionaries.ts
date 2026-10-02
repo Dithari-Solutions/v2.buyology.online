@@ -1086,6 +1086,13 @@ export interface Dict {
       doneSub: string;
       backToSignin: string;
     };
+    /** The invitation shown to guests after two minutes on the site. Formal register throughout. */
+    prompt: {
+      title: string;
+      body: string;
+      benefits: { orders: string; addresses: string; wishlist: string };
+      close: string;
+    };
   };
   shop: {
     title: string;
@@ -2624,6 +2631,16 @@ const en: Dict = {
       doneTitle: "Password reset",
       doneSub: "Your password has been changed. You can now sign in.",
       backToSignin: "Back to sign in",
+    },
+    prompt: {
+      title: "Create your Buyology account",
+      body: "We would be pleased to welcome you as a registered customer. An account is free of charge and allows you to:",
+      benefits: {
+        orders: "Track your orders and their delivery status",
+        addresses: "Save your delivery addresses for a faster checkout",
+        wishlist: "Keep your wishlist on every device you use",
+      },
+      close: "Close",
     },
   },
   shop: {
@@ -4190,6 +4207,16 @@ const az: Dict = {
       doneSub: "Parolunuz dəyişdirildi. İndi daxil ola bilərsiniz.",
       backToSignin: "Girişə qayıt",
     },
+    prompt: {
+      title: "Buyology hesabınızı yaradın",
+      body: "Sizi qeydiyyatlı müştərimiz kimi görməkdən məmnun olarıq. Hesab ödənişsizdir və sizə aşağıdakı imkanları verir:",
+      benefits: {
+        orders: "Sifarişlərinizi və onların çatdırılma statusunu izləmək",
+        addresses: "Çatdırılma ünvanlarınızı yadda saxlayaraq sifarişi daha tez tamamlamaq",
+        wishlist: "İstək siyahınızı istifadə etdiyiniz bütün cihazlarda saxlamaq",
+      },
+      close: "Bağla",
+    },
   },
   shop: {
     title: "Bütün məhsullar",
@@ -5737,6 +5764,16 @@ const ar: Dict = {
       doneTitle: "تمت إعادة التعيين",
       doneSub: "تم تغيير كلمة مرورك. يمكنك تسجيل الدخول الآن.",
       backToSignin: "العودة لتسجيل الدخول",
+    },
+    prompt: {
+      title: "أنشئ حسابك في Buyology",
+      body: "يسعدنا أن نرحّب بك عميلًا مسجّلًا لدينا. الحساب مجاني ويتيح لك:",
+      benefits: {
+        orders: "متابعة طلباتك وحالة توصيلها",
+        addresses: "حفظ عناوين التوصيل لإتمام الشراء بشكل أسرع",
+        wishlist: "الاحتفاظ بقائمة رغباتك على جميع أجهزتك",
+      },
+      close: "إغلاق",
     },
   },
   shop: {

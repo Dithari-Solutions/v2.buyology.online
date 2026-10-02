@@ -94,7 +94,10 @@ export function GiveawayPromo() {
         }
       }
 
-      if (!cancelled) setOpen(true);
+      // Never stacked on another modal, such as the sign-up invitation. Not remembered as a close,
+      // so the next page tries again.
+      if (cancelled || document.querySelector('[aria-modal="true"]')) return;
+      setOpen(true);
     }, DELAY_MS);
 
     return () => {
