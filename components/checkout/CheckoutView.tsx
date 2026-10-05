@@ -36,6 +36,7 @@ import {
 import { useProductLookup } from "@/lib/use-product-lookup";
 import { formatMoney } from "@/lib/format";
 import { currentMarket } from "@/lib/market";
+import { metaInitiateCheckout, metaPurchase, rememberPurchase } from "@/lib/meta-pixel";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import {
@@ -235,6 +236,21 @@ export function CheckoutView() {
       : null;
   const vatLabel = vatRate != null ? c.vat.replace("{rate}", String(vatRate)) : null;
 
+  // InitiateCheckout once per visit to this page, and only for a signed-in shopper with priced lines:
+  // a guest is sent to sign in first and would otherwise be counted again on the way back. The goods
+  // subtotal is the value, because the delivery fee may still be loading.
+  const checkoutTrackedRef = useRef(false);
+  useEffect(() => {
+    if (checkoutTrackedRef.current || authStatus !== "authed") return;
+    if (selectedLines.length === 0 || subtotal <= 0 || !currency) return;
+    checkoutTrackedRef.current = true;
+    metaInitiateCheckout({
+      contents: selectedLines.map((l) => ({ id: l.productId, quantity: l.qty })),
+      value: subtotal,
+      currency,
+    });
+  }, [authStatus, selectedLines, subtotal, currency]);
+
   // Is cash on offer for this exact checkout? Re-asked as the total moves, because the answer
   // depends on it: the ceiling is per order. Selecting cash and then adding an item that pushes
   // the basket over the limit must take the option away again rather than fail at submit.
@@ -359,6 +375,15 @@ export function CheckoutView() {
           // Cash has no gateway leg to resume — a stranded cash order is left to the backend's
           // supersede rather than pushed at a payment page that would charge for it twice.
           if (payMethod !== "COD" && stored?.key === intentKey && stored.orderId) {
+            rememberPurchase(
+              {
+                orderId: stored.orderId,
+                value: total,
+                currency,
+                contents: selectedLines.map((l) => ({ id: l.productId, quantity: l.qty })),
+              },
+              { overwrite: false },
+            );
             const pay = await repayOrder(stored.orderId, {
               methodType: payMethod,
               redirectionUrl: `${window.location.origin}/payment/callback`,
@@ -407,12 +432,25 @@ export function CheckoutView() {
         });
       }
 
+      // The order's own total and currency, for the Meta Purchase event — sent below for cash, or by
+      // the payment result page once the gateway confirms (or Tabby/Tamara approve) the payment.
+      rememberPurchase({
+        orderId: order.id,
+        value: order.totalAmount,
+        currency: order.currency,
+        contents: order.items?.length
+          ? order.items.map((i) => ({ id: i.productId ?? i.id, quantity: i.quantity }))
+          : selectedLines.map((l) => ({ id: l.productId, quantity: l.qty })),
+      });
+
       // 4a. Cash on delivery has no gateway leg at all. The order is placed and the money is
       //     collected at handover, so there is nothing to redirect to — send the customer to
       //     their order. Returning here deliberately skips initiatePayment: calling it for a cash
       //     order would charge them now AND leave a courier asking for the same money at the door
       //     (the backend refuses it too, but the page must not try).
       if (payMethod === "COD") {
+        // A cash order is committed the moment it is placed; there is no payment step to wait for.
+        metaPurchase(order.id);
         try {
           sessionStorage.removeItem(PENDING_TX_KEY);
           sessionStorage.removeItem(PENDING_ORDER_KEY);
@@ -459,7 +497,7 @@ export function CheckoutView() {
       setPlacing(false);
       cart.refresh(); // stock errors may have changed what's orderable
     }
-  }, [credId, uid, profile, promo, subtotal, selectedLines, fulfilment, addressId, pickupStoreId, payMethod, cart, c, buyNow, bnProductId, bnStoreId, bnQty, router]);
+  }, [credId, uid, profile, promo, subtotal, total, currency, selectedLines, fulfilment, addressId, pickupStoreId, payMethod, cart, c, buyNow, bnProductId, bnStoreId, bnQty, router]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   if (

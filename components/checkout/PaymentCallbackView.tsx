@@ -13,6 +13,7 @@ import {
 } from "@/lib/checkout-api";
 import { BUYNOW_ORDER_KEY, PENDING_ORDER_KEY, PENDING_TX_KEY } from "@/components/checkout/CheckoutView";
 import { CheckIcon, CloseIcon, ClockIcon } from "@/components/icons";
+import { metaPurchase } from "@/lib/meta-pixel";
 
 type Outcome = "checking" | "success" | "failed" | "pending";
 
@@ -80,6 +81,14 @@ export function PaymentCallbackView() {
         // server-to-server webhook's verdict shows.
         setOutcome("pending");
       }
+      // Meta Purchase, on the backend's word only: a settled payment, or a Tabby/Tamara instalment
+      // it has approved (PROCESSING, arriving with Paymob's signed pending flag) — counted on approval
+      // because the shopper is committed and is usually gone before capture. Fee payments carry a
+      // `kind` and are not purchases, and metaPurchase ignores an order whose amount was never
+      // remembered at checkout, so nothing here can report a Purchase without a value.
+      const approved = tx?.status === "SUCCESS" || (tx?.status === "PROCESSING" && all.pending === "true");
+      if (approved && oid && !all.kind) metaPurchase(oid);
+
       // Only a backend-confirmed settlement clears the retry breadcrumbs.
       if (tx?.status === "SUCCESS") {
         try {

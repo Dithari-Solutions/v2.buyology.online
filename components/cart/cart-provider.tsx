@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { useAuth } from "@/components/auth/auth-provider";
+import { metaAddToCart } from "@/lib/meta-pixel";
 import {
   addCartItem,
   getCart,
@@ -427,6 +428,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (product: AddInput, opts?: { openDrawer?: boolean; qty?: number }) => {
       const add = Math.max(1, Math.min(MAX_QTY, opts?.qty ?? 1));
       const specIds = product.specOptionIds ?? [];
+      // Every add in the app comes through here — cards, product page, cart picks, wishlist — so this
+      // is the one place AddToCart is reported.
+      metaAddToCart({ id: product.id, name: product.name, price: product.price, qty: add, currency: product.currency });
 
       if (authed && credId && product.storeId) {
         const storeId = product.storeId;

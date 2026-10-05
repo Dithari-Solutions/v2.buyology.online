@@ -15,6 +15,7 @@ import {
 import { useProduct } from "@/components/product/product-context";
 import { formatInt, formatMoney } from "@/lib/format";
 import { currentMarket } from "@/lib/market";
+import { metaViewContent } from "@/lib/meta-pixel";
 import { DITHARI_URL, whatsAppUrl } from "@/lib/site";
 import { RefurbishedBadge } from "@/components/product/RefurbishedBadge";
 import {
@@ -75,6 +76,15 @@ export function ProductDetail() {
   );
 
   const { id, name, category, currency } = product;
+
+  // One ViewContent per product shown. The ref keeps a re-render, or development's doubled effects,
+  // from reporting the same view twice; navigating to another product reports that one.
+  const viewedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (viewedRef.current === id) return;
+    viewedRef.current = id;
+    metaViewContent({ id, name, price: product.price, currency });
+  }, [id, name, product.price, currency]);
   const saved = has(id);
   const filled = Math.round(product.rating);
   // The basket line for this product, if there is one — what turns the quantity picker below into a

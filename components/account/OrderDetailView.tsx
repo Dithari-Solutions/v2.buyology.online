@@ -18,6 +18,7 @@ import {
 import { useProductLookup } from "@/lib/use-product-lookup";
 import { repayOrder } from "@/lib/checkout-api";
 import { currentMarket } from "@/lib/market";
+import { rememberPurchase } from "@/lib/meta-pixel";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import { RefundCard } from "@/components/account/RefundCard";
 import { CancelOrderFlow } from "@/components/account/CancelOrderFlow";
@@ -265,6 +266,14 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                       redirectionUrl: `${window.location.origin}/payment/callback`,
                     });
                     if (!pay.checkoutUrl) throw new Error("no checkout url");
+                    // Paying an unpaid order is still its purchase: keep its total for the Meta
+                    // Purchase event the payment result page sends once this payment goes through.
+                    rememberPurchase({
+                      orderId: order.id,
+                      value: order.totalAmount,
+                      currency: order.currency,
+                      contents: (order.items ?? []).map((i) => ({ id: i.productId ?? i.id, quantity: i.quantity })),
+                    });
                     try {
                       sessionStorage.setItem(PENDING_TX_KEY, pay.transactionId);
                       sessionStorage.setItem(PENDING_ORDER_KEY, order.id);
