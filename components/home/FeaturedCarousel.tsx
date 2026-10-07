@@ -39,6 +39,7 @@ export function FeaturedCarousel({
 }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
   const reduced = usePrefersReducedMotion();
   const count = banners.length;
   const trackRef = useRef<HTMLDivElement>(null);
@@ -121,19 +122,20 @@ export function FeaturedCarousel({
 
         const artwork = (
           <>
-            <Image
+            {(i === 0 || active || (heroReady && i === (index + 1) % count)) && <Image
               src={banner.backgroundImageUrl!}
               alt={headline ?? `${label} ${i + 1}`}
               fill
-              priority={i === 0}
-              // Eager for all: side by side, slides 2–4 start outside the track's visible area, and
-              // lazy-loading would let a swipe or autoplay land on a blank slide. Stacked, as they
-              // were before, they were all in view and loaded at once anyway.
+              preload={i === 0}
+              // Only the first image is in the initial HTML. Prefetch the next slide after it
+              // loads, giving autoplay five seconds to prepare without competing at first paint.
               loading={i === 0 ? undefined : "eager"}
-              quality={90}
+              onLoad={i === 0 ? () => setHeroReady(true) : undefined}
+              onError={i === 0 ? () => setHeroReady(true) : undefined}
+              quality={75}
               sizes="(min-width: 1024px) 760px, 100vw"
               className="object-cover"
-            />
+            />}
             {/* Scrims only exist to make OUR overlay copy legible. */}
             {headline && (
               <>

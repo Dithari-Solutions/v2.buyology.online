@@ -45,7 +45,7 @@ export default function Home() {
       <Header />
       <main>
         <Stories />
-        <GiveawayBanner />
+        <Suspense fallback={null}><GiveawayBanner /></Suspense>
         <Suspense fallback={<div className="mx-auto h-64 max-w-[1400px] animate-pulse rounded-2xl bg-surface-2" aria-hidden="true" />}><CategoryBanners /></Suspense>
         <FeatureStrip />
         {/* Flash sale. Fetches in the browser and renders nothing until it has something on sale,

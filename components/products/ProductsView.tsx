@@ -37,9 +37,11 @@ const MAX_EMPTY_PAGE_PULLS = 10;
 export function ProductsView({
   initialCategory,
   initialBrand,
+  initialFeed,
 }: {
   initialCategory?: string;
   initialBrand?: string;
+  initialFeed?: { items: Product[]; hasMore: boolean };
 }) {
   const { t, locale } = useI18n();
 
@@ -48,8 +50,8 @@ export function ProductsView({
   const [visible, setVisible] = useState(PAGE);
 
   // ── Browse mode: the plain catalogue, accumulated page by page ─────────────
-  const [catalog, setCatalog] = useState<Product[] | null>(null);
-  const [hasMore, setHasMore] = useState(false);
+  const [catalog, setCatalog] = useState<Product[] | null>(() => initialFeed?.items ?? null);
+  const [hasMore, setHasMore] = useState(initialFeed?.hasMore ?? false);
   const [loadingMore, setLoadingMore] = useState(false);
 
   // Which page we are on, and whether a fetch is in flight, held as refs rather than state.

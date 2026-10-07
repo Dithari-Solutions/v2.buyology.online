@@ -88,3 +88,22 @@ test('starts category and product requests together, restores a first page, and 
     assert.equal(cachedProducts('en'), undefined);
   } finally { globalThis.fetch = originalFetch; }
 });
+
+test('server-selected market reaches both product and category adapters without UAE fallback', async () => {
+  const originalFetch = globalThis.fetch;
+  const calls: URL[] = [];
+  globalThis.fetch = (async (url: string) => {
+    const target = new URL(url, 'https://buyology.online'); calls.push(target);
+    return new Response(JSON.stringify({ data: target.pathname === '/api/category'
+      ? [{ id: 'az-category', name: 'Kompüterlər' }]
+      : [{ id: 'az-product', title: 'Laptop', categoryId: 'az-category', storePrice: 200, media: [] }] }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    const market = { region: 'az', alpha2: 'AZ', paymentsEnabled: false, countryCode: 'AZE', currency: 'AZN', host: 'az.buyology.online' };
+    const result = await fetchProducts('az', { page: 0 }, market);
+    assert.equal(result.items[0].category, 'Kompüterlər');
+    assert.equal(result.items[0].currency, 'AZN');
+    assert.equal(calls.length, 2);
+    assert.ok(calls.every(url => url.searchParams.get('countryCode') === 'AZE'));
+  } finally { globalThis.fetch = originalFetch; }
+});

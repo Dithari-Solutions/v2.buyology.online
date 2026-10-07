@@ -1,0 +1,274 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useRef } from "react";
+import Link from "next/link";
+import { useCart, type CartLine } from "@/components/cart/cart-provider";
+import { useProductLookup } from "@/lib/use-product-lookup";
+import { formatMoney } from "@/lib/format";
+import { useI18n } from "@/components/i18n/language-provider";
+import { BnplOptions } from "@/components/cart/BnplOptions";
+import { lockBodyScroll } from "@/lib/scroll-lock";
+import { BagIcon, CloseIcon } from "@/components/icons";
+
+/**
+ * Cart drawer — a slide-over pinned to the right showing the cart contents,
+ * subtotal, a "Go to cart" button, and a close control. Opens when an item is
+ * added or the header cart is clicked.
+ */
+export function CartDrawer() {
+  const { t } = useI18n();
+  const { items, count, subtotal, currency, fees, isOpen, close, syncError, syncErrorMessage } =
+    useCart();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    const unlock = lockBodyScroll();
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") close();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => {
+      unlock();
+      document.removeEventListener("keydown", onKey);
+      previouslyFocused?.focus?.();
+    };
+  }, [isOpen, close]);
+
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (e.key !== "Tab") return;
+    const focusables = panelRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, [tabindex]:not([tabindex="-1"])',
+    );
+    if (!focusables || focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[110]"
+      role="dialog"
+      aria-modal="true"
+      aria-label={t.cart.title}
+    >
+      <div
+        className="buyo-overlay absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={close}
+      />
+
+      <div
+        ref={panelRef}
+        onKeyDown={onKeyDown}
+        className="buyo-drawer absolute right-0 top-0 flex h-full w-full max-w-full flex-col border-border bg-elevated shadow-[var(--shadow-overlay)] sm:w-[380px] sm:border-l"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <h2 className="text-base font-semibold text-foreground">
+            {t.cart.title}
+            {count > 0 && (
+              <span className="ms-1 font-normal text-muted">({count})</span>
+            )}
+          </h2>
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={close}
+            aria-label={t.cart.close}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* The drawer opens optimistically the moment something is added, so when the server
+            refuses — a store outside the shopper's country, a stock limit — the line simply
+            vanishes again on the re-sync. Silently removing it is what makes a working rule look
+            like a broken basket, so the reason is said here and not only on the cart page. */}
+        {syncError && (
+          <p
+            className="mx-4 mt-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm text-warn dark:text-gold"
+            role="status"
+          >
+            {syncErrorMessage ?? t.cart.syncErrorNote}
+          </p>
+        )}
+
+        {items.length === 0 ? (
+          /* Empty state */
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-brand-icon">
+              <BagIcon className="h-7 w-7" />
+            </span>
+            <p className="font-semibold text-foreground">{t.cart.empty}</p>
+            <p className="text-sm text-muted">{t.cart.emptyHint}</p>
+            <button
+              type="button"
+              onClick={close}
+              className="mt-1 text-sm font-semibold text-warn hover:opacity-80 dark:text-gold"
+            >
+              {t.cart.continueShopping}
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Items */}
+            <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+              {items.map((line) => (
+                <DrawerLine key={line.id} line={line} />
+              ))}
+            </ul>
+
+            {/* Footer */}
+            <div className="border-t border-border p-4">
+              <div className="mb-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted">{t.cart.subtotal}</span>
+                  <span className="text-lg font-bold text-foreground" dir="ltr">
+                    {formatMoney(subtotal, currency)}
+                  </span>
+                </div>
+                {/* The subtotal already contains the tax. No amount here on purpose: the drawer
+                    quotes no total, and the cart's VAT figure is extracted from goods plus
+                    delivery, so it is not the tax inside this number. */}
+                {fees?.vatRatePercent != null && (
+                  <p className="mt-0.5 text-[11px] text-muted">
+                    {t.cart.vatIncluded.replace("{rate}", String(fees.vatRatePercent))}
+                  </p>
+                )}
+              </div>
+              <div className="mb-3">
+                <BnplOptions total={subtotal} currency={currency} compact />
+              </div>
+              <Link
+                href="/cart"
+                onClick={close}
+                className="flex w-full items-center justify-center rounded-full bg-primary py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-elevated"
+              >
+                {t.cart.goToCart}
+              </Link>
+              <button
+                type="button"
+                onClick={close}
+                className="mt-1 w-full py-2.5 text-center text-sm text-muted transition-colors hover:text-foreground sm:mt-2 sm:py-0"
+              >
+                {t.cart.continueShopping}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** One drawer line: real catalogue photo and name resolved by product id. */
+function DrawerLine({ line }: { line: CartLine }) {
+  const { t } = useI18n();
+  const { removeItem, setQty, fees } = useCart();
+  const { product: detail, loading } = useProductLookup(line.productId);
+  const name = detail?.name ?? line.name;
+  // The market's rate, not the line's amount, decides whether a VAT note belongs here.
+  const vatRate = fees?.vatRatePercent ?? null;
+  return (
+    <li
+      className={`flex gap-3 rounded-xl p-2 transition-colors hover:bg-surface-2 ${
+        line.selected && line.selectable ? "" : "opacity-50"
+      }`}
+    >
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-border bg-surface-2">
+        {loading ? (
+          <div className="absolute inset-0 animate-pulse bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
+        ) : detail?.image?.startsWith("http") ? (
+          // Catalogue photo through next/image — contained so the whole product shows.
+          <Image
+            src={detail.image}
+            alt={detail.name}
+            fill
+            quality={75}
+            sizes="64px"
+            className="bg-white object-contain p-1"
+          />
+        ) : (
+          // No photo in the catalogue — a quiet placeholder, never a fake product image.
+          <span className="absolute inset-0 flex items-center justify-center text-muted" aria-hidden="true">
+            <BagIcon className="h-6 w-6 opacity-40" />
+          </span>
+        )}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col">
+        {loading && !detail ? (
+          <>
+            <span className="h-4 w-3/4 animate-pulse rounded bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
+            <span className="mt-1 h-3 w-1/3 animate-pulse rounded bg-surface-2 motion-reduce:animate-none" aria-hidden="true" />
+          </>
+        ) : (
+          <>
+            <p className="truncate text-sm font-medium text-foreground">{name}</p>
+            <p className="text-xs text-muted">{detail?.category || line.category}</p>
+          </>
+        )}
+        {line.specs && line.specs.length > 0 && (
+          <p className="truncate text-[11px] text-muted">{line.specs.join(" · ")}</p>
+        )}
+        <div className="mt-auto flex items-center justify-between gap-2 pt-1.5">
+          <div className="inline-flex items-center rounded-full border border-border">
+            <button
+              type="button"
+              onClick={() => setQty(line.id, line.qty - 1)}
+              aria-label={`${t.cart.decrease}: ${name}`}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-7 sm:w-7"
+            >
+              <span aria-hidden="true">−</span>
+            </button>
+            <span className="min-w-5 text-center text-sm font-medium tabular-nums text-foreground">
+              {line.qty}
+            </span>
+            {/* Capped at the server's figure, as on the cart page. null means untracked — no ceiling
+                — and must never be treated as zero. */}
+            <button
+              type="button"
+              onClick={() => setQty(line.id, line.qty + 1)}
+              disabled={line.availableUnits != null && line.qty >= line.availableUnits}
+              aria-label={`${t.cart.increase}: ${name}`}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 sm:h-7 sm:w-7"
+            >
+              <span aria-hidden="true">+</span>
+            </button>
+          </div>
+          <span className="text-sm font-semibold text-foreground" dir="ltr">
+            {formatMoney(line.price * line.qty, line.currency)}
+          </span>
+        </div>
+        {/* Named, not added — the tax is already inside the price above. */}
+        {vatRate != null && line.vatAmount != null && (
+          <p className="pt-0.5 text-[11px] text-muted">
+            {t.cart.vatIncluded.replace("{rate}", String(vatRate))}{" "}
+            <span dir="ltr">({formatMoney(line.vatAmount, line.currency)})</span>
+          </p>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={() => removeItem(line.id)}
+        aria-label={`${t.cart.remove}: ${name}`}
+        className="-m-2 self-start rounded-md p-3 text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:m-0 sm:p-1"
+      >
+        <CloseIcon className="h-4 w-4" />
+      </button>
+    </li>
+  );
+}

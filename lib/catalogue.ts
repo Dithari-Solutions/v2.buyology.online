@@ -300,17 +300,17 @@ export function toProduct(api: ApiProduct, categoryName?: string): Product {
   };
 }
 
-async function withCategoryNames(locale: Locale, rows: ApiProduct[]): Promise<Product[]> {
+async function withCategoryNames(locale: Locale, rows: ApiProduct[], market?: Market): Promise<Product[]> {
   // Sellable items only: availableInSelectedCountry=false means "browse only" — a card the
   // customer cannot buy does not belong in a shopping grid.
   const sellable = rows.filter((r) => r.availableInSelectedCountry !== false);
   let byId = new Map<string, string>();
   try {
-    byId = new Map((await fetchCategories(locale)).map((c) => [c.id, c.name]));
+    byId = new Map((await fetchCategories(locale, market)).map((c) => [c.id, c.name]));
   } catch {
     /* category names degrade to blank labels; the grid still works */
   }
-  return sellable.map((r) => toProduct(r, r.categoryId ? byId.get(r.categoryId) : undefined));
+  return sellable.map((r) => toProduct({ ...r, currency: r.currency ?? market?.currency }, r.categoryId ? byId.get(r.categoryId) : undefined));
 }
 
 // ── Catalogue calls ──────────────────────────────────────────────────────────
@@ -330,13 +330,14 @@ export function cachedProducts(locale: Locale): { items: Product[]; hasMore: boo
 export async function fetchProducts(
   locale: Locale,
   opts: { page?: number; sort?: "POPULAR" | "NEWEST" | "PRICE_ASC" | "PRICE_DESC" } = {},
+  market?: Market,
 ): Promise<{ items: Product[]; hasMore: boolean }> {
   const rows = await get<ApiProduct[]>(
     "/api/product",
-    params(locale, { page: opts.page ?? 0, size: PAGE_SIZE, sort: opts.sort }),
+    params(locale, { page: opts.page ?? 0, size: PAGE_SIZE, sort: opts.sort }, market),
   );
   return {
-    items: await withCategoryNames(locale, rows),
+    items: await withCategoryNames(locale, rows, market),
     // No total count exists anywhere in the contract; a full page means "probably more".
     hasMore: rows.length === PAGE_SIZE,
   };
