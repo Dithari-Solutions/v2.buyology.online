@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from "next";
 import { Header } from "@/components/header/Header";
 import { Stories } from "@/components/home/Stories";
@@ -45,7 +46,7 @@ export default function Home() {
       <main>
         <Stories />
         <GiveawayBanner />
-        <CategoryBanners />
+        <Suspense fallback={<div className="mx-auto h-64 max-w-[1400px] animate-pulse rounded-2xl bg-surface-2" aria-hidden="true" />}><CategoryBanners /></Suspense>
         <FeatureStrip />
         {/* Flash sale. Fetches in the browser and renders nothing until it has something on sale,
             so it never delays this page and never leaves an empty rail behind. */}

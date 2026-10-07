@@ -1,3 +1,4 @@
+import { cachedFeed, peekFeed } from './feed-cache';
 import { backendUrl, type ApiEnvelope } from "@/lib/backend";
 import type { Locale } from "@/lib/i18n/config";
 import type { Product } from "@/lib/products";
@@ -126,20 +127,27 @@ function params(locale: Locale, extra: Record<string, unknown> = {}, market?: Ma
 }
 
 async function get<T>(path: string, search: URLSearchParams, cache?: "no-store"): Promise<T> {
-  // Server side this opts into Next's data cache (60s — matching the backend's own
-  // micro-cache TTL); in the browser the `next` option is inert and the default HTTP
-  // cache honours the backend's `max-age=60`, so repeat navigations stop refetching.
-  //
-  // `no-store` is for the endpoints the backend deliberately leaves uncached — anything whose body
-  // carries a countdown, where a minute-old response is a minute of lost sale.
-  const res = await fetch(
-    backendUrl(`${path}?${search}`),
-    cache === "no-store" ? { cache: "no-store" } : { next: { revalidate: 60 } },
-  );
-  if (!res.ok) throw new Error(`${path} ${res.status}`);
-  const body = (await res.json()) as ApiEnvelope<T>;
-  if (body.data == null) throw new Error(`${path}: empty`);
-  return body.data;
+  // Warm category names in parallel with products, avoiding a second network round trip
+  // after the product response arrives. Its own locale/market cache deduplicates callers.
+  if (path.startsWith('/api/product')) {
+    const locale = (search.get('lang') ?? 'EN').toLowerCase() as Locale;
+    const market = { ...currentMarket(), countryCode: search.get('countryCode') ?? currentMarket().countryCode, currency: search.get('currency') ?? currentMarket().currency };
+    void fetchCategories(locale, market).catch(() => {});
+  }
+  const url = backendUrl(`${path}?${search}`);
+  const load = async () => {
+    // Next's fixed revalidate TTL cannot follow a sale boundary. Server price reads use the
+    // backend's boundary-aware micro-cache; browser copies obey its HTTP headers plus feed policy.
+    const livePriceRead = typeof window === 'undefined' && path.startsWith('/api/product');
+    const res = await fetch(url, cache === 'no-store' || livePriceRead
+      ? { cache: 'no-store' } : typeof window === 'undefined' ? { next: { revalidate: 60 } } : { cache: 'default' });
+    if (!res.ok) throw new Error(`${path} ${res.status}`);
+    const body = (await res.json()) as ApiEnvelope<T>;
+    if (body.data == null) throw new Error(`${path}: empty`);
+    return body.data;
+  };
+  // Countdown feeds stay uncached. Public lists share bounded browser/session snapshots.
+  return cache === 'no-store' ? load() : cachedFeed(url, load);
 }
 
 // ── Categories (cached per locale for the session — names label the cards) ──
@@ -308,6 +316,16 @@ async function withCategoryNames(locale: Locale, rows: ApiProduct[]): Promise<Pr
 // ── Catalogue calls ──────────────────────────────────────────────────────────
 
 export const PAGE_SIZE = 24;
+
+/** A recent first page for immediate display while the live fetch revalidates it. */
+export function cachedProducts(locale: Locale): { items: Product[]; hasMore: boolean } | undefined {
+  const rows = peekFeed<ApiProduct[]>(backendUrl(`/api/product?${params(locale, { page: 0, size: PAGE_SIZE })}`), true);
+  if (!rows) return undefined;
+  const categories = peekFeed<Category[]>(backendUrl(`/api/category?${params(locale)}`), true) ?? [];
+  const names = new Map(categories.map(category => [category.id, category.name]));
+  return { items: rows.filter(row => row.availableInSelectedCountry !== false)
+    .map(row => toProduct(row, row.categoryId ? names.get(row.categoryId) : undefined)), hasMore: rows.length === PAGE_SIZE };
+}
 
 export async function fetchProducts(
   locale: Locale,

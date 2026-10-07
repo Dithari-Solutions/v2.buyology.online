@@ -1,7 +1,8 @@
 "use client";
 
+import Image from 'next/image';
 import { useEffect, useState } from "react";
-import { fetchStories, seenStoryIds, type StorySummary } from "@/lib/story-feed";
+import { cachedStories, fetchStories, seenStoryIds, type StorySummary } from "@/lib/story-feed";
 import { StoryViewer } from "@/components/stories/StoryViewer";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -23,35 +24,39 @@ import { useAuth } from "@/components/auth/auth-provider";
  */
 export function Stories() {
   const { t, locale } = useI18n();
-  const { status } = useAuth();
-  const [feed, setFeed] = useState<StorySummary[] | null>(null); // null = still loading
+  const { status, user } = useAuth();
+  const scope = `${locale}:${status}:${user?.credentialId ?? 'guest'}`;
+  const [resolvedFeed, setResolvedFeed] = useState<{ scope: string; data: StorySummary[] } | null>(null);
+  const feed = resolvedFeed?.scope === scope ? resolvedFeed.data : null;
   const [seen, setSeen] = useState<Set<string>>(new Set());
-  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const [viewer, setViewer] = useState<{ scope: string; index: number } | null>(null);
+  const viewerIndex = viewer?.scope === scope ? viewer.index : null;
 
   useEffect(() => {
-    // Wait for the boot session restore: likedByMe is only computed for an authenticated call,
-    // and fetching as a guest first would flash unliked hearts at a signed-in visitor.
-    if (status === "loading") return;
+    // Render public thumbnails while session restoration runs; refresh personal likes afterwards.
+    const anonymous = status === 'loading';
     let cancelled = false;
-    // Fetched per mount and per language on purpose: media URLs are presigned with a 2-hour TTL
-    // and the backend resolves translations server-side, so neither can be cached client-side.
-    fetchStories(locale)
+    // Callback-based cache hydration preserves the server skeleton during the initial hydration.
+    Promise.resolve(cachedStories(locale, anonymous)).then(cached => {
+      if (!cancelled && cached) setResolvedFeed({ scope, data: cached });
+    });
+    fetchStories(locale, anonymous)
       .then((data) => {
         if (cancelled) return;
-        setFeed(data);
+        setResolvedFeed({ scope, data });
         setSeen(seenStoryIds());
       })
       .catch(() => {
         // Fail soft: resolve to "no stories" and the section disappears.
-        if (!cancelled) setFeed([]);
+        if (!cancelled) setResolvedFeed({ scope, data: cachedStories(locale, anonymous) ?? [] });
       });
     return () => {
       cancelled = true;
     };
-  }, [locale, status]);
+  }, [locale, status, scope]);
 
   const closeViewer = () => {
-    setViewerIndex(null);
+    setViewer(null);
     setSeen(seenStoryIds()); // rings the viewer just watched turn muted
   };
 
@@ -86,7 +91,7 @@ export function Stories() {
                 <li key={story.id} className="shrink-0">
                   <button
                     type="button"
-                    onClick={() => setViewerIndex(index)}
+                    onClick={() => { if (status !== "loading") setViewer({ scope, index }); }}
                     className="group flex w-[76px] flex-col items-center gap-2 rounded-xl focus-visible:outline-none sm:w-[84px]"
                   >
                     <span
@@ -98,17 +103,7 @@ export function Stories() {
                     >
                       <span className="block rounded-full bg-background p-[3px]">
                         {story.thumbnailUrl ? (
-                          // Plain <img>: the URL is a presigned S3 GET that changes every request
-                          // and expires — next/image optimization would cache dead links and needs
-                          // remotePatterns churn for zero benefit.
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={story.thumbnailUrl}
-                            alt=""
-                            className="h-14 w-14 rounded-full object-cover sm:h-16 sm:w-16"
-                            loading="lazy"
-                            draggable={false}
-                          />
+                          <StoryThumbnail key={story.thumbnailUrl} src={story.thumbnailUrl} eager={index < 6} />
                         ) : (
                           <span className="block h-14 w-14 rounded-full bg-gradient-to-br from-brand/25 to-gold/20 sm:h-16 sm:w-16" />
                         )}
@@ -123,9 +118,18 @@ export function Stories() {
             })}
       </ul>
 
-      {viewerIndex !== null && feed !== null && (
+      {viewerIndex !== null && feed !== null && status !== "loading" && (
         <StoryViewer stories={feed} startIndex={viewerIndex} onClose={closeViewer} />
       )}
     </section>
   );
+}
+
+
+function StoryThumbnail({ src, eager }: { src: string; eager: boolean }) {
+  const [failed, setFailed] = useState(false);
+  const optimizable = /^https:\/\/(cdn\.buyology\.online\/|eu2\.contabostorage\.com\/ecommerce-storage\/|usc1\.contabostorage\.com\/buyology-dev\/)/.test(src);
+  return <Image key={src} src={src} alt="" width={64} height={64} sizes="64px" quality={75}
+    className="h-14 w-14 rounded-full object-cover sm:h-16 sm:w-16" loading={eager ? 'eager' : 'lazy'}
+    unoptimized={failed || !optimizable} onError={() => setFailed(true)} draggable={false} />;
 }

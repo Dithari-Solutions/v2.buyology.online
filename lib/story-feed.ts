@@ -1,6 +1,7 @@
+import { cachedFeed, invalidateFeeds, peekFeed } from './feed-cache';
 import { backendUrl, type ApiEnvelope } from "@/lib/backend";
 import { authedFetch } from "@/lib/auth/client";
-import { getAccessToken } from "@/lib/auth/token";
+import { decodeClaims, getAccessToken } from "@/lib/auth/token";
 import type { Locale } from "@/lib/i18n/config";
 
 /**
@@ -8,8 +9,8 @@ import type { Locale } from "@/lib/i18n/config";
  * category/service bubbles in lib/stories.ts, which they appear alongside.
  *
  * Contract notes that shape this module:
- * - Media URLs are presigned S3 GETs, re-signed on every request with a 2-hour TTL. They must be
- *   fetched fresh per page view and NEVER persisted — a stored URL goes dead.
+ * - Media URLs are presigned S3 GETs. Short-lived snapshots are bounded by each URL expiry;
+ *   private like state stays in memory and guest feeds may be restored from session storage.
  * - `language` is a required, case-sensitive enum param (EN | AZ | AR); the list silently drops
  *   stories with no translation in that language.
  * - The list endpoint returns 200 with an empty array when there are none — empty is not an error.
@@ -44,16 +45,27 @@ const LANGUAGE: Record<Locale, "EN" | "AZ" | "AR"> = { en: "EN", az: "AZ", ar: "
  * Sends the Bearer token when a session exists — the endpoint is public, but likedByMe is only
  * computed for an authenticated caller.
  */
-export async function fetchStories(locale: Locale): Promise<StorySummary[]> {
-  const token = getAccessToken();
-  const res = await fetch(backendUrl(`/api/story?language=${LANGUAGE[locale]}`), {
-    // Presigned URLs differ per call and expire; caching a response caches dead links.
-    cache: "no-store",
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
-  if (!res.ok) throw new Error(`stories ${res.status}`);
-  const body = (await res.json()) as ApiEnvelope<StorySummary[]>;
-  return (body.data ?? []).filter((s) => s.media && s.media.length > 0);
+function storyCacheKey(locale: Locale, anonymous: boolean): string {
+  const token = anonymous ? null : getAccessToken();
+  return `stories:${locale}:${token ? decodeClaims(token)?.credentialId ?? 'session' : 'guest'}`;
+}
+
+export function cachedStories(locale: Locale, anonymous = false): StorySummary[] | undefined {
+  return peekFeed<StorySummary[]>(storyCacheKey(locale, anonymous), true);
+}
+
+export async function fetchStories(locale: Locale, anonymous = false): Promise<StorySummary[]> {
+  const token = anonymous ? null : getAccessToken();
+  return cachedFeed(storyCacheKey(locale, anonymous), async () => {
+    const res = await fetch(backendUrl(`/api/story?language=${LANGUAGE[locale]}`), {
+      // Personal likes never enter an HTTP/shared cache; guests can use the backend public TTL.
+      cache: token ? 'no-store' : 'default',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    if (!res.ok) throw new Error(`stories ${res.status}`);
+    const body = (await res.json()) as ApiEnvelope<StorySummary[]>;
+    return (body.data ?? []).filter(s => s.media && s.media.length > 0);
+  }, !token);
 }
 
 /**
@@ -70,6 +82,7 @@ export async function setStoryLiked(storyId: string, liked: boolean): Promise<St
   if (!res.ok) throw new Error(`like ${res.status}`);
   const body = (await res.json()) as ApiEnvelope<StoryLikeResult>;
   if (!body.data) throw new Error("like: empty");
+  invalidateFeeds('stories:');
   return body.data;
 }
 

@@ -104,7 +104,7 @@ export async function CategoryBanners() {
                     src={tile.backgroundImageUrl!}
                     alt={headline ?? ""}
                     fill
-                    quality={80}
+                    quality={75}
                     sizes="(max-width: 1024px) 50vw, 300px"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />

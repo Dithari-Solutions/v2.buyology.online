@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useI18n } from "@/components/i18n/language-provider";
 import type { Product } from "@/lib/products";
 import {
+  cachedProducts,
   fetchCategories,
   fetchProducts,
   searchCatalogue,
@@ -69,6 +70,13 @@ export function ProductsView({
 
   useEffect(() => {
     const gen = ++catalogGen.current;
+    Promise.resolve(cachedProducts(locale)).then(cached => {
+      if (gen !== catalogGen.current || !cached) return;
+      setCatalog(cached.items);
+      serverPageRef.current = 0;
+      setHasMore(cached.hasMore);
+      setVisible(PAGE);
+    });
     fetchProducts(locale, { page: 0 })
       .then(({ items, hasMore: more }) => {
         if (gen !== catalogGen.current) return;
@@ -85,6 +93,7 @@ export function ProductsView({
       .catch(() => {
         if (gen === catalogGen.current) setBrowseError(true);
       });
+    return () => { catalogGen.current += 1; };
   }, [locale, retryNonce]);
 
   /**
