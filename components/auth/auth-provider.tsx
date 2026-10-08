@@ -26,6 +26,7 @@ type AuthValue = {
   signIn(email: string, password: string): Promise<void>;
   signUp(email: string, password: string, repeatedPassword: string): Promise<void>;
   verifyOtp(email: string, otpCode: string): Promise<Claims>;
+  googleSignIn(idToken: string): Promise<void>;
   appleSignIn(): Promise<void>;
   appleAvailable: boolean;
   signOut(): Promise<void>;
@@ -94,6 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const claims = await api.verifyOtp(email, otpCode);
       adopt(claims);
       return claims;
+    },
+    async googleSignIn(idToken) {
+      adopt(await api.googleCallback(idToken));
     },
     async appleSignIn() {
       adopt(await signInWithApple());

@@ -274,3 +274,7 @@ export async function saveProfileNames(uid: string, firstName: string, lastName:
     /* best-effort */
   }
 }
+
+export async function googleCallback(idToken: string): Promise<Claims> {
+  return adopt(await post<SessionData>("/auth/google/callback", { idToken }));
+}

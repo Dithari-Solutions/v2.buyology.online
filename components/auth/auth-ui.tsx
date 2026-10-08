@@ -5,6 +5,7 @@ import type { InputHTMLAttributes } from "react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { AppleIcon, EyeIcon, EyeOffIcon } from "@/components/icons";
 import { useAuth } from "@/components/auth/auth-provider";
+import { GoogleLoginButton } from "./google-login-button";
 import { AuthError } from "@/lib/auth/client";
 
 export function AuthField({
@@ -93,9 +94,7 @@ export function AuthDivider() {
 }
 
 /**
- * Apple only, by decision — Google and the rest are gone. Renders its own divider so that when
- * Apple is unconfigured (no NEXT_PUBLIC_APPLE_CLIENT_ID) the whole social block disappears
- * cleanly instead of leaving a divider above nothing.
+ * Show configured social providers and hide the divider when none are available.
  */
 export function AuthSocial({ onDone }: { onDone?: () => void }) {
   const { t } = useI18n();
@@ -103,7 +102,7 @@ export function AuthSocial({ onDone }: { onDone?: () => void }) {
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  if (!appleAvailable) return null;
+  if (!appleAvailable && !process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) return null;
 
   async function onApple() {
     setBusy(true);
@@ -124,7 +123,8 @@ export function AuthSocial({ onDone }: { onDone?: () => void }) {
   return (
     <div>
       <AuthDivider />
-      <button
+      <GoogleLoginButton onDone={onDone} />
+      {appleAvailable && <button
         type="button"
         onClick={onApple}
         disabled={busy}
@@ -133,7 +133,7 @@ export function AuthSocial({ onDone }: { onDone?: () => void }) {
       >
         <AppleIcon className="h-5 w-5" />
         {busy ? t.auth.loading : `${t.auth.continueWith} Apple`}
-      </button>
+      </button>}
       {failed && (
         <p role="alert" className="mt-2 text-center text-sm text-red-600 dark:text-red-400">
           {t.auth.errors.appleFailed}

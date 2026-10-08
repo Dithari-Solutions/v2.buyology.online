@@ -1050,6 +1050,7 @@ export interface Dict {
       tooManyAttempts: string;
       emailExists: string;
       network: string;
+      googleFailed: string;
       appleFailed: string;
       generic: string;
     };
@@ -2594,6 +2595,7 @@ const en: Dict = {
       tooManyAttempts: "Too many attempts. Please try again in a few minutes.",
       emailExists: "An account with this email already exists — sign in instead.",
       network: "Can't reach the server. Check your connection and try again.",
+      googleFailed: "Google sign-in did not complete. Please try again.",
       appleFailed: "Apple sign-in didn't complete. Please try again.",
       generic: "Something went wrong. Please try again.",
     },
@@ -4167,6 +4169,7 @@ const az: Dict = {
       tooManyAttempts: "Həddindən çox cəhd. Bir neçə dəqiqədən sonra yenidən yoxlayın.",
       emailExists: "Bu e-poçt ilə hesab artıq mövcuddur — daxil olun.",
       network: "Serverə çatmaq mümkün deyil. Bağlantını yoxlayıb yenidən cəhd edin.",
+      googleFailed: "Google ilə giriş tamamlanmadı. Yenidən cəhd edin.",
       appleFailed: "Apple ilə giriş tamamlanmadı. Yenidən cəhd edin.",
       generic: "Xəta baş verdi. Yenidən cəhd edin.",
     },
@@ -5723,6 +5726,7 @@ const ar: Dict = {
       tooManyAttempts: "محاولات كثيرة جدًا. حاول مرة أخرى بعد دقائق.",
       emailExists: "يوجد حساب بهذا البريد بالفعل — سجّل الدخول بدلًا من ذلك.",
       network: "تعذّر الوصول إلى الخادم. تحقق من اتصالك وحاول مجددًا.",
+      googleFailed: "لم يكتمل تسجيل الدخول عبر Google. حاول مرة أخرى.",
       appleFailed: "لم يكتمل تسجيل الدخول عبر Apple. حاول مرة أخرى.",
       generic: "حدث خطأ ما. حاول مرة أخرى.",
     },
