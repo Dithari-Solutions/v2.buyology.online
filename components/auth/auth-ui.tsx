@@ -129,7 +129,7 @@ export function AuthSocial({ onDone }: { onDone?: () => void }) {
         onClick={onApple}
         disabled={busy}
         aria-label={`${t.auth.continueWith} Apple`}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-black bg-black px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
       >
         <AppleIcon className="h-5 w-5" />
         {busy ? t.auth.loading : `${t.auth.continueWith} Apple`}

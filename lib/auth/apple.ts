@@ -1,4 +1,4 @@
-import { appleCallback } from "@/lib/auth/client";
+import { appleCallback, appleChallenge } from "@/lib/auth/client";
 import type { Claims } from "@/lib/auth/token";
 
 /**
@@ -21,7 +21,7 @@ const REDIRECT_URI =
   (typeof window !== "undefined" ? window.location.origin : "");
 
 type AppleAuthorization = {
-  authorization: { code: string; id_token?: string };
+  authorization: { code: string; id_token?: string; state?: string };
   user?: { name?: { firstName?: string; lastName?: string } };
 };
 
@@ -63,15 +63,20 @@ function loadSdk(): Promise<void> {
 /** Opens the Apple popup and exchanges the result with our backend. Throws on cancel/failure. */
 export async function signInWithApple(): Promise<Claims> {
   if (!appleConfigured()) throw new Error("apple not configured");
-  await loadSdk();
+  const [, challenge] = await Promise.all([loadSdk(), appleChallenge()]);
+  const state = crypto.randomUUID();
   window.AppleID!.auth.init({
     clientId: CLIENT_ID,
     scope: "name email",
     redirectURI: REDIRECT_URI,
     usePopup: true,
+    nonce: challenge.nonce,
+    state,
   });
   const result = await window.AppleID!.auth.signIn();
+  if (result.authorization.state !== state) throw new Error("Invalid Apple login state");
   return appleCallback({
+    nonce: challenge.nonce,
     code: result.authorization.code,
     identityToken: result.authorization.id_token,
     // Apple sends the name ON FIRST CONSENT ONLY — pass it along or it is lost forever.

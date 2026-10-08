@@ -115,7 +115,12 @@ export async function signOut(): Promise<void> {
 
 // ── Apple ────────────────────────────────────────────────────────────────────
 
+export async function appleChallenge(): Promise<{ nonce: string }> {
+  return post("/auth/apple/challenge", { platform: "web" });
+}
+
 export async function appleCallback(payload: {
+  nonce: string;
   code: string;
   identityToken?: string;
   firstName?: string;
