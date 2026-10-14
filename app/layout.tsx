@@ -137,12 +137,12 @@ export default async function RootLayout({
                   <Footer />
                   <ChatWidget />
                   <VisitTracker />
-                  <GoogleAnalytics />
                 </HideOnAuth>
                 <GiveawayPromo />
                 <SignupPrompt />
                 <CartDrawer />
-                {/* Outside HideOnAuth: the pixel belongs on every page, sign-up included. */}
+                {/* Analytics tags belong on every page, sign-up included. */}
+                <GoogleAnalytics />
                 <MetaPixel />
               </FlyProvider>
             </WishlistProvider>
