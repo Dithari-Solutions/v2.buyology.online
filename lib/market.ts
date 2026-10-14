@@ -8,9 +8,8 @@
  * on the server (Host header) and the client (location.hostname), so both renders
  * agree without any per-request global state.
  *
- * UAE is the priority region: it lives on the MAIN domain and is the only market with
- * payments enabled (Paymob). Other regions launch browse-only until their own payment
- * providers exist.
+ * UAE lives on the main domain. Azerbaijan uses the existing Paymob card checkout in
+ * AED after server-side conversion from AZN; other regions remain browse-only.
  */
 
 export type Market = {
@@ -24,7 +23,7 @@ export type Market = {
   currency: string;
   /** Production host for this market. */
   host: string;
-  /** Paymob is UAE-only today; other regions are browse-only until their rails exist. */
+  /** Whether this market can place orders through the configured payment methods. */
   paymentsEnabled: boolean;
 };
 
@@ -44,15 +43,15 @@ export const MARKETS: Market[] = [
   { region: "bh", countryCode: "BHR", alpha2: "BH", currency: "BHD", host: "bh.buyology.online", paymentsEnabled: false },
   { region: "qa", countryCode: "QAT", alpha2: "QA", currency: "QAR", host: "qa.buyology.online", paymentsEnabled: false },
   { region: "om", countryCode: "OMN", alpha2: "OM", currency: "OMR", host: "om.buyology.online", paymentsEnabled: false },
-  { region: "az", countryCode: "AZE", alpha2: "AZ", currency: "AZN", host: "az.buyology.online", paymentsEnabled: false },
+  { region: "az", countryCode: "AZE", alpha2: "AZ", currency: "AZN", host: "az.buyology.online", paymentsEnabled: true },
 ];
 
 /** The global landing for visitors from countries we don't serve. */
 export const GLOBAL_LANDING_HOST = "web.buyology.online";
 
 /**
- * Market for a hostname. Unknown hosts — localhost, v2.buyology.online, previews —
- * resolve to UAE so today's staging behaviour is unchanged.
+ * Market for a hostname. The v2 entry host and unknown preview/dev hosts resolve to
+ * UAE until the trusted geo check routes a production visitor to their regional shop.
  */
 export function marketFromHostname(hostname: string | null | undefined): Market {
   const h = (hostname ?? "").toLowerCase().split(":")[0];
@@ -62,10 +61,10 @@ export function marketFromHostname(hostname: string | null | undefined): Market 
   return UAE_MARKET;
 }
 
-/** Whether geo-routing applies to this host at all (staging/dev are exempt). */
+/** Whether geo-routing applies to this host at all (unknown previews/dev are exempt). */
 export function isRoutedHost(hostname: string | null | undefined): boolean {
   const h = (hostname ?? "").toLowerCase().split(":")[0];
-  return h === GLOBAL_LANDING_HOST || MARKETS.some((m) => h === m.host);
+  return h === "v2.buyology.online" || h === GLOBAL_LANDING_HOST || MARKETS.some((m) => h === m.host);
 }
 
 /** The market a VISITOR belongs to, from a geo header's alpha-2 country. Null = unserved. */
@@ -78,4 +77,30 @@ export function marketForVisitor(alpha2: string | null | undefined): Market | nu
 export function currentMarket(): Market {
   if (typeof window === "undefined") return UAE_MARKET;
   return marketFromHostname(window.location.hostname);
+}
+
+/** Country aliases shared by address selection, pickup and profile synchronisation. */
+export function sameCountry(left: string | null | undefined, right: string | null | undefined): boolean {
+  const canonical = (value: string | null | undefined) => {
+    const code = (value ?? "").trim().toUpperCase();
+    if (code === "ARE") return "AE";
+    return MARKETS.find((m) => m.alpha2 === code || m.countryCode === code)?.alpha2 ?? code;
+  };
+  const a = canonical(left);
+  return Boolean(a) && a === canonical(right);
+}
+
+/** The same trusted IP-country decision used at the page boundary, checked again before writes. */
+export function purchaseMarket(host: string, geo: string | null, anonymous: boolean, choice?: string): {
+  market: Market;
+  redirectHost: string | null;
+} {
+  const bareHost = host.toLowerCase().split(":")[0];
+  const market = marketFromHostname(host);
+  if (!isRoutedHost(host)) return { market, redirectHost: null };
+  if (anonymous) return { market, redirectHost: GLOBAL_LANDING_HOST };
+  if (!geo) return { market, redirectHost: bareHost === GLOBAL_LANDING_HOST ? GLOBAL_LANDING_HOST : null };
+  const visitor = marketForVisitor(geo.trim());
+  if (visitor) return { market: visitor, redirectHost: visitor.host === bareHost ? null : visitor.host };
+  return { market, redirectHost: choice === bareHost && bareHost !== GLOBAL_LANDING_HOST ? null : GLOBAL_LANDING_HOST };
 }

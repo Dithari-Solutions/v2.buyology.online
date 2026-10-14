@@ -32,13 +32,13 @@ export function BnplOptions({
   compact?: boolean;
 }) {
   const { t } = useI18n();
-  // Tabby/Tamara are UAE rails — browse-only regions must not advertise pay-in-4.
+  // Tabby/Tamara are offered in the UAE; Azerbaijan card checkout must not advertise them.
   // useSyncExternalStore is the sanctioned way to read a client-only value without a
-  // hydration mismatch: the server snapshot says shown, the client corrects on mount.
+  // hydration mismatch: the server snapshot uses the quoted currency, then the host is checked.
   const shown = useSyncExternalStore(
     () => () => {},
-    () => currentMarket().paymentsEnabled,
-    () => true,
+    () => currentMarket().alpha2 === "AE" && currentMarket().paymentsEnabled,
+    () => currency === "AED",
   );
   const per = formatMoney(Math.round((total / 4) * 100) / 100, currency);
   if (!shown) return null;

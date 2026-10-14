@@ -1,4 +1,5 @@
 import { backendUrl, type ApiEnvelope } from "@/lib/backend";
+import { sameCountry, type Market } from "@/lib/market";
 import {
   clearSession,
   decodeClaims,
@@ -182,6 +183,14 @@ async function isSessionLapsed(res: Response): Promise<boolean> {
  * the UI can show what it says.
  */
 export async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const method = (init.method ?? "GET").toUpperCase();
+  // Recheck on each purchase action, rather than relying on a profile saved by another client.
+  // Payment retries and callbacks retain their original order's market and never use this gate.
+  const purchase = (method === "POST" || method === "PATCH") &&
+    (/^\/api\/cart\/[^/]+\/(items|selection|checkout)(\/|\?|$)/.test(path) ||
+      (method === "POST" && (path === "/api/orders" || path === "/api/orders/buy-now")));
+  if (purchase && typeof window !== "undefined") await preparePurchaseMarket();
+
   const call = (token: string | null) =>
     fetch(backendUrl(path), {
       ...init,
@@ -197,9 +206,36 @@ export async function authedFetch(path: string, init: RequestInit = {}): Promise
   let res = await call(getAccessToken());
   if (await isSessionLapsed(res)) {
     const claims = await refreshSession();
-    if (claims) res = await call(getAccessToken());
+    if (claims) {
+      if (purchase && typeof window !== "undefined") await preparePurchaseMarket();
+      res = await call(getAccessToken());
+    }
   }
   return res;
+}
+
+let marketCheckInFlight: Promise<void> | null = null;
+
+/** Collapse simultaneous checks but never keep a completed location/profile decision cached. */
+async function preparePurchaseMarket(): Promise<void> {
+  if (marketCheckInFlight) return marketCheckInFlight;
+  marketCheckInFlight = (async () => {
+    const token = getAccessToken();
+    const uid = token ? decodeClaims(token)?.uid : null;
+    if (!uid) return; // The normal endpoint authentication/refresh still handles this case.
+    const res = await fetch("/api/market", { cache: "no-store" });
+    if (!res.ok) throw new AuthError(res.status, "Could not check your delivery country. Please try again.");
+    const { market, redirectHost } = await res.json() as { market: Market; redirectHost: string | null };
+    if (redirectHost) {
+      window.location.assign(`https://${redirectHost}/cart`);
+      throw new AuthError(409, "Your location has changed. Opening the store for your country.");
+    }
+    const profile = await fetchProfile(uid);
+    if (!sameCountry(profile.selectedCountryCode, market.countryCode) || profile.preferredCurrency !== market.currency) {
+      await updateProfile(uid, { selectedCountryCode: market.countryCode, preferredCurrency: market.currency });
+    }
+  })().finally(() => { marketCheckInFlight = null; });
+  return marketCheckInFlight;
 }
 
 export async function authedJson<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -246,7 +282,7 @@ export function fetchProfile(uid: string): Promise<Profile> {
 
 export function updateProfile(
   uid: string,
-  changes: { firstName?: string; lastName?: string; phoneNumber?: string; dateOfBirth?: string },
+  changes: { firstName?: string; lastName?: string; phoneNumber?: string; dateOfBirth?: string; selectedCountryCode?: string; preferredCurrency?: string },
 ): Promise<Profile> {
   return authedJson<Profile>(`/api/users/${uid}/profile`, {
     method: "PATCH",

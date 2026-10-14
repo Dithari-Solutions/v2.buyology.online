@@ -535,10 +535,13 @@ export interface Dict {
     pickup: string;
     manageAddresses: string;
     noAddresses: string;
+    addressCountryMismatch: string;
     noStores: string;
     standard: string;
     payment: string;
     card: string;
+    paymentUnavailable: string;
+    paymentCurrencyNote: string;
     cod: string;
     codHint: string;
     codUnavailable: string;
@@ -547,9 +550,11 @@ export interface Dict {
     promoInvalid: string;
     totalNote: string;
     placeOrder: string;
+    placeCashOrder: string;
     placing: string;
     placeFailed: string;
     phoneTitle: string;
+    contactTitle: string;
     phoneHint: string;
     phoneRequired: string;
     sendCode: string;
@@ -562,6 +567,8 @@ export interface Dict {
       viewOrder: string;
       failedTitle: string;
       failedHint: string;
+      refundedTitle: string;
+      refundedHint: string;
       tryAgain: string;
       pendingTitle: string;
       pendingHint: string;
@@ -1881,10 +1888,13 @@ const en: Dict = {
     pickup: "Store pickup",
     manageAddresses: "Manage addresses",
     noAddresses: "No saved addresses yet — add one in your account to continue.",
+    addressCountryMismatch: "Add a delivery address in this store's country to continue. Your saved addresses are in another country.",
     noStores: "No stores are available for pickup right now.",
     standard: "Standard delivery",
     payment: "Payment method",
     card: "Card",
+    paymentUnavailable: "Online payment is unavailable right now. Please try again, or choose cash on delivery if offered.",
+    paymentCurrencyNote: "Estimated card charge: {amount}. Paymob processes this payment in AED; confirm the final amount on its payment page.",
     cod: "Cash on delivery",
     codHint: "Pay the courier in cash when your order arrives.",
     codUnavailable: "Cash on delivery is not available for this order.",
@@ -1893,9 +1903,11 @@ const en: Dict = {
     promoInvalid: "This promo code can't be applied.",
     totalNote: "The final amount is confirmed on the payment page.",
     placeOrder: "Place order & pay",
+    placeCashOrder: "Place order",
     placing: "Preparing your payment…",
-    placeFailed: "We couldn't place the order. Nothing was charged — please try again.",
+    placeFailed: "We couldn't finish checkout. Check your orders before trying again if you already submitted a payment.",
     phoneTitle: "Enter your phone number",
+    contactTitle: "Your delivery contact",
     phoneHint: "Couriers need a contact number. No SMS verification is required.",
     phoneRequired: "Enter and save your phone number to place the order.",
     sendCode: "Send code",
@@ -1907,7 +1919,9 @@ const en: Dict = {
       successHint: "Your order is paid and being prepared. A confirmation email is on its way.",
       viewOrder: "View order",
       failedTitle: "Payment didn't go through",
-      failedHint: "You weren't charged. Your items are still reserved — you can try again.",
+      failedHint: "Payment was not confirmed. Check your order and any bank charge before trying again.",
+      refundedTitle: "Payment refunded or partially refunded",
+      refundedHint: "Check your order for the refund details and remaining payment status.",
       tryAgain: "Try again",
       pendingTitle: "Payment still processing",
       pendingHint: "This can take a moment. Check your orders in a minute — we'll record the result either way.",
@@ -3440,10 +3454,13 @@ const az: Dict = {
     pickup: "Mağazadan götürmə",
     manageAddresses: "Ünvanları idarə et",
     noAddresses: "Hələ yadda saxlanmış ünvan yoxdur — davam etmək üçün hesabınızda əlavə edin.",
+    addressCountryMismatch: "Davam etmək üçün bu mağazanın ölkəsində çatdırılma ünvanı əlavə edin. Yadda saxlanmış ünvanlarınız başqa ölkədədir.",
     noStores: "Hazırda götürmə üçün mağaza yoxdur.",
     standard: "Standart çatdırılma",
     payment: "Ödəniş üsulu",
     card: "Kart",
+    paymentUnavailable: "Onlayn ödəniş hazırda əlçatan deyil. Yenidən cəhd edin və ya təklif olunursa, çatdırılma zamanı nağd ödənişi seçin.",
+    paymentCurrencyNote: "Kartdan çıxılacaq təxmini məbləğ: {amount}. Paymob bu ödənişi AED ilə emal edir; yekun məbləği ödəniş səhifəsində təsdiqləyin.",
     cod: "Çatdırılma zamanı nağd ödəniş",
     codHint: "Sifarişiniz çatdırılanda kuryerə nağd ödəyin.",
     codUnavailable: "Bu sifariş üçün nağd ödəniş mümkün deyil.",
@@ -3452,9 +3469,11 @@ const az: Dict = {
     promoInvalid: "Bu promo kod tətbiq oluna bilmir.",
     totalNote: "Yekun məbləğ ödəniş səhifəsində təsdiqlənir.",
     placeOrder: "Sifariş ver və ödə",
+    placeCashOrder: "Sifariş ver",
     placing: "Ödənişiniz hazırlanır…",
-    placeFailed: "Sifarişi yerləşdirə bilmədik. Heç nə çıxılmayıb — yenidən cəhd edin.",
+    placeFailed: "Sifarişi tamamlaya bilmədik. Artıq ödəniş etmisinizsə, yenidən cəhd etməzdən əvvəl sifarişlərinizi yoxlayın.",
     phoneTitle: "Telefon nömrənizi daxil edin",
+    contactTitle: "Çatdırılma üçün əlaqə məlumatlarınız",
     phoneHint: "Kuryerlər üçün əlaqə nömrəsi lazımdır. SMS təsdiqi tələb olunmur.",
     phoneRequired: "Sifariş vermək üçün telefon nömrənizi daxil edib yadda saxlayın.",
     sendCode: "Kod göndər",
@@ -3466,7 +3485,9 @@ const az: Dict = {
       successHint: "Sifarişiniz ödənilib və hazırlanır. Təsdiq e-poçtu yoldadır.",
       viewOrder: "Sifarişə bax",
       failedTitle: "Ödəniş alınmadı",
-      failedHint: "Sizdən heç nə çıxılmayıb. Məhsullarınız hələ rezervdədir — yenidən cəhd edə bilərsiniz.",
+      failedHint: "Ödəniş təsdiqlənməyib. Yenidən cəhd etməzdən əvvəl sifarişinizi və bankdan çıxılan məbləği yoxlayın.",
+      refundedTitle: "Ödəniş tam və ya qismən geri qaytarılıb",
+      refundedHint: "Geri qaytarma məlumatları və qalan ödəniş vəziyyəti üçün sifarişinizi yoxlayın.",
       tryAgain: "Yenidən cəhd et",
       pendingTitle: "Ödəniş hələ emal olunur",
       pendingHint: "Bu bir az çəkə bilər. Bir dəqiqə sonra sifarişlərinizi yoxlayın — nəticəni hər halda qeyd edəcəyik.",
@@ -5013,10 +5034,13 @@ const ar: Dict = {
     pickup: "استلام من المتجر",
     manageAddresses: "إدارة العناوين",
     noAddresses: "لا توجد عناوين محفوظة بعد — أضف عنوانًا في حسابك للمتابعة.",
+    addressCountryMismatch: "أضف عنوان توصيل في بلد هذا المتجر للمتابعة. عناوينك المحفوظة في بلد آخر.",
     noStores: "لا توجد متاجر متاحة للاستلام حاليًا.",
     standard: "توصيل عادي",
     payment: "طريقة الدفع",
     card: "بطاقة",
+    paymentUnavailable: "الدفع عبر الإنترنت غير متاح الآن. حاول مجددًا أو اختر الدفع نقدًا عند الاستلام إذا كان متاحًا.",
+    paymentCurrencyNote: "المبلغ التقديري للدفع بالبطاقة: {amount}. تعالج Paymob هذه الدفعة بالدرهم الإماراتي؛ تأكد من المبلغ النهائي في صفحة الدفع.",
     cod: "الدفع عند الاستلام",
     codHint: "ادفع نقدًا لمندوب التوصيل عند وصول طلبك.",
     codUnavailable: "الدفع عند الاستلام غير متاح لهذا الطلب.",
@@ -5025,9 +5049,11 @@ const ar: Dict = {
     promoInvalid: "لا يمكن تطبيق هذا الرمز الترويجي.",
     totalNote: "يتم تأكيد المبلغ النهائي في صفحة الدفع.",
     placeOrder: "أكِّد الطلب وادفع",
+    placeCashOrder: "أكِّد الطلب",
     placing: "جارٍ تجهيز الدفع…",
-    placeFailed: "تعذر إتمام الطلب. لم يُخصم أي مبلغ — حاول مرة أخرى.",
+    placeFailed: "تعذر إتمام الطلب. إذا أرسلت دفعة بالفعل، فتحقق من طلباتك قبل المحاولة مجددًا.",
     phoneTitle: "أدخل رقم هاتفك",
+    contactTitle: "بيانات الاتصال للتوصيل",
     phoneHint: "يحتاج المندوب إلى رقم للتواصل. لا يلزم التحقق عبر الرسائل القصيرة.",
     phoneRequired: "أدخل رقم هاتفك واحفظه لإتمام الطلب.",
     sendCode: "أرسل الرمز",
@@ -5039,7 +5065,9 @@ const ar: Dict = {
       successHint: "طلبك مدفوع وقيد التجهيز. رسالة التأكيد في الطريق.",
       viewOrder: "عرض الطلب",
       failedTitle: "لم تتم عملية الدفع",
-      failedHint: "لم يُخصم منك شيء. منتجاتك لا تزال محجوزة — يمكنك المحاولة مجددًا.",
+      failedHint: "لم يتم تأكيد الدفع. تحقق من طلبك وأي مبلغ خصمه البنك قبل المحاولة مجددًا.",
+      refundedTitle: "تم استرداد الدفع بالكامل أو جزئيًا",
+      refundedHint: "راجع طلبك لمعرفة تفاصيل الاسترداد وحالة المبلغ المتبقي.",
       tryAgain: "حاول مرة أخرى",
       pendingTitle: "الدفع قيد المعالجة",
       pendingHint: "قد يستغرق هذا لحظة. تفقد طلباتك بعد دقيقة — سنسجل النتيجة في كل الأحوال.",

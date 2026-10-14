@@ -204,6 +204,14 @@ export function fetchDeliveryQuote(
 
 export type PaymentMethod = "CARD" | "TABBY" | "TAMARA";
 
+export function fetchPaymentMethods(): Promise<{ methods: PaymentMethod[]; currency: string }> {
+  return authedJson(`/api/payments/methods`);
+}
+
+export function fetchPaymentQuote(amount: number, currency: string): Promise<{ amount: number; currency: string }> {
+  return authedJson(`/api/payments/quote?${new URLSearchParams({ amount: String(amount), currency })}`);
+}
+
 export type PaymentInitiated = {
   transactionId: string;
   methodType?: string | null;

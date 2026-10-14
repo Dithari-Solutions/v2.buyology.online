@@ -10,6 +10,16 @@
 
 const HINT_KEY = "buyo_has_session";
 
+/** A boolean shared across region hosts. Tokens remain in memory/HttpOnly cookies. */
+function writeSharedHint(active: boolean): void {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  const host = window.location.hostname;
+  if (host !== "buyology.online" && !host.endsWith(".buyology.online")) return;
+  try {
+    document.cookie = `${HINT_KEY}=${active ? "1" : ""}; Domain=buyology.online; Path=/; Max-Age=${active ? 2_592_000 : 0}; SameSite=Lax; Secure`;
+  } catch { /* Cookie restrictions must not prevent sign-in on the current host. */ }
+}
+
 let accessToken: string | null = null;
 let expiresAt = 0; // epoch ms
 
@@ -23,6 +33,7 @@ export type Claims = {
 export function setSession(token: string, expiresInSeconds: number): void {
   accessToken = token;
   expiresAt = Date.now() + expiresInSeconds * 1000;
+  writeSharedHint(true);
   try {
     localStorage.setItem(HINT_KEY, "1");
   } catch {
@@ -33,6 +44,7 @@ export function setSession(token: string, expiresInSeconds: number): void {
 export function clearSession(): void {
   accessToken = null;
   expiresAt = 0;
+  writeSharedHint(false);
   try {
     localStorage.removeItem(HINT_KEY);
   } catch {
@@ -50,6 +62,9 @@ export function msUntilRefresh(): number {
 }
 
 export function hasSessionHint(): boolean {
+  try {
+    if (typeof document !== "undefined" && document.cookie.split(";").some((part) => part.trim() === `${HINT_KEY}=1`)) return true;
+  } catch { /* Fall back to the current host's local hint. */ }
   try {
     return localStorage.getItem(HINT_KEY) === "1";
   } catch {

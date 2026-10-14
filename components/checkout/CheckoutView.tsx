@@ -14,6 +14,7 @@ import {
 } from "@/lib/auth/client";
 import {
   fetchAddresses,
+  fetchOrder,
   type Address,
 } from "@/lib/account-api";
 import {
@@ -27,6 +28,8 @@ import {
   initiatePayment,
   validatePromo,
   fetchCashOnDeliveryAvailability,
+  fetchPaymentMethods,
+  fetchPaymentQuote,
   type CashOnDeliveryAvailability,
   type PaymentMethod,
   type PromoValidation,
@@ -34,9 +37,10 @@ import {
 } from "@/lib/checkout-api";
 import { useProductLookup } from "@/lib/use-product-lookup";
 import { formatMoney } from "@/lib/format";
-import { currentMarket } from "@/lib/market";
+import { currentMarket, sameCountry } from "@/lib/market";
 import { metaInitiateCheckout, metaPurchase, rememberPurchase } from "@/lib/meta-pixel";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
+import { PhoneField } from "@/components/account/PhoneField";
 import {
   BanknotesIcon,
   ChevronLeftIcon,
@@ -101,6 +105,11 @@ export function CheckoutView() {
   // because to the customer it is simply another way to pay, and mapped back at submit time.
   const [payMethod, setPayMethod] = useState<PaymentMethod | "COD">("CARD");
   const [cod, setCod] = useState<CashOnDeliveryAvailability | null>(null);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[] | null>(null);
+  const [paymentLoadFailed, setPaymentLoadFailed] = useState(false);
+  const [paymentReload, setPaymentReload] = useState(0);
+  const [paymentQuote, setPaymentQuote] = useState<{ amount: number; currency: string; sourceAmount: number; sourceCurrency: string } | null>(null);
+  const [quoteFailed, setQuoteFailed] = useState(false);
 
   const [promoCode, setPromoCode] = useState("");
   const [promo, setPromo] = useState<(PromoValidation & { code: string }) | null>(null);
@@ -111,7 +120,6 @@ export function CheckoutView() {
 
   // A saved contact number is required; SMS verification is not.
   const [phoneSaving, setPhoneSaving] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
   // ── Guards + data ──────────────────────────────────────────────────────────
@@ -130,9 +138,9 @@ export function CheckoutView() {
         if (cancelled) return;
         setProfile(p);
         setAddresses(a);
-        setPhoneNumber(p.phoneNumber ?? "");
-        const preferred = a.find((x) => x.isDefault) ?? a[0];
-        setAddressId((cur) => cur ?? preferred?.id ?? null);
+        const available = a.filter((x) => sameCountry(x.country, currentMarket().countryCode));
+        const preferred = available.find((x) => x.isDefault) ?? available[0];
+        setAddressId((cur) => available.some((x) => x.id === cur) ? cur : preferred?.id ?? null);
       })
       .catch(() => {
         if (!cancelled) setLoadError(true);
@@ -141,6 +149,20 @@ export function CheckoutView() {
       cancelled = true;
     };
   }, [authStatus, uid]);
+
+  useEffect(() => {
+    if (authStatus !== "authed") return;
+    let cancelled = false;
+    fetchPaymentMethods().then(({ methods }) => {
+      if (cancelled) return;
+      // Instalment providers are currently offered in the UAE market only.
+      const available = methods.filter((method) => method === "CARD" || currentMarket().alpha2 === "AE");
+      setPaymentMethods(available);
+      setPaymentLoadFailed(false);
+      setPayMethod((method) => method === "COD" || available.includes(method) ? method : available[0] ?? "CARD");
+    }).catch(() => { if (!cancelled) setPaymentLoadFailed(true); });
+    return () => { cancelled = true; };
+  }, [authStatus, paymentReload]);
 
   useEffect(() => {
     if (fulfilment !== "PICKUP" || stores !== null) return;
@@ -154,8 +176,7 @@ export function CheckoutView() {
           .map((store) => ({
             ...store,
             locations: store.locations.filter((l) => {
-              const c = (l.country ?? "").toUpperCase();
-              return c === m.countryCode || c === m.alpha2;
+              return sameCountry(l.country, m.countryCode);
             }),
           }))
           .filter((store) => store.locations.length > 0);
@@ -192,6 +213,7 @@ export function CheckoutView() {
     ];
   }, [buyNow, cartSelected, bnProductId, bnStoreId, bnProduct, bnQty]);
   const address = addresses?.find((a) => a.id === addressId) ?? null;
+  const deliveryAddresses = addresses?.filter((a) => sameCountry(a.country, currentMarket().countryCode)) ?? [];
 
   // ── Money (display only; the order's own total is what gets charged) ───────
   const currency = buyNow ? bnProduct?.currency : cart.currency;
@@ -220,6 +242,19 @@ export function CheckoutView() {
   // exactly what the order will carry. This page used to take 5% of that figure and add it on, which
   // charged the customer the tax a second time over the price they had been shown.
   const total = Math.max(0, subtotal + (shownFee ?? 0) - discount);
+  const conversionRequired = Boolean(currency && currency !== "AED");
+  const quoteReady = paymentQuote?.sourceAmount === total && paymentQuote.sourceCurrency === currency;
+  useEffect(() => {
+    if (authStatus !== "authed" || !currentMarket().paymentsEnabled || !currency || currency === "AED") return;
+    let cancelled = false;
+    fetchPaymentQuote(total, currency).then((quote) => {
+      if (!cancelled) {
+        setPaymentQuote({ ...quote, sourceAmount: total, sourceCurrency: currency });
+        setQuoteFailed(false);
+      }
+    }).catch(() => { if (!cancelled) setQuoteFailed(true); });
+    return () => { cancelled = true; };
+  }, [authStatus, currency, total, paymentReload]);
   // The rate comes from the server (the cart for a normal checkout, the delivery quote for Buy Now)
   // and is sent whenever the market is taxed — so the VAT label gates on it, never on an amount.
   const vatRate = buyNow ? bnQuote?.vatRatePercent ?? null : cart.fees?.vatRatePercent ?? null;
@@ -308,12 +343,19 @@ export function CheckoutView() {
     }
   }
 
-  async function onSavePhone() {
-    if (!uid || !phoneNumber.trim() || phoneSaving) return;
+  async function onSaveContact(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!uid || phoneSaving) return;
+    const fields = new FormData(event.currentTarget);
     setPhoneError(null);
     setPhoneSaving(true);
     try {
-      setProfile(await updateProfile(uid, { phoneNumber: phoneNumber.trim() }));
+      const phone = fields.get("phoneNumber");
+      const firstName = fields.get("firstName");
+      setProfile(await updateProfile(uid, {
+        ...(phone !== null ? { phoneNumber: String(phone).trim() } : {}),
+        ...(firstName !== null ? { firstName: String(firstName).trim() } : {}),
+      }));
     } catch (err) {
       setPhoneError(err instanceof AuthError && err.message ? err.message : t.auth.errors.generic);
     } finally {
@@ -350,35 +392,43 @@ export function CheckoutView() {
         // An identical retry recharges the order this tab already created instead of minting
         // another (the backend also supersedes stranded buy-now orders — belt and braces).
         const intentKey = ["bn", bnProductId, bnStoreId, bnQty, addressId, DELIVERY_METHOD, coupon ?? ""].join("|");
-        try {
-          const stored = JSON.parse(sessionStorage.getItem(BUYNOW_ORDER_KEY) ?? "null") as
-            | { key: string; orderId: string }
-            | null;
-          // Cash has no gateway leg to resume — a stranded cash order is left to the backend's
-          // supersede rather than pushed at a payment page that would charge for it twice.
-          if (payMethod !== "COD" && stored?.key === intentKey && stored.orderId) {
-            rememberPurchase(
-              {
-                orderId: stored.orderId,
-                value: total,
-                currency,
-                contents: selectedLines.map((l) => ({ id: l.productId, quantity: l.qty })),
-              },
-              { overwrite: false },
-            );
-            const pay = await repayOrder(stored.orderId, {
-              methodType: payMethod,
-              redirectionUrl: `${window.location.origin}/payment/callback`,
-            });
-            if (pay.checkoutUrl) {
-              sessionStorage.setItem(PENDING_TX_KEY, pay.transactionId);
-              sessionStorage.setItem(PENDING_ORDER_KEY, stored.orderId);
+        let stored: { key: string; orderId: string } | null = null;
+        try { stored = JSON.parse(sessionStorage.getItem(BUYNOW_ORDER_KEY) ?? "null"); }
+        catch { /* Storage may be unavailable; the backend still handles order reuse. */ }
+        if (payMethod !== "COD" && stored?.key === intentKey && stored.orderId) {
+          try {
+            const prior = await fetchOrder(stored.orderId);
+            if (!["PENDING_PAYMENT", "CANCELLED", "FAILED"].includes(prior.status)) {
+              router.replace(`/account/orders/${stored.orderId}`);
+              return;
+            }
+            if (prior.status === "PENDING_PAYMENT") {
+              rememberPurchase(
+                {
+                  orderId: stored.orderId,
+                  value: total,
+                  currency,
+                  contents: selectedLines.map((l) => ({ id: l.productId, quantity: l.qty })),
+                },
+                { overwrite: false },
+              );
+              const pay = await repayOrder(stored.orderId, {
+                methodType: payMethod,
+                redirectionUrl: `${window.location.origin}/payment/callback`,
+              });
+              if (!pay.checkoutUrl) throw new Error("no checkout url");
+              try {
+                sessionStorage.setItem(PENDING_TX_KEY, pay.transactionId);
+                sessionStorage.setItem(PENDING_ORDER_KEY, stored.orderId);
+              } catch { /* The gateway redirect still works without storage. */ }
               window.location.href = pay.checkoutUrl;
               return;
             }
+          } catch (err) {
+            // A timeout or payment failure is not evidence the order disappeared. Keep its
+            // reference and let the customer retry the same order instead of creating another.
+            if (!(err instanceof AuthError) || err.status !== 404) throw err;
           }
-        } catch {
-          // The stored order is gone (paid, cancelled, superseded) — fall through and create.
           try {
             sessionStorage.removeItem(BUYNOW_ORDER_KEY);
           } catch {
@@ -551,11 +601,15 @@ export function CheckoutView() {
   }
 
   const hasPhoneNumber = Boolean(profile?.phoneNumber?.trim());
+  const hasFirstName = Boolean(profile?.firstName?.trim());
   const canPlace =
     !placing &&
     hasPhoneNumber &&
+    hasFirstName &&
+    (payMethod === "COD" ? cod?.available === true : paymentMethods?.includes(payMethod) === true) &&
+    (payMethod === "COD" || !conversionRequired || quoteReady) &&
     selectedLines.length > 0 &&
-    (effectiveFulfilment === "PICKUP" ? !!pickupStoreId : !!addressId);
+    (effectiveFulfilment === "PICKUP" ? !!pickupStoreId : !!address && sameCountry(address.country, currentMarket().countryCode));
 
   return (
     <div>
@@ -576,25 +630,29 @@ export function CheckoutView() {
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="space-y-6">
           {/* Phone contact required for ordering */}
-          {profile && !hasPhoneNumber && (
+          {profile && (!hasPhoneNumber || !hasFirstName) && (
             <section className={card}>
-              <h2 className="mb-1 font-semibold text-foreground">{c.phoneTitle}</h2>
+              <h2 className="mb-1 font-semibold text-foreground">{c.contactTitle}</h2>
               <p className="mb-4 text-sm text-muted">{c.phoneHint}</p>
-              <form onSubmit={(event) => { event.preventDefault(); void onSavePhone(); }} className="flex flex-wrap gap-3">
-                <input
-                  type="tel"
-                  autoComplete="tel"
-                  aria-label={c.phoneTitle}
-                  required
-                  dir="ltr"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="+971…"
-                  className="min-w-0 flex-1 rounded-xl border border-border bg-surface-2 px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-ring"
-                />
+              <form onSubmit={onSaveContact} className="space-y-3">
+                {!hasFirstName && (
+                  <label className="block text-sm font-medium">
+                    {t.account.profile.firstName}
+                    <input name="firstName" autoComplete="given-name" required maxLength={100}
+                      className="mt-1 block w-full rounded-xl border border-border bg-surface-2 px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+                  </label>
+                )}
+                {!hasPhoneNumber && (
+                  <PhoneField label={c.phoneTitle} name="phoneNumber" required
+                    defaultValue={currentMarket().alpha2 === "AZ" ? "+994" : undefined}
+                    searchLabel={t.account.profile.phoneSearch}
+                    noResultsLabel={t.account.profile.phoneNoResults}
+                    resultsLabel={t.account.profile.phoneResults}
+                    resultOneLabel={t.account.profile.phoneResultOne} />
+                )}
                 <button
                   type="submit"
-                  disabled={phoneSaving || !phoneNumber.trim()}
+                  disabled={phoneSaving}
                   className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {phoneSaving ? t.auth.loading : t.account.common.save}
@@ -629,9 +687,9 @@ export function CheckoutView() {
 
             {effectiveFulfilment === "DELIVERY" ? (
               <>
-                {addresses && addresses.length > 0 ? (
+                {deliveryAddresses.length > 0 ? (
                   <div className="space-y-2" role="radiogroup" aria-labelledby="checkout-fulfilment-h">
-                    {addresses.map((a) => (
+                    {deliveryAddresses.map((a) => (
                       <label
                         key={a.id}
                         className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors ${
@@ -658,7 +716,7 @@ export function CheckoutView() {
                   </div>
                 ) : (
                   <p className="rounded-xl border border-border bg-surface-2 px-4 py-4 text-sm text-muted">
-                    {c.noAddresses}
+                    {addresses && addresses.length > 0 ? c.addressCountryMismatch : c.noAddresses}
                   </p>
                 )}
                 <Link
@@ -729,12 +787,22 @@ export function CheckoutView() {
           {/* Payment method */}
           <section className={card}>
             <h2 id="checkout-payment-h" className="mb-4 font-semibold text-foreground">{c.payment}</h2>
+            {paymentMethods === null && !paymentLoadFailed && <p className="text-sm text-muted" aria-busy>{t.auth.loading}</p>}
+            {(paymentLoadFailed || paymentMethods?.length === 0) && (
+              <p role="status" className="mb-3 text-sm text-muted">
+                {c.paymentUnavailable}{" "}
+                <button type="button" className="font-medium text-brand-icon hover:underline" onClick={() => setPaymentReload((value) => value + 1)}>{c.callback.tryAgain}</button>
+              </p>
+            )}
             <div className="space-y-2" role="radiogroup" aria-labelledby="checkout-payment-h">
+              {paymentMethods?.includes("CARD") && (
               <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors ${payMethod === "CARD" ? "border-brand bg-brand-soft/40" : "border-border hover:border-border-strong"}`}>
                 <input type="radio" name="pay" checked={payMethod === "CARD"} onChange={() => setPayMethod("CARD")} className={radioCls} />
                 <CreditCardIcon className="h-5 w-5 text-brand-icon" />
                 <span className="text-sm font-semibold text-foreground">{c.card}</span>
               </label>
+              )}
+              {paymentMethods?.includes("TABBY") && (
               <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors ${payMethod === "TABBY" ? "border-brand bg-brand-soft/40" : "border-border hover:border-border-strong"}`}>
                 <input type="radio" name="pay" checked={payMethod === "TABBY"} onChange={() => setPayMethod("TABBY")} className={radioCls} />
                 <TabbyLogo className="h-[18px] w-auto" />
@@ -742,6 +810,8 @@ export function CheckoutView() {
                   4 × {formatMoney(Math.round((total / 4) * 100) / 100, currency)}
                 </span>
               </label>
+              )}
+              {paymentMethods?.includes("TAMARA") && (
               <label className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors ${payMethod === "TAMARA" ? "border-brand bg-brand-soft/40" : "border-border hover:border-border-strong"}`}>
                 <input type="radio" name="pay" checked={payMethod === "TAMARA"} onChange={() => setPayMethod("TAMARA")} className={radioCls} />
                 <TamaraLogo className="h-[18px] w-auto" />
@@ -749,6 +819,7 @@ export function CheckoutView() {
                   3 × {formatMoney(Math.round((total / 3) * 100) / 100, currency)}
                 </span>
               </label>
+              )}
               {/* Only offered when the server says this exact order qualifies — the switch, the
                   market list and the order ceiling all live there. */}
               {cod?.available && (
@@ -875,6 +946,16 @@ export function CheckoutView() {
               <p className="mt-2 text-xs text-muted">{vatLabel}</p>
             )}
             <p className="mt-2 text-xs text-muted">{c.totalNote}</p>
+            {payMethod !== "COD" && conversionRequired && (
+              <p className="mt-2 text-sm text-muted" role="status">
+                {quoteReady && paymentQuote
+                  ? c.paymentCurrencyNote.replace("{amount}", formatMoney(paymentQuote.amount, paymentQuote.currency))
+                  : quoteFailed ? c.paymentUnavailable : t.auth.loading}
+                {quoteFailed && !quoteReady && (
+                  <button type="button" className="ms-1 font-medium text-brand-icon hover:underline" onClick={() => setPaymentReload((value) => value + 1)}>{c.callback.tryAgain}</button>
+                )}
+              </p>
+            )}
 
             <button
               type="button"
@@ -882,7 +963,7 @@ export function CheckoutView() {
               onClick={placeOrder}
               className="mt-4 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {placing ? c.placing : c.placeOrder}
+              {placing ? c.placing : payMethod === "COD" ? c.placeCashOrder : c.placeOrder}
             </button>
             {!hasPhoneNumber && profile && (
               <p className="mt-2 text-center text-xs text-muted">{c.phoneRequired}</p>

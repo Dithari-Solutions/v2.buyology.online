@@ -13,7 +13,7 @@ Build once, ship the same files to both servers, restart them close together.
 cd ~/buyology-v2
 git pull
 npm ci                 # npm install only when dependencies actually changed
-npm run build
+NEXT_PUBLIC_API_BASE=https://api.buyology.online npm run build
 
 # Merge the new assets in — see "Never delete the old static directory" below.
 cp -r .next/static/. .next/standalone/.next/static/

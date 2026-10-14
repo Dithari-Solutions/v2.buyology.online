@@ -43,6 +43,9 @@ function isCrawler(req: NextRequest): boolean {
  * The mapping is deterministic both ways, so a redirect can never loop.
  */
 export function middleware(req: NextRequest) {
+  // Paymob returns to the origin that started the payment. Changing hosts here loses the
+  // tab's transaction breadcrumbs and can strand a paid shopper on another market's page.
+  if (req.nextUrl.pathname === "/payment/callback") return NextResponse.next();
   const host = (req.headers.get("host") ?? "").toLowerCase();
   if (!isRoutedHost(host)) return NextResponse.next();
 

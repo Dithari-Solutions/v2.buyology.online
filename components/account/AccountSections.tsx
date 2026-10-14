@@ -205,9 +205,15 @@ export function OrdersSection() {
   };
 
   useEffect(() => {
-    load(0).catch(() => setError(t.auth.errors.generic));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    let cancelled = false;
+    fetchOrders(0, 10).then((data) => {
+      if (cancelled) return;
+      setOrders(data.content);
+      setPage(data.number);
+      setHasMore(data.number + 1 < data.totalPages);
+    }).catch(() => { if (!cancelled) setError(t.auth.errors.generic); });
+    return () => { cancelled = true; };
+  }, [t.auth.errors.generic]);
 
   const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
 
@@ -425,9 +431,11 @@ export function AddressesSection() {
   }
 
   useEffect(() => {
-    load().catch(() => setError(t.auth.errors.generic));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uid]);
+    let cancelled = false;
+    fetchAddresses(uid).then((addresses) => { if (!cancelled) setRows(addresses); })
+      .catch(() => { if (!cancelled) setError(t.auth.errors.generic); });
+    return () => { cancelled = true; };
+  }, [uid, t.auth.errors.generic]);
 
   async function onAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -597,7 +605,7 @@ export function AddressesSection() {
                 <Field key={`s-${prefill.state ?? ""}`} label={ad.state} name="state" defaultValue={prefill.state} />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field key={`co-${prefill.country ?? "UAE"}`} label={ad.country} name="country" defaultValue={prefill.country ?? "UAE"} required />
+                <Field key={`co-${prefill.country ?? currentMarket().countryCode}`} label={ad.country} name="country" defaultValue={prefill.country ?? currentMarket().countryCode} required />
                 <Field key={`p-${prefill.postalCode ?? ""}`} label={ad.postalCode} name="postalCode" defaultValue={prefill.postalCode} />
               </div>
               <div className="flex flex-wrap items-center gap-4">

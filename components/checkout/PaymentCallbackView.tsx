@@ -14,8 +14,9 @@ import {
 import { BUYNOW_ORDER_KEY, PENDING_ORDER_KEY, PENDING_TX_KEY } from "@/components/checkout/CheckoutView";
 import { CheckIcon, CloseIcon, ClockIcon } from "@/components/icons";
 import { metaPurchase } from "@/lib/meta-pixel";
+import { fetchOrder } from "@/lib/account-api";
 
-type Outcome = "checking" | "success" | "failed" | "pending";
+type Outcome = "checking" | "success" | "failed" | "pending" | "refunded";
 
 const TERMINAL = new Set(["SUCCESS", "FAILED", "CANCELLED", "REFUNDED", "PARTIALLY_REFUNDED"]);
 
@@ -63,18 +64,28 @@ export function PaymentCallbackView() {
       /* ignore */
     }
 
-    const finish = (tx: PaymentTransaction | null, paymobSuccess: string | null) => {
+    const finish = async (tx: PaymentTransaction | null) => {
       // Courier-fee transactions carry no appOrderId; the redirect embeds the order id.
       const oid = tx?.appOrderId ?? storedOrder ?? all.orderId ?? null;
       setOrderId(oid ?? null);
-      // Tabby and Tamara come back with success=false AND pending=true: approved, not yet
-      // captured. That is money on its way, not a failure — telling the customer "you weren't
-      // charged" sent them to pay a second time. The order settles by itself when Paymob confirms.
-      const stillPending = all.pending === "true" || tx?.status === "PROCESSING";
+      const feePayment = ["courier-fee", "repair-courier-fee", "sell-courier-fee"].includes(all.kind);
+      let orderSettled = feePayment;
+      if (tx?.status === "SUCCESS" && oid && !feePayment && authStatus === "authed") {
+        // A successful gateway transaction can precede the after-commit order listener.
+        // Wait for the order too before claiming that it is paid and being prepared.
+        for (let i = 0; i < 20; i++) {
+          try {
+            const order = await fetchOrder(oid);
+            orderSettled = ["PAID", "PACKAGING", "READY_FOR_PICKUP", "PROCESSING", "COURIER_ASSIGNED", "PICKED_UP", "IN_COURIER", "IN_TRANSIT", "SHIPPED", "DELIVERED"].includes(order.status);
+            if (orderSettled || order.status !== "PENDING_PAYMENT") break;
+          } catch { /* The payment is confirmed; an unavailable order stays pending on screen. */ }
+          if (i < 19) await new Promise((resolve) => setTimeout(resolve, 2500));
+        }
+      }
       if (tx && TERMINAL.has(tx.status)) {
-        setOutcome(tx.status === "FAILED" || tx.status === "CANCELLED" ? "failed" : "success");
-      } else if (paymobSuccess === "false" && !stillPending) {
-        setOutcome("failed");
+        if (tx.status === "REFUNDED" || tx.status === "PARTIALLY_REFUNDED") setOutcome("refunded");
+        else if (tx.status === "FAILED" || tx.status === "CANCELLED") setOutcome("failed");
+        else setOutcome(orderSettled ? "success" : "pending");
       } else {
         // Includes success=true with no backend confirmation: an unverified URL flag must
         // not paint "paid" — the honest pending screen points at the orders page, where the
@@ -86,11 +97,11 @@ export function PaymentCallbackView() {
       // because the shopper is committed and is usually gone before capture. Fee payments carry a
       // `kind` and are not purchases, and metaPurchase ignores an order whose amount was never
       // remembered at checkout, so nothing here can report a Purchase without a value.
-      const approved = tx?.status === "SUCCESS" || (tx?.status === "PROCESSING" && all.pending === "true");
-      if (approved && oid && !all.kind) metaPurchase(oid);
+      const approved = (tx?.status === "SUCCESS" && orderSettled) || (tx?.status === "PROCESSING" && all.pending === "true");
+      if (approved && oid && !feePayment) metaPurchase(oid);
 
       // Only a backend-confirmed settlement clears the retry breadcrumbs.
-      if (tx?.status === "SUCCESS") {
+      if (tx?.status === "SUCCESS" && orderSettled) {
         try {
           sessionStorage.removeItem(PENDING_TX_KEY);
           sessionStorage.removeItem(PENDING_ORDER_KEY);
@@ -111,7 +122,7 @@ export function PaymentCallbackView() {
         try {
           const tx = await confirmPaymentRedirect(all);
           if (tx && TERMINAL.has(tx.status)) {
-            finish(tx, null);
+            await finish(tx);
             return;
           }
           lastSeen = tx ?? lastSeen;
@@ -126,7 +137,7 @@ export function PaymentCallbackView() {
           try {
             const tx = await fetchTransaction(txId);
             if (TERMINAL.has(tx.status)) {
-              finish(tx, null);
+              await finish(tx);
               return;
             }
             lastSeen = tx;
@@ -136,8 +147,8 @@ export function PaymentCallbackView() {
           await new Promise((r) => setTimeout(r, 2500));
         }
       }
-      // 3. Best-effort display from Paymob's own (HMAC-covered) success flag.
-      finish(lastSeen, all.success ?? null);
+      // 3. An unverified URL flag never decides whether the customer was charged.
+      await finish(lastSeen);
     })();
   }, [authStatus, params, cart]);
 
@@ -154,6 +165,14 @@ export function PaymentCallbackView() {
     "rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
   const secondaryBtn =
     "rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+  if (outcome === "refunded") {
+    return shell(
+      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gold/15 text-warn dark:text-gold"><ClockIcon className="h-8 w-8" /></span>,
+      cb.refundedTitle, cb.refundedHint,
+      <Link href={orderId ? `/account/orders/${orderId}` : "/account"} className={primaryBtn}>{cb.toOrders}</Link>,
+    );
+  }
 
   if (outcome === "checking") {
     return (
