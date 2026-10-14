@@ -9,12 +9,11 @@ import { useCart } from "@/components/cart/cart-provider";
 import {
   AuthError,
   fetchProfile,
+  updateProfile,
   type Profile,
 } from "@/lib/auth/client";
 import {
   fetchAddresses,
-  sendPhoneOtp,
-  verifyPhone,
   type Address,
 } from "@/lib/account-api";
 import {
@@ -37,7 +36,6 @@ import { useProductLookup } from "@/lib/use-product-lookup";
 import { formatMoney } from "@/lib/format";
 import { currentMarket } from "@/lib/market";
 import { metaInitiateCheckout, metaPurchase, rememberPurchase } from "@/lib/meta-pixel";
-import { OtpInput } from "@/components/auth/OtpInput";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import {
   BanknotesIcon,
@@ -111,10 +109,9 @@ export function CheckoutView() {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Phone verification gate — the backend refuses createOrder for unverified phones.
-  const [phoneStep, setPhoneStep] = useState<"idle" | "sending" | "code" | "verifying">("idle");
+  // A saved contact number is required; SMS verification is not.
+  const [phoneSaving, setPhoneSaving] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [otp, setOtp] = useState("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
   // ── Guards + data ──────────────────────────────────────────────────────────
@@ -311,31 +308,16 @@ export function CheckoutView() {
     }
   }
 
-  // ── Phone verification ─────────────────────────────────────────────────────
-  async function onSendCode() {
-    if (!uid || !phoneNumber.trim()) return;
+  async function onSavePhone() {
+    if (!uid || !phoneNumber.trim() || phoneSaving) return;
     setPhoneError(null);
-    setPhoneStep("sending");
+    setPhoneSaving(true);
     try {
-      await sendPhoneOtp(uid, phoneNumber.trim());
-      setPhoneStep("code");
+      setProfile(await updateProfile(uid, { phoneNumber: phoneNumber.trim() }));
     } catch (err) {
       setPhoneError(err instanceof AuthError && err.message ? err.message : t.auth.errors.generic);
-      setPhoneStep("idle");
-    }
-  }
-  async function onVerifyCode() {
-    if (!uid || otp.length < 6) return;
-    setPhoneError(null);
-    setPhoneStep("verifying");
-    try {
-      await verifyPhone(uid, phoneNumber.trim(), otp);
-      if (uid) setProfile(await fetchProfile(uid));
-      setOtp("");
-      setPhoneStep("idle");
-    } catch (err) {
-      setPhoneError(err instanceof AuthError && err.message ? err.message : t.auth.errors.generic);
-      setPhoneStep("code");
+    } finally {
+      setPhoneSaving(false);
     }
   }
 
@@ -492,7 +474,6 @@ export function CheckoutView() {
     } catch (err) {
       const msg = err instanceof AuthError && err.message && err.status !== 0 ? err.message : null;
       setError(msg ?? c.placeFailed);
-      if (msg && /verify your phone/i.test(msg)) setPhoneStep("idle"); // the gate is visible above
       placingRef.current = false;
       setPlacing(false);
       cart.refresh(); // stock errors may have changed what's orderable
@@ -569,10 +550,10 @@ export function CheckoutView() {
     );
   }
 
-  const phoneVerified = profile?.phoneVerified === true;
+  const hasPhoneNumber = Boolean(profile?.phoneNumber?.trim());
   const canPlace =
     !placing &&
-    phoneVerified &&
+    hasPhoneNumber &&
     selectedLines.length > 0 &&
     (effectiveFulfilment === "PICKUP" ? !!pickupStoreId : !!addressId);
 
@@ -594,49 +575,31 @@ export function CheckoutView() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="space-y-6">
-          {/* Phone verification gate */}
-          {profile && !phoneVerified && (
+          {/* Phone contact required for ordering */}
+          {profile && !hasPhoneNumber && (
             <section className={card}>
               <h2 className="mb-1 font-semibold text-foreground">{c.phoneTitle}</h2>
               <p className="mb-4 text-sm text-muted">{c.phoneHint}</p>
-              {phoneStep === "code" || phoneStep === "verifying" ? (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted" dir="ltr">{phoneNumber}</p>
-                  <OtpInput value={otp} onChange={setOtp} />
-                  <div className="flex items-center gap-4">
-                    <button
-                      type="button"
-                      disabled={otp.length < 6 || phoneStep === "verifying"}
-                      onClick={onVerifyCode}
-                      className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {phoneStep === "verifying" ? t.auth.loading : c.verify}
-                    </button>
-                    <button type="button" onClick={onSendCode} className="text-sm font-medium text-brand-icon hover:underline">
-                      {c.resendCode}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-3">
-                  <input
-                    type="tel"
-                    dir="ltr"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="+971…"
-                    className="min-w-0 flex-1 rounded-xl border border-border bg-surface-2 px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                  <button
-                    type="button"
-                    disabled={phoneStep === "sending" || !phoneNumber.trim()}
-                    onClick={onSendCode}
-                    className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {phoneStep === "sending" ? t.auth.loading : c.sendCode}
-                  </button>
-                </div>
-              )}
+              <form onSubmit={(event) => { event.preventDefault(); void onSavePhone(); }} className="flex flex-wrap gap-3">
+                <input
+                  type="tel"
+                  autoComplete="tel"
+                  aria-label={c.phoneTitle}
+                  required
+                  dir="ltr"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="+971…"
+                  className="min-w-0 flex-1 rounded-xl border border-border bg-surface-2 px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                <button
+                  type="submit"
+                  disabled={phoneSaving || !phoneNumber.trim()}
+                  className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {phoneSaving ? t.auth.loading : t.account.common.save}
+                </button>
+              </form>
               {phoneError && (
                 <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">{phoneError}</p>
               )}
@@ -921,7 +884,7 @@ export function CheckoutView() {
             >
               {placing ? c.placing : c.placeOrder}
             </button>
-            {!phoneVerified && profile && (
+            {!hasPhoneNumber && profile && (
               <p className="mt-2 text-center text-xs text-muted">{c.phoneRequired}</p>
             )}
             <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted">

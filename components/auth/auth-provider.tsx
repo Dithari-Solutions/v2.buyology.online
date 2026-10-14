@@ -24,7 +24,7 @@ type AuthValue = {
   status: "loading" | "guest" | "authed";
   user: Claims | null;
   signIn(email: string, password: string): Promise<void>;
-  signUp(email: string, password: string, repeatedPassword: string): Promise<void>;
+  signUp(email: string, password: string, repeatedPassword: string, phoneNumber?: string): Promise<void>;
   verifyOtp(email: string, otpCode: string): Promise<Claims>;
   googleSignIn(idToken: string): Promise<void>;
   appleSignIn(): Promise<void>;
@@ -88,8 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async signIn(email, password) {
       adopt(await api.signIn(email, password));
     },
-    async signUp(email, password, repeatedPassword) {
-      await api.signUp(email, password, repeatedPassword);
+    async signUp(email, password, repeatedPassword, phoneNumber) {
+      await api.signUp(email, password, repeatedPassword, phoneNumber);
     },
     async verifyOtp(email, otpCode) {
       const claims = await api.verifyOtp(email, otpCode);

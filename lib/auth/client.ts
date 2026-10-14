@@ -75,8 +75,8 @@ export async function signIn(email: string, password: string): Promise<Claims> {
   return adopt(await post<SessionData>("/auth/signin", { email, password }));
 }
 
-export async function signUp(email: string, password: string, repeatedPassword: string): Promise<void> {
-  await post<string>("/auth/signup", { email, password, repeatedPassword });
+export async function signUp(email: string, password: string, repeatedPassword: string, phoneNumber?: string): Promise<void> {
+  await post<string>("/auth/signup", { email, password, repeatedPassword, phoneNumber });
 }
 
 export async function verifyOtp(email: string, otpCode: string): Promise<Claims> {
@@ -264,7 +264,7 @@ export function uploadAvatar(uid: string, file: File): Promise<Profile> {
 }
 
 /**
- * Best-effort: the signup endpoint takes only email+password, so the names the form collects are
+ * Best-effort: the signup endpoint stores credentials and phone, so the names the form collects are
  * saved right after verification. A failure here must never fail the signup — the account exists.
  */
 export async function saveProfileNames(uid: string, firstName: string, lastName: string): Promise<void> {

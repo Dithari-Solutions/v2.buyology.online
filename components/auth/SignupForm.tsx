@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useAuth } from "@/components/auth/auth-provider";
+import { PhoneField } from "@/components/account/PhoneField";
 import { AuthError, saveProfileNames, updateProfile } from "@/lib/auth/client";
 import {
   AuthField,
@@ -25,7 +26,7 @@ const RESEND_COOLDOWN_S = 60;
 /**
  * Personal signup is REAL: POST /auth/signup sends the email OTP, POST /auth/verify-otp creates
  * the account and signs the user in, and the names the form collects are saved to the profile
- * right after (the signup endpoint itself takes only email + password). The pending password
+ * right after (the signup endpoint stores credentials and phone). The pending password
  * stays in component STATE only — never sessionStorage, which is where the old site parked it in
  * plaintext for the whole OTP step.
  *
@@ -80,6 +81,7 @@ export function SignupForm() {
     firstName: string;
     lastName: string;
     email: string;
+    phoneNumber: string;
     password: string;
   } | null>(null);
 
@@ -124,6 +126,7 @@ export function SignupForm() {
       firstName: String(fd.get("firstName") ?? "").trim(),
       lastName: String(fd.get("lastName") ?? "").trim(),
       email: String(fd.get("email") ?? "").trim(),
+      phoneNumber: String(fd.get("phoneNumber") ?? "").trim(),
       password: String(fd.get("password") ?? ""),
     };
     if (wantsGiveaway && (!gPhone.trim() || !gHandle.trim())) {
@@ -133,7 +136,7 @@ export function SignupForm() {
     setBusy(true);
     setError(null);
     try {
-      await signUp(payload.email, payload.password, payload.password);
+      await signUp(payload.email, payload.password, payload.password, payload.phoneNumber);
       setPending(payload);
       setOtp("");
       setResendIn(RESEND_COOLDOWN_S);
@@ -211,7 +214,7 @@ export function SignupForm() {
     setBusy(true);
     setError(null);
     try {
-      await signUp(pending.email, pending.password, pending.password);
+      await signUp(pending.email, pending.password, pending.password, pending.phoneNumber);
       setResendIn(RESEND_COOLDOWN_S);
     } catch (err) {
       setError(signupErrorFor(err));
@@ -378,6 +381,15 @@ export function SignupForm() {
               name="email"
               autoComplete="email"
               required
+            />
+            <PhoneField
+              label={t.account.profile.phone}
+              name="phoneNumber"
+              required
+              searchLabel={t.account.profile.phoneSearch}
+              noResultsLabel={t.account.profile.phoneNoResults}
+              resultsLabel={t.account.profile.phoneResults}
+              resultOneLabel={t.account.profile.phoneResultOne}
             />
             <AuthPassword label={t.auth.password} autoComplete="new-password" />
           </>
