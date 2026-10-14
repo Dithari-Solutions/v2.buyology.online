@@ -6,24 +6,22 @@ must be able to answer for each other's pages — during the deploy as well as a
 
 ## The procedure
 
-Build once, ship the same files to both servers, restart them close together.
+After the backend CI deployment succeeds, run this on web-app-1:
 
 ```bash
-# On the build machine (or web-app-1), once:
 cd ~/buyology-v2
-git pull
-npm ci                 # npm install only when dependencies actually changed
-NEXT_PUBLIC_API_BASE=https://api.buyology.online npm run build
-
-# Merge the new assets in — see "Never delete the old static directory" below.
-cp -r .next/static/. .next/standalone/.next/static/
-cp -r public/.        .next/standalone/public/     # trailing /. — see below
-
-# Ship the identical build to the other server, then restart both.
-rsync -a --delete .next/standalone/ web-app-2:~/buyology-v2/.next/standalone/
-pm2 restart buyology-v2                    # here
-ssh web-app-2 'pm2 restart buyology-v2'    # and there
+git pull --ff-only origin main
+bash scripts/deploy-v2.sh
 ```
+
+The script builds once in a private temporary checkout, using the commit as the build
+ID and `NEXT_PUBLIC_API_BASE=https://api.buyology.online` (or an exported override).
+It copies the existing environment files into that private build directory and removes
+the directory on exit. The live build stays available while dependencies and the new
+build are prepared. Old static assets from both replicas are merged into the new bundle,
+the identical bundle is shipped to both, and their `buyology-v2` PM2 processes restart.
+The script uses the existing `web-app-2` SSH alias and `~/buyology-v2` remote checkout;
+both replicas must already be provisioned before using it.
 
 Building separately on each machine also works, because `generateBuildId` pins the build id to
 the commit — but only if both machines are on the *same commit* and build within moments of each
@@ -37,10 +35,11 @@ The obvious line is the damaging one:
 rm -rf .next/standalone/.next/static && cp -r .next/static .next/standalone/.next/static   # NO
 ```
 
-Chunk filenames are content hashes, so a new build writes new names and leaves the old ones
-untouched. Deleting them removes the files that every already-open tab is still asking for, and
-those tabs get a ChunkLoadError the moment the visitor navigates. Merging costs a few megabytes
-and makes the old pages keep working:
+Next cleans the build directory itself, so even omitting an explicit `rm` is not enough
+if you build inside the live checkout. The script builds separately and retains old
+static assets. Chunk filenames are content hashes: old tabs still need their old names.
+Deleting them causes a ChunkLoadError when the visitor navigates. Merge new assets into
+the prepared bundle instead:
 
 ```bash
 cp -r .next/static/. .next/standalone/.next/static/                                        # YES
