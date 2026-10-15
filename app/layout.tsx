@@ -52,6 +52,9 @@ export const metadata: Metadata = {
   keywords: [...site.keywords],
   applicationName: site.name,
   category: "shopping",
+  verification: {
+    google: "ZpXgRVAQRGLqC5BbwNwnoZBiafiJaxBgDCqj39SG760",
+  },
   alternates: { canonical: "/" },
   // Served straight from /public. The app/ file conventions (favicon.ico,
   // icon.png) were removed so this is the single source for the tab icon —
