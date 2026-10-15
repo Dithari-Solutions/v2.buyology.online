@@ -7,6 +7,10 @@ const MEASUREMENT_ID = "G-33199BYJE6";
  * Load after hydration with Next's script deduplication across navigation.
  */
 export function GoogleAnalytics() {
+  // Enable only after publishing this measurement ID inside GTM. One owner
+  // prevents the direct snippet and the container counting the same visit twice.
+  if (process.env.NEXT_PUBLIC_GA_VIA_GTM === "true") return null;
+
   return (
     <>
       <Script

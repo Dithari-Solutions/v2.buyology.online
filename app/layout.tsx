@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Raleway, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
@@ -15,6 +16,10 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { VisitTracker } from "@/components/analytics/VisitTracker";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import {
+  GoogleTagManagerNoScript,
+  GOOGLE_TAG_MANAGER_ID,
+} from "@/components/analytics/GoogleTagManager";
 import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { Footer } from "@/components/footer/Footer";
 import { HideOnAuth } from "@/components/layout/HideOnAuth";
@@ -120,6 +125,13 @@ export default async function RootLayout({
       className={`${raleway.variable} ${geistMono.variable} h-full`}
     >
       <head>
+        <Script id="google-tag-manager" strategy="beforeInteractive">
+          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${GOOGLE_TAG_MANAGER_ID}');`}
+        </Script>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script
           type="application/ld+json"
@@ -127,6 +139,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="flex min-h-full flex-col bg-background text-foreground">
+        <GoogleTagManagerNoScript />
         <LanguageProvider locale={locale} dict={dictionaries[locale]}>
           <AuthProvider>
           <CartProvider>
