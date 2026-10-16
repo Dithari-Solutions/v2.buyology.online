@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { backendUrl } from "@/lib/backend";
+import { useCookieConsent } from "@/components/privacy/CookieConsentProvider";
 
 /**
  * The visitor beacon behind the dashboard's unique/total visitor metric.
@@ -52,6 +53,7 @@ function externalReferrer(): string | undefined {
 
 export function VisitTracker() {
   const pathname = usePathname();
+  const { consent } = useCookieConsent();
   /**
    * The last path reported, with when. React's development Strict Mode mounts effects twice, and
    * a re-render can repeat a pathname — without this the same view is counted twice.
@@ -59,7 +61,7 @@ export function VisitTracker() {
   const lastSent = useRef<{ path: string; at: number } | null>(null);
 
   useEffect(() => {
-    if (!pathname) return;
+    if (!pathname || !consent?.analytics) return;
     const previous = lastSent.current;
     if (previous && previous.path === pathname && Date.now() - previous.at < 1000) return;
     lastSent.current = { path: pathname, at: Date.now() };
@@ -81,7 +83,7 @@ export function VisitTracker() {
     }).catch(() => {
       /* a missed count is never worth surfacing to a shopper */
     });
-  }, [pathname]);
+  }, [pathname, consent?.analytics]);
 
   return null;
 }

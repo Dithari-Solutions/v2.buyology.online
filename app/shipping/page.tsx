@@ -1,10 +1,11 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { StaticPage, Section } from "@/components/pages/StaticPage";
 import { getDict } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDict();
-  return { title: t.pages.shipTitle };
+  return pageMetadata("/shipping", { title: t.pages.shipTitle, description: t.pages.shipIntro });
 }
 
 export default async function ShippingPage() {

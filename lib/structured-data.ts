@@ -152,24 +152,26 @@ export function webSiteSchema(): JsonLd {
  * itemCondition is RefurbishedCondition: it is the single most important field for this
  * catalogue, since "certified refurbished" is exactly what the listings are competing on.
  */
-export function productSchema(p: Product): JsonLd {
+export function productSchema(p: Product, url = `${site.url}${productHref(p)}`): JsonLd {
+  const condition = p.refurbished === true ? "https://schema.org/RefurbishedCondition"
+    : p.refurbished === false ? "https://schema.org/NewCondition" : undefined;
   const schema: JsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: p.name,
     description: p.description,
     category: p.category,
-    sku: p.id,
-    itemCondition: "https://schema.org/RefurbishedCondition",
-    brand: { "@type": "Brand", name: p.brand?.trim() || site.name },
+    sku: p.sku,
+    itemCondition: condition,
+    ...(p.brand?.trim() ? { brand: { "@type": "Brand", name: p.brand.trim() } } : {}),
     offers: {
       "@type": "Offer",
-      url: `${site.url}${productHref(p)}`,
+      url,
       priceCurrency: p.currency ?? "AED",
       price: p.price,
-      itemCondition: "https://schema.org/RefurbishedCondition",
+      itemCondition: condition,
       availability:
-        p.inStock === false
+        p.inStock === false || p.availableUnits === 0
           ? "https://schema.org/OutOfStock"
           : "https://schema.org/InStock",
       seller: { "@id": `${site.url}/#organization` },

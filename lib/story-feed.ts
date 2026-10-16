@@ -1,4 +1,5 @@
 import { cachedFeed, invalidateFeeds, peekFeed } from './feed-cache';
+import { browserConsent } from "@/lib/consent";
 import { backendUrl, type ApiEnvelope } from "@/lib/backend";
 import { authedFetch } from "@/lib/auth/client";
 import { decodeClaims, getAccessToken } from "@/lib/auth/token";
@@ -87,6 +88,7 @@ export async function setStoryLiked(storyId: string, liked: boolean): Promise<St
 }
 
 export function recordStoryView(storyId: string): void {
+  if (!browserConsent()?.analytics) return;
   fetch(backendUrl(`/api/story/${storyId}/view`), { method: "POST" }).catch(() => {});
 }
 

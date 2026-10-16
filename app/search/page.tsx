@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Header } from "@/components/header/Header";
 import { SearchResults } from "@/components/products/SearchResults";
 import { getDict } from "@/lib/i18n/server";
+import { pageMetadata } from "@/lib/seo";
 
 type SearchParams = Promise<{
   q?: string;
@@ -15,14 +16,14 @@ export async function generateMetadata({
   searchParams: SearchParams;
 }): Promise<Metadata> {
   const { q } = await searchParams;
-  return {
+  return pageMetadata("/search", {
     title: q ? `Search: ${q}` : "Search",
     description: q
-      ? `Results for "${q}" across 120,000+ future products on Buyology.`
-      : "Search 120,000+ future products on Buyology.",
+      ? `Search Buyology for "${q}". Compare available products, specifications and current prices.`
+      : "Search available Buyology products, specifications and prices.",
     // Query result pages shouldn't be indexed; the canonical /search is (via sitemap).
-    robots: q ? { index: false, follow: true } : undefined,
-  };
+    robots: { index: false, follow: true },
+  });
 }
 
 export default async function SearchPage({

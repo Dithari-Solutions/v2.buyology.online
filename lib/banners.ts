@@ -41,6 +41,7 @@ export async function fetchBanners(locale: Locale): Promise<Banner[]> {
     });
     const res = await fetch(backendUrl(`/api/banner?${search}`), {
       next: { revalidate: 60 },
+      signal: AbortSignal.timeout(4000),
     });
     if (!res.ok) return [];
     const body = (await res.json()) as ApiEnvelope<Banner[]>;

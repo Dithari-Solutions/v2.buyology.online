@@ -5,6 +5,7 @@ import { SignupForm } from "@/components/auth/SignupForm";
 export const metadata: Metadata = {
   title: "Create account",
   description: "Create your Buyology account and start shopping the future.",
+  robots: { index: false, follow: false },
 };
 
 export default function SignupPage() {

@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/header/Header";
@@ -12,11 +13,11 @@ import {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDict();
-  return {
+  return pageMetadata("/rent", {
     title: t.footer.links.rent,
     description: t.pages.rent.body,
     robots: { index: false, follow: true },
-  };
+  });
 }
 
 const GHOSTS = [

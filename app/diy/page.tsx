@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/header/Header";
@@ -6,11 +7,11 @@ import { HammerIcon } from "@/components/icons";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDict();
-  return {
+  return pageMetadata("/diy", {
     title: t.footer.links.diy,
     description: t.pages.diy.body,
     robots: { index: false, follow: true },
-  };
+  });
 }
 
 /** Coming-soon as a schematic: the page IS the blueprint being drawn. */

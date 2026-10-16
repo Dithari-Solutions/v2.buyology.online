@@ -126,6 +126,10 @@ function params(locale: Locale, extra: Record<string, unknown> = {}, market?: Ma
   return p;
 }
 
+export class CatalogueRequestError extends Error {
+  constructor(public readonly status: number, path: string) { super(`${path} ${status}`); }
+}
+
 async function get<T>(path: string, search: URLSearchParams, cache?: "no-store"): Promise<T> {
   // Warm category names in parallel with products, avoiding a second network round trip
   // after the product response arrives. Its own locale/market cache deduplicates callers.
@@ -141,7 +145,7 @@ async function get<T>(path: string, search: URLSearchParams, cache?: "no-store")
     const livePriceRead = typeof window === 'undefined' && path.startsWith('/api/product');
     const res = await fetch(url, cache === 'no-store' || livePriceRead
       ? { cache: 'no-store' } : typeof window === 'undefined' ? { next: { revalidate: 60 } } : { cache: 'default' });
-    if (!res.ok) throw new Error(`${path} ${res.status}`);
+    if (!res.ok) throw new CatalogueRequestError(res.status, path);
     const body = (await res.json()) as ApiEnvelope<T>;
     if (body.data == null) throw new Error(`${path}: empty`);
     return body.data;
@@ -272,6 +276,7 @@ export function toProduct(api: ApiProduct, categoryName?: string): Product {
   const discount = oldPrice > price && oldPrice > 0 ? Math.round(((oldPrice - price) / oldPrice) * 100) : 0;
   return {
     id: api.id,
+    sku: api.sku ?? undefined,
     name: api.title ?? api.sku ?? "—",
     category: categoryName ?? "",
     description: api.description ?? "",
@@ -286,7 +291,7 @@ export function toProduct(api: ApiProduct, categoryName?: string): Product {
     rating: api.averageRating ?? 0,
     reviews: api.totalReviews ?? 0,
     bestseller: api.isSuperDeal ?? false,
-    refurbished: api.isRefurbished ?? false,
+    refurbished: api.isRefurbished ?? undefined,
     currency: api.currency ?? currentMarket().currency,
     brand: api.brandName ?? undefined,
     brandId: api.brandId ?? undefined,
@@ -363,7 +368,7 @@ export type CatalogueQuery = {
  *  - there is NO pagination: the response is the complete matched list, which is what makes
  *    filters and sorts globally correct instead of "over whatever pages happened to load".
  */
-export async function searchCatalogue(locale: Locale, q: CatalogueQuery): Promise<Product[]> {
+export async function searchCatalogue(locale: Locale, q: CatalogueQuery, market?: Market): Promise<Product[]> {
   const base = {
     minPrice: q.minPrice,
     maxPrice: q.maxPrice,
@@ -374,9 +379,9 @@ export async function searchCatalogue(locale: Locale, q: CatalogueQuery): Promis
   const requests =
     ids.length > 0
       ? ids.map((categoryId) =>
-          get<ApiProduct[]>("/api/product/search", params(locale, { ...base, categoryId })),
+          get<ApiProduct[]>("/api/product/search", params(locale, { ...base, categoryId }, market)),
         )
-      : [get<ApiProduct[]>("/api/product/search", params(locale, base))];
+      : [get<ApiProduct[]>("/api/product/search", params(locale, base, market))];
   // One flaky category request must not blank the whole result: merge what succeeded and
   // only fail when EVERY request failed (so the caller's error path still fires).
   const settled = await Promise.allSettled(requests);
@@ -396,7 +401,7 @@ export async function searchCatalogue(locale: Locale, q: CatalogueQuery): Promis
       }
     }
   }
-  return withCategoryNames(locale, rows);
+  return withCategoryNames(locale, rows, market);
 }
 
 /**

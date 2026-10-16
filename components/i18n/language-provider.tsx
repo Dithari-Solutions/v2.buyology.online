@@ -36,7 +36,9 @@ export function LanguageProvider({
     document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
     document.documentElement.lang = next;
     document.documentElement.dir = dirFor(next);
-    router.refresh();
+    const url = new URL(window.location.href);
+    if (next === "en") url.searchParams.delete("lang"); else url.searchParams.set("lang", next);
+    router.replace(url.pathname + url.search + url.hash, { scroll: false });
   }
 
   return (

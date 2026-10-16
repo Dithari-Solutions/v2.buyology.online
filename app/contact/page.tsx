@@ -1,13 +1,16 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { Header } from "@/components/header/Header";
 import { ContactView } from "@/components/contact/ContactView";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata("/contact", {
   title: "Contact us",
   description:
     "Get in touch with Buyology across the UAE, Qatar, Saudi Arabia, Bahrain and Azerbaijan.",
   alternates: { canonical: "/contact" },
-};
+});
+}
 
 export default function ContactPage() {
   return (

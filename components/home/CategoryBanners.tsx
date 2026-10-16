@@ -78,7 +78,7 @@ export async function CategoryBanners() {
           </ul>
           <Link
             href="/products"
-            className="-mb-2.5 mt-0.5 inline-flex items-center gap-1 px-2 py-2.5 text-sm font-semibold text-gold-deep transition-colors hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:mb-0 sm:mt-3 sm:py-0 dark:text-gold"
+            className="-mb-2.5 mt-0.5 inline-flex items-center gap-1 px-2 py-2.5 text-sm font-semibold text-brand-icon transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:mb-0 sm:mt-3 sm:py-0"
           >
             {t.departments.viewAll}
             <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />
@@ -87,7 +87,7 @@ export async function CategoryBanners() {
 
         {/* Center — the hero banners */}
         {hasHero && (
-          <div className="relative order-1 aspect-[2/1] sm:aspect-[21/9] lg:order-2 lg:aspect-auto lg:h-full">
+          <div className="relative order-1 aspect-[16/10] sm:aspect-[21/9] lg:order-2 lg:aspect-auto lg:h-full">
             <FeaturedCarousel banners={hero} label={t.departments.label} />
           </div>
         )}

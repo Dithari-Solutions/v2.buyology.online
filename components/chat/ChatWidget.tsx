@@ -144,7 +144,7 @@ function AssistantCard({
  * assistant is switched on. A chat box that refuses the first message is a worse
  * first impression than no chat box.
  */
-export function ChatWidget() {
+export function ChatWidget({ initialOpen = false }: { initialOpen?: boolean }) {
   const { t, locale } = useI18n();
   const c = t.chat;
 
@@ -173,7 +173,7 @@ export function ChatWidget() {
     copy,
   );
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initialOpen);
   const [draft, setDraft] = useState("");
 
   const panelId = `chat${useId().replace(/[^a-zA-Z0-9]/g, "")}`;

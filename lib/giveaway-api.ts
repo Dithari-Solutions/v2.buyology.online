@@ -29,7 +29,7 @@ export type GiveawayStatus = {
  */
 export async function fetchGiveawayCampaign(): Promise<GiveawayStatus | null> {
   try {
-    const res = await fetch(backendUrl(`/api/giveaway/campaign`), { cache: "no-store" });
+    const res = await fetch(backendUrl(`/api/giveaway/campaign`), { cache: "no-store", signal: AbortSignal.timeout(4000) });
     if (!res.ok) return null;
     const envelope = await res.json();
     return (envelope?.data ?? null) as GiveawayStatus | null;

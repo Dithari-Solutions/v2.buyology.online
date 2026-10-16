@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { cache } from "react";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header/Header";
 import {
   fetchCategories,
+  CatalogueRequestError,
   fetchProductBySlug,
   fetchProductDetail,
   isProductId,
@@ -30,7 +33,7 @@ export const dynamic = "force-dynamic";
  * product's name, but UUID links are already indexed and shared, so both must resolve — a URL
  * that worked yesterday must not 404 today.
  */
-async function loadProduct(idOrSlug: string) {
+const loadProduct = cache(async (idOrSlug: string) => {
   const locale = await getLocale();
   const market = await serverMarket();
   try {
@@ -43,11 +46,12 @@ async function loadProduct(idOrSlug: string) {
     } catch {
       /* blank breadcrumb label */
     }
-    return { api, product: toProduct(api, categoryName) };
-  } catch {
-    return null;
+    return { api, product: toProduct({ ...api, currency: api.currency ?? market.currency }, categoryName) };
+  } catch (error) {
+    if (error instanceof CatalogueRequestError && error.status === 404) return null;
+    throw error;
   }
-}
+});
 
 export async function generateMetadata({
   params,
@@ -56,14 +60,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const loaded = await loadProduct(id);
-  if (!loaded) return { title: "Product not found" };
+  if (!loaded) return { title: "Product not found", robots: { index: false, follow: true } };
   const { product } = loaded;
   // The catalogue photo is the strongest share/preview image this page has; the site-wide
   // opengraph-image only stands in when a product has none.
   const image = product.image?.startsWith("http") ? product.image : undefined;
-  return {
+  return pageMetadata(productHref(product), {
     title: product.name,
-    description: product.description,
+    description: product.description || `View ${product.name} at Buyology. Check the current price, specifications, availability and purchase options.`,
     // Canonical is always the slug URL, so an id link consolidates onto the readable one
     // instead of competing with it as a duplicate.
     alternates: { canonical: productHref(product) },
@@ -75,7 +79,7 @@ export async function generateMetadata({
       ...(image ? { images: [{ url: image, alt: product.name }] } : {}),
     },
     ...(image ? { twitter: { card: "summary_large_image" as const, images: [image] } } : {}),
-  };
+  });
 }
 
 export default async function ProductPage({
@@ -87,6 +91,8 @@ export default async function ProductPage({
   const loaded = await loadProduct(id);
   if (!loaded) notFound();
   const { product, api } = loaded;
+  const productMetadata = await pageMetadata(productHref(product));
+  const canonical = String(productMetadata.alternates!.canonical);
 
   const t = await getDict();
 
@@ -98,7 +104,7 @@ export default async function ProductPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: jsonLdScript(productSchema(product)),
+          __html: jsonLdScript(productSchema(product, canonical)),
         }}
       />
       <script

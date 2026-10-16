@@ -7,6 +7,7 @@ import { NewsletterForm } from "@/components/footer/NewsletterForm";
 import { FooterShopLinks } from "@/components/footer/FooterShopLinks";
 import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import { CreditCardIcon, MailIcon, MapPinIcon, PhoneIcon } from "@/components/icons";
+import { CookieSettingsButton } from "@/components/privacy/CookieBanner";
 
 /**
  * Site footer — a deep-purple, always-dark band (consistent in light and dark
@@ -146,6 +147,7 @@ export async function Footer() {
               <Link href="/cookies" className="transition-colors hover:text-white">
                 {f.cookies}
               </Link>
+              <CookieSettingsButton className="min-h-6 text-start transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60" />
             </div>
           </div>
 

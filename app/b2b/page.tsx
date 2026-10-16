@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/header/Header";
@@ -13,10 +14,10 @@ import {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDict();
-  return {
+  return pageMetadata("/b2b", {
     title: t.pages.b2b.metaTitle,
     description: t.pages.b2b.hero.subtitle,
-  };
+  });
 }
 
 /**

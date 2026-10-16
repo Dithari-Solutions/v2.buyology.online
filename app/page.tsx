@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { Header } from "@/components/header/Header";
 import { Stories } from "@/components/home/Stories";
@@ -10,6 +10,7 @@ import { FeatureStrip } from "@/components/home/FeatureStrip";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { BuyologyAI } from "@/components/home/BuyologyAI";
 import { Metrics } from "@/components/home/Metrics";
+import { getDict, getLocale } from "@/lib/i18n/server";
 import { BuyologyServices } from "@/components/home/BuyologyServices";
 
 /**
@@ -18,35 +19,44 @@ import { BuyologyServices } from "@/components/home/BuyologyServices";
  * searcher nothing about what is sold. `absolute` opts out of the "· Buyology" template so the
  * brand is not repeated twice in one title.
  */
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  if (locale !== "en") {
+    const { refurbished } = await getDict();
+    return pageMetadata("/", { title: refurbished.h1, description: refurbished.lead });
+  }
+  return pageMetadata("/", {
   title: {
-    absolute: "Buy Certified Renewed Laptops in Dubai – Buyology",
+    absolute: "Refurbished Laptops & Tablets in UAE | Buyology",
   },
   description:
-    "Buy certified refurbished laptops in the UAE with warranty included. Fast delivery across the UAE. MacBooks, Dell, HP, Lenovo & more — inspected & tested.",
+    "Shop quality-checked refurbished laptops and tablets at Buyology. Compare available models, prices and warranty information, with delivery across the UAE.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Buy Certified Renewed Laptops in Dubai – Buyology",
+    title: "Refurbished Laptops & Tablets in UAE | Buyology",
     description:
       "Certified refurbished laptops with warranty, delivered across the UAE. MacBooks, Dell, HP, Lenovo & more — inspected & tested.",
     url: "/",
     type: "website",
   },
   twitter: {
-    title: "Buy Certified Renewed Laptops in Dubai – Buyology",
+    title: "Refurbished Laptops & Tablets in UAE | Buyology",
     description:
       "Certified refurbished laptops with warranty, delivered across the UAE. Inspected & tested.",
   },
-};
+});
+}
 
-export default function Home() {
+export default async function Home() {
+  // Resolve variable-height content before emitting the sections below it to avoid layout jumps.
+  const [giveaway, departments] = await Promise.all([GiveawayBanner(), CategoryBanners()]);
   return (
     <>
       <Header />
       <main>
         <Stories />
-        <Suspense fallback={null}><GiveawayBanner /></Suspense>
-        <Suspense fallback={<div className="mx-auto h-64 max-w-[1400px] animate-pulse rounded-2xl bg-surface-2" aria-hidden="true" />}><CategoryBanners /></Suspense>
+        {giveaway}
+        {departments}
         <FeatureStrip />
         {/* Flash sale. Fetches in the browser and renders nothing until it has something on sale,
             so it never delays this page and never leaves an empty rail behind. */}

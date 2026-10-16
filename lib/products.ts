@@ -12,6 +12,7 @@ type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 
 export type Product = {
   id: string;
+  sku?: string;
   name: string;
   category: string;
   description: string;

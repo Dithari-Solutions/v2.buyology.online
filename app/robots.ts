@@ -1,36 +1,13 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/lib/site";
+import { serverMarket } from "@/lib/market-server";
 
-/**
- * Allow all standard crawlers, and EXPLICITLY welcome reputable AI crawlers so
- * Buyology is discoverable by ChatGPT, Claude, Perplexity, Gemini, etc.
- * (Named agents get their own rule mostly as a clear, auditable signal of intent.)
- */
-const AI_CRAWLERS = [
-  "GPTBot", // OpenAI training
-  "OAI-SearchBot", // ChatGPT search
-  "ChatGPT-User", // ChatGPT browsing on user request
-  "ClaudeBot", // Anthropic
-  "Claude-Web",
-  "PerplexityBot", // Perplexity
-  "Google-Extended", // Gemini / Vertex training opt-in
-  "Applebot-Extended",
-];
+const PRIVATE_PATHS = ["/account", "/cart", "/wishlist", "/checkout", "/payment/", "/support/", "/repair/my", "/sell/my", "/api/"];
+const AI_CRAWLERS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-Web", "PerplexityBot", "Google-Extended", "Applebot-Extended"];
 
-export default function robots(): MetadataRoute.Robots {
-  return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: ["/account", "/cart", "/wishlist", "/api/"],
-      },
-      {
-        userAgent: AI_CRAWLERS,
-        allow: "/",
-      },
-    ],
-    sitemap: `${site.url}/sitemap.xml`,
-    host: site.url,
-  };
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const origin = `https://${(await serverMarket()).host}`;
+  return { rules: [
+    { userAgent: "*", allow: "/", disallow: PRIVATE_PATHS },
+    { userAgent: AI_CRAWLERS, allow: "/", disallow: PRIVATE_PATHS },
+  ], sitemap: `${origin}/sitemap.xml`, host: origin };
 }

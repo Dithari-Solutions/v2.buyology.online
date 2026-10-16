@@ -25,7 +25,7 @@ export async function LegalArticle({ doc }: { doc: LegalDoc }) {
           {t.pages.legalEnglishNote}
         </p>
       )}
-      <article dir="ltr" className="space-y-4 text-start">
+      <article lang="en" dir="ltr" className="space-y-4 text-start">
         {doc.blocks.map((b, i) => {
           if (b.type === "h2")
             return (

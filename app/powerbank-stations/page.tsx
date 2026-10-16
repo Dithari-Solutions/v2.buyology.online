@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/header/Header";
@@ -6,11 +7,11 @@ import { BatteryChargingIcon, CheckIcon } from "@/components/icons";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDict();
-  return {
+  return pageMetadata("/powerbank-stations", {
     title: t.footer.links.powerbank,
     description: t.pages.powerbank.body,
     robots: { index: false, follow: true },
-  };
+  });
 }
 
 /** Coming-soon as a charging metaphor: the network itself is filling up. */

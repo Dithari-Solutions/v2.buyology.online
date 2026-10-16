@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Raleway, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
+import localFont from "next/font/local";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { jsonLdScript, siteJsonLd } from "@/lib/structured-data";
@@ -13,32 +14,33 @@ import { AuthProvider } from "@/components/auth/auth-provider";
 import { WishlistProvider } from "@/components/wishlist/wishlist-provider";
 import { FlyProvider } from "@/components/fx/FlyProvider";
 import { CartDrawer } from "@/components/cart/CartDrawer";
-import { ChatWidget } from "@/components/chat/ChatWidget";
-import { VisitTracker } from "@/components/analytics/VisitTracker";
-import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
-import {
-  GoogleTagManagerNoScript,
-  GOOGLE_TAG_MANAGER_ID,
-} from "@/components/analytics/GoogleTagManager";
-import { MetaPixel } from "@/components/analytics/MetaPixel";
+import { LazyChatWidget } from "@/components/chat/LazyChatWidget";
+import { GoogleTagManagerNoScript } from "@/components/analytics/GoogleTagManager";
+import { CONSENT_COOKIE, consentDefaultsScript, parseConsent } from "@/lib/consent";
+import { CookieConsentProvider } from "@/components/privacy/CookieConsentProvider";
+import { CookieBanner } from "@/components/privacy/CookieBanner";
+import { ConsentTracking } from "@/components/privacy/ConsentTracking";
+import { ConsentPromotions } from "@/components/privacy/ConsentPromotions";
 import { Footer } from "@/components/footer/Footer";
 import { HideOnAuth } from "@/components/layout/HideOnAuth";
-import { GiveawayPromo } from "@/components/home/GiveawayPromo";
-import { SignupPrompt } from "@/components/auth/SignupPrompt";
 
 // Raleway is the site typeface, carrying both body and headings. This
 // supersedes the Brand Identity Guidelines (Biennale for display, Manrope for
 // body) — changed on request.
-const raleway = Raleway({
+const raleway = localFont({
+  src: "../public/fonts/raleway-latin-variable.woff2",
   variable: "--font-raleway",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: "100 900",
+  adjustFontFallback: "Arial",
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "../public/fonts/geistmono-latin-variable.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "100 900",
+  preload: false,
+  adjustFontFallback: false,
   display: "swap",
 });
 
@@ -55,7 +57,6 @@ export const metadata: Metadata = {
   verification: {
     google: "ZpXgRVAQRGLqC5BbwNwnoZBiafiJaxBgDCqj39SG760",
   },
-  alternates: { canonical: "/" },
   // Served straight from /public. The app/ file conventions (favicon.ico,
   // icon.png) were removed so this is the single source for the tab icon —
   // keeping both would emit competing <link rel="icon"> tags. The
@@ -119,6 +120,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale();
+  const initialConsent = parseConsent((await cookies()).get(CONSENT_COOKIE)?.value);
 
   return (
     <html
@@ -128,13 +130,7 @@ export default async function RootLayout({
       className={`${raleway.variable} ${geistMono.variable} h-full`}
     >
       <head>
-        <Script id="google-tag-manager" strategy="beforeInteractive">
-          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${GOOGLE_TAG_MANAGER_ID}');`}
-        </Script>
+        <Script id="google-consent-default" strategy="beforeInteractive">{consentDefaultsScript}</Script>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script
           type="application/ld+json"
@@ -142,8 +138,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
       </head>
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <GoogleTagManagerNoScript />
+        {initialConsent?.analytics && initialConsent.marketing && <GoogleTagManagerNoScript />}
         <LanguageProvider locale={locale} dict={dictionaries[locale]}>
+          <CookieConsentProvider initialConsent={initialConsent}>
           <AuthProvider>
           <CartProvider>
             <WishlistProvider>
@@ -151,19 +148,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 {children}
                 <HideOnAuth>
                   <Footer />
-                  <ChatWidget />
-                  <VisitTracker />
+                  <LazyChatWidget />
                 </HideOnAuth>
-                <GiveawayPromo />
-                <SignupPrompt />
+                <ConsentPromotions />
                 <CartDrawer />
                 {/* Analytics tags belong on every page, sign-up included. */}
-                <GoogleAnalytics />
-                <MetaPixel />
+                <ConsentTracking />
+                <CookieBanner />
               </FlyProvider>
             </WishlistProvider>
           </CartProvider>
           </AuthProvider>
+          </CookieConsentProvider>
         </LanguageProvider>
       </body>
     </html>

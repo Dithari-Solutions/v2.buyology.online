@@ -8,6 +8,19 @@ import {
 
 const REGION_COOKIE = "buyo-region-choice";
 
+/** Only the URL may set this internal header; never accept a client-supplied locale header. */
+function pageHeaders(req: NextRequest) {
+  const values = new Headers(req.headers);
+  values.delete("x-buyology-locale");
+  const language = req.nextUrl.searchParams.get("lang");
+  if (language === "en" || language === "ar" || language === "az") values.set("x-buyology-locale", language);
+  return values;
+}
+
+function nextPage(req: NextRequest) {
+  return NextResponse.next({ request: { headers: pageHeaders(req) } });
+}
+
 /**
  * Search-engine and social crawlers, which are never geo-redirected.
  *
@@ -45,12 +58,12 @@ function isCrawler(req: NextRequest): boolean {
 export function middleware(req: NextRequest) {
   // Paymob returns to the origin that started the payment. Changing hosts here loses the
   // tab's transaction breadcrumbs and can strand a paid shopper on another market's page.
-  if (req.nextUrl.pathname === "/payment/callback") return NextResponse.next();
+  if (req.nextUrl.pathname === "/payment/callback") return nextPage(req);
   const host = (req.headers.get("host") ?? "").toLowerCase();
-  if (!isRoutedHost(host)) return NextResponse.next();
+  if (!isRoutedHost(host)) return nextPage(req);
 
   // Before any geo decision: a crawler is served whatever host it asked for. See CRAWLER_UA.
-  if (isCrawler(req)) return NextResponse.next();
+  if (isCrawler(req)) return nextPage(req);
 
   const geo = req.headers.get("x-geo-country");
   const anonymous = req.headers.get("x-geo-anonymous") === "1";
@@ -74,7 +87,7 @@ export function middleware(req: NextRequest) {
         const chose = req.nextUrl.searchParams.has("choose-region");
         const preferred = req.cookies.get(REGION_COOKIE)?.value;
         if (chose || preferred === bareHost) {
-          const res = NextResponse.next();
+          const res = nextPage(req);
           if (chose) {
             res.cookies.set(REGION_COOKIE, bareHost, {
               path: "/",
@@ -93,11 +106,11 @@ export function middleware(req: NextRequest) {
       const url = new URL(req.nextUrl.pathname + req.nextUrl.search, `https://${visitorMarket.host}`);
       return NextResponse.redirect(url, 307);
     }
-    return NextResponse.next();
+    return nextPage(req);
   }
 
   // No geo signal: the landing still renders as itself; region hosts serve as addressed.
-  return onLanding ? rewriteLanding(req) : NextResponse.next();
+  return onLanding ? rewriteLanding(req) : nextPage(req);
 }
 
 function redirectToLanding() {
@@ -106,11 +119,11 @@ function redirectToLanding() {
 
 /** The web host serves ONLY the global landing, whatever path was requested. */
 function rewriteLanding(req: NextRequest) {
-  if (req.nextUrl.pathname === "/global-welcome") return NextResponse.next();
+  if (req.nextUrl.pathname === "/global-welcome") return nextPage(req);
   const url = req.nextUrl.clone();
   url.pathname = "/global-welcome";
   url.search = "";
-  return NextResponse.rewrite(url);
+  return NextResponse.rewrite(url, { request: { headers: pageHeaders(req) } });
 }
 
 export const config = {

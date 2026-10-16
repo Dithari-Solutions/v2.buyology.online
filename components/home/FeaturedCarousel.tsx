@@ -40,6 +40,7 @@ export function FeaturedCarousel({
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [heroReady, setHeroReady] = useState(false);
+  const [interacted, setInteracted] = useState(false);
   const reduced = usePrefersReducedMotion();
   const count = banners.length;
   const trackRef = useRef<HTMLDivElement>(null);
@@ -47,6 +48,7 @@ export function FeaturedCarousel({
   const go = useCallback(
     (next: number) => {
       const target = (next + count) % count;
+      setInteracted(true);
       setIndex(target);
       // Only the swipe layout scrolls. From lg up the slides are stacked, nothing overflows, and
       // the index alone drives the fade.
@@ -65,10 +67,10 @@ export function FeaturedCarousel({
   // A timeout re-armed on every slide change rather than a fixed interval, so a slide somebody
   // has just swiped to gets its full five seconds before autoplay moves on.
   useEffect(() => {
-    if (paused || reduced || count <= 1) return;
+    if (!interacted || paused || reduced || count <= 1) return;
     const id = setTimeout(() => go(index + 1), AUTOPLAY_MS);
     return () => clearTimeout(id);
-  }, [index, paused, reduced, count, go]);
+  }, [index, interacted, paused, reduced, count, go]);
 
   /** Swipe layout: whichever slide the track has settled nearest is the current one. */
   function onScroll() {
@@ -76,6 +78,7 @@ export function FeaturedCarousel({
     if (!el || el.clientWidth === 0) return;
     // scrollLeft runs negative in RTL; the distance from the start is what counts.
     const nearest = Math.round(Math.abs(el.scrollLeft) / el.clientWidth);
+    if (nearest !== index) setInteracted(true);
     setIndex(Math.min(count - 1, Math.max(0, nearest)));
   }
 
@@ -95,12 +98,12 @@ export function FeaturedCarousel({
     <section
       aria-roledescription="carousel"
       aria-label={label}
-      onMouseEnter={() => setPaused(true)}
+      onMouseEnter={() => { setInteracted(true); setPaused(true); }}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
       // A finger on the banner holds it still; autoplay must not yank a slide out from under a swipe.
-      onTouchStart={() => setPaused(true)}
+      onTouchStart={() => { setInteracted(true); setPaused(true); }}
       onTouchEnd={() => setPaused(false)}
       onTouchCancel={() => setPaused(false)}
       onKeyDown={onKeyDown}
@@ -126,10 +129,10 @@ export function FeaturedCarousel({
               src={banner.backgroundImageUrl!}
               alt={headline ?? `${label} ${i + 1}`}
               fill
-              preload={i === 0}
+              fetchPriority={i === 0 ? "high" : "auto"}
               // Only the first image is in the initial HTML. Prefetch the next slide after it
               // loads, giving autoplay five seconds to prepare without competing at first paint.
-              loading={i === 0 ? undefined : "eager"}
+              loading="eager"
               onLoad={i === 0 ? () => setHeroReady(true) : undefined}
               onError={i === 0 ? () => setHeroReady(true) : undefined}
               quality={75}
@@ -147,13 +150,14 @@ export function FeaturedCarousel({
             {(headline || (ctaLabel && href)) && (
               <div className="absolute inset-0 flex flex-col justify-end gap-3 p-5 pb-10 sm:p-8 lg:p-10">
                 {headline && (
-                  <h3 className="max-w-md break-words text-2xl font-semibold leading-tight text-white sm:text-3xl lg:text-4xl">
+                  <h3 className="max-w-md break-words text-xl font-semibold leading-tight text-white min-[390px]:text-2xl sm:text-3xl lg:text-4xl">
                     {headline}
                   </h3>
                 )}
                 {ctaLabel && href && (
                   <Link
                     href={href}
+                    tabIndex={active ? 0 : -1}
                     className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
                   >
                     {ctaLabel}
@@ -172,6 +176,7 @@ export function FeaturedCarousel({
             aria-roledescription="slide"
             aria-label={`${i + 1} / ${count}`}
             aria-hidden={!active}
+            inert={!active}
             className={`relative h-full w-full shrink-0 snap-center snap-always lg:absolute lg:inset-0 lg:transition-opacity lg:duration-700 ${
               active ? "lg:opacity-100" : "lg:pointer-events-none lg:opacity-0"
             }`}
@@ -225,10 +230,8 @@ export function FeaturedCarousel({
               onClick={() => go(i)}
               aria-label={`${i + 1} / ${count}`}
               aria-current={i === index}
-              className={`h-1.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                i === index ? "w-6 bg-gold" : "w-1.5 bg-white/50 hover:bg-white/80"
-              }`}
-            />
+              className="flex h-7 w-7 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            ><span aria-hidden="true" className={`h-1.5 rounded-full transition-all ${i === index ? "w-6 bg-gold" : "w-1.5 bg-white/50 hover:bg-white/80"}`} /></button>
           ))}
         </div>
       )}

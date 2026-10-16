@@ -1,4 +1,5 @@
 import { currentMarket } from "@/lib/market";
+import { browserConsent } from "@/lib/consent";
 
 /**
  * Meta Pixel commerce events from the browser: ViewContent, AddToCart, InitiateCheckout, Purchase.
@@ -57,9 +58,10 @@ function money(n: number): number {
 }
 
 function send(event: string, params: Record<string, unknown>, eventID?: string) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !browserConsent()?.marketing) return;
   let tries = 0;
   const attempt = () => {
+    if (!browserConsent()?.marketing) return;
     const fbq = window.fbq;
     if (typeof fbq === "function") {
       try {
@@ -131,6 +133,7 @@ function writePending(pending: Record<string, PurchaseRecord>) {
  * remembered from when the order was created, which is the authoritative one.
  */
 export function rememberPurchase(record: PurchaseRecord, { overwrite = true } = {}) {
+  if (!browserConsent()?.marketing) return;
   const pending = readPending();
   if (!overwrite && pending[record.orderId]) return;
   pending[record.orderId] = record;
@@ -163,6 +166,7 @@ function markSent(orderId: string) {
  * Meta rejects.
  */
 export function metaPurchase(orderId: string) {
+  if (!browserConsent()?.marketing) return;
   const pending = readPending();
   const record = pending[orderId];
   if (!record) return;

@@ -6,10 +6,10 @@ const MEASUREMENT_ID = "G-33199BYJE6";
  * Shared Google tag for every route, including authentication pages.
  * Load after hydration with Next's script deduplication across navigation.
  */
-export function GoogleAnalytics() {
+export function GoogleAnalytics({ viaGtmAllowed = true }: { viaGtmAllowed?: boolean }) {
   // Enable only after publishing this measurement ID inside GTM. One owner
   // prevents the direct snippet and the container counting the same visit twice.
-  if (process.env.NEXT_PUBLIC_GA_VIA_GTM === "true") return null;
+  if (viaGtmAllowed && process.env.NEXT_PUBLIC_GA_VIA_GTM === "true") return null;
 
   return (
     <>

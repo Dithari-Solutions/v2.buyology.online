@@ -1,103 +1,57 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/lib/site";
-import { buyobot, services } from "@/lib/nav-data";
-import { fetchCategories, fetchProducts, productHref } from "@/lib/catalogue";
-import { categoryHref, renderableRoots } from "@/lib/category-nav";
+import { serverMarket } from "@/lib/market-server";
+import { SEO_PAGES } from "@/lib/seo";
+import { fetchCategories, productHref, type ApiProduct } from "@/lib/catalogue";
+import { backendUrl, type ApiEnvelope } from "@/lib/backend";
+import { fetchAnnouncements } from "@/lib/news-api";
 
-/**
- * The sitemap is built from the LIVE catalogue, not from a hardcoded list.
- *
- * It previously submitted the static nav-data category slugs — the ones that never existed
- * server-side — so every category URL Google was told to crawl resolved to an empty page, which
- * is worse than omitting them: it spends crawl budget teaching the index that this site returns
- * thin results. Now the categories come from /api/category and real product URLs are included,
- * which is what actually earns product rich results.
- *
- * Catalogue lookups are best-effort: a sitemap that 500s is not served at all, so a failed
- * fetch degrades to the static routes rather than taking the whole file down.
- */
-export const revalidate = 3600;
+const PAGE_SIZE = 24;
+const MAX_URLS = 45_000;
 
-/** How many products to enumerate. Enough to matter, bounded so the file stays servable. */
-const PRODUCT_PAGES = 8;
-
+/** Only indexable canonical URLs. Product enumeration stops at the actual end, not eight pages. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const lastModified = new Date();
-
-  const staticRoutes: MetadataRoute.Sitemap = [
-    { url: site.url, lastModified, changeFrequency: "daily", priority: 1 },
-    { url: `${site.url}/products`, lastModified, changeFrequency: "daily", priority: 0.9 },
-    { url: `${site.url}/search`, lastModified, changeFrequency: "daily", priority: 0.6 },
-  ];
-
-  // Content pages: real answers to real queries (warranty, shipping, returns), and the pages
-  // a shopper checks before buying refurbished.
-  const contentRoutes: MetadataRoute.Sitemap = [
-    "/about",
-    "/help",
-    "/shipping",
-    "/warranty",
-    "/returns",
-    "/contact",
-    "/track",
-    "/privacy",
-    "/terms",
-    "/cookies",
-  ].map((path) => ({
-    url: `${site.url}${path}`,
-    lastModified,
-    changeFrequency: "monthly" as const,
-    priority: 0.5,
+  const market = await serverMarket();
+  const origin = `https://${market.host}`;
+  const routes: MetadataRoute.Sitemap = Object.keys(SEO_PAGES).map(path => ({
+    url: `${origin}${path === "/" ? "" : path}`, changeFrequency: path === "/" || path === "/products" ? "daily" : "monthly",
   }));
-
-  const serviceRoutes: MetadataRoute.Sitemap = [...services, buyobot].map((s) => ({
-    url: `${site.url}${s.href}`,
-    lastModified,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
-
-  let categoryRoutes: MetadataRoute.Sitemap = [];
+  const productCategories = new Set<string>();
+  const seen = new Set<string>();
   try {
-    // English taxonomy on purpose: the sitemap is the canonical set of URLs, and an English
-    // slug reads the same to a crawler whatever language a visitor browses in.
-    categoryRoutes = renderableRoots(await fetchCategories("en")).map((c) => ({
-      url: `${site.url}${categoryHref(c)}`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    }));
-  } catch {
-    /* the static routes still stand */
-  }
-
-  const productRoutes: MetadataRoute.Sitemap = [];
-  try {
-    const seen = new Set<string>();
-    for (let page = 0; page < PRODUCT_PAGES; page += 1) {
-      const { items, hasMore } = await fetchProducts("en", { page });
-      for (const row of items) {
-        if (!seen.has(row.id)) {
-          seen.add(row.id);
-          productRoutes.push({
-            url: `${site.url}${productHref(row)}`,
-            lastModified,
-            changeFrequency: "weekly",
-            priority: 0.8,
-          });
-        }
+    for (let page = 0; routes.length < MAX_URLS; page++) {
+      const params = new URLSearchParams({ lang: "EN", countryCode: market.countryCode, currency: market.currency, page: String(page), size: String(PAGE_SIZE) });
+      // Cached only for discovery; these responses are never used as a checkout price source.
+      const response = await fetch(backendUrl(`/api/product?${params}`), { next: { revalidate: 3600 }, signal: AbortSignal.timeout(10_000) });
+      if (!response.ok) throw new Error(`Catalogue sitemap ${response.status}`);
+      const envelope = await response.json() as ApiEnvelope<ApiProduct[]>;
+      if (!Array.isArray(envelope.data)) throw new Error("Invalid catalogue sitemap response");
+      const rows = envelope.data;
+      let added = 0;
+      for (const product of rows) {
+        if (!product.id || seen.has(product.id)) continue;
+        seen.add(product.id); added++;
+        if (product.availableInSelectedCountry === false) continue;
+        if (product.categoryId) productCategories.add(product.categoryId);
+        routes.push({ url: `${origin}${productHref({ id: product.id, slug: product.slug ?? undefined })}`, changeFrequency: "weekly" });
       }
-      if (!hasMore) break;
+      if (rows.length < PAGE_SIZE || added === 0) break;
     }
-  } catch {
-    /* a partial sitemap beats none */
+  } catch (error) {
+    console.warn("Sitemap catalogue temporarily incomplete:", error instanceof Error ? error.message : "Unavailable");
   }
-
-  return [
-    ...staticRoutes,
-    ...serviceRoutes,
-    ...categoryRoutes,
-    ...productRoutes,
-    ...contentRoutes,
-  ];
+  try {
+    const categories = await fetchCategories("en", market);
+    // The public category search matches exact IDs; only advertise categories with actual products.
+    const populated = new Set(productCategories);
+    for (const category of categories) if (category.status !== "INACTIVE" && populated.has(category.id)) {
+      routes.push({ url: `${origin}/products?category=${encodeURIComponent(category.id)}`, changeFrequency: "weekly" });
+    }
+  } catch { /* Static content and available product URLs remain useful. */ }
+  for (const article of await fetchAnnouncements() ?? []) {
+    if (article.status !== "PUBLISHED" || !article.slug) continue;
+    const modified = article.publishedAt && Number.isFinite(Date.parse(article.publishedAt)) ? article.publishedAt : undefined;
+    routes.push({ url: `${origin}/news/${encodeURIComponent(article.slug)}`, ...(modified ? { lastModified: modified } : {}) });
+  }
+  // No invented "last modified now" timestamps, search results, accounts, tracking or coming-soon pages.
+  return [...new Map(routes.map(route => [route.url, route])).values()].slice(0, MAX_URLS);
 }

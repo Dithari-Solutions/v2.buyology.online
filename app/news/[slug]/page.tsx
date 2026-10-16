@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -28,9 +29,9 @@ export async function generateMetadata(
   if (!article) return { title: (await getDict()).news.metaTitle };
 
   const url = `${site.url}/news/${article.slug}`;
-  return {
-    title: `${article.title} — Buyology`,
-    description: article.summary ?? undefined,
+  return pageMetadata(`/news/${article.slug}`, {
+    title: article.title,
+    description: article.summary || article.content || article.title,
     alternates: { canonical: url },
     openGraph: {
       title: article.title,
@@ -40,7 +41,7 @@ export async function generateMetadata(
       publishedTime: article.publishedAt ?? undefined,
       images: article.imageUrl ? [{ url: article.imageUrl }] : undefined,
     },
-  };
+  });
 }
 
 export default async function AnnouncementPage(

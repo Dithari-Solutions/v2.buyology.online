@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,7 +13,7 @@ export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDict();
-  return {
+  return pageMetadata("/news", {
     title: t.news.metaTitle,
     description: t.news.metaDescription,
     alternates: { canonical: `${site.url}/news` },
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
       url: `${site.url}/news`,
       type: "website",
     },
-  };
+  });
 }
 
 /** A post is written in one language whatever the site locale. Its title's first letter sets the

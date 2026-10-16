@@ -1,10 +1,11 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { StaticPage } from "@/components/pages/StaticPage";
 import { getDict } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getDict();
-  return { title: t.pages.aboutTitle };
+  return pageMetadata("/about", { title: t.pages.aboutTitle, description: t.pages.aboutP1 });
 }
 
 export default async function AboutPage() {

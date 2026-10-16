@@ -3,9 +3,11 @@
 import Image from 'next/image';
 import { useEffect, useState } from "react";
 import { cachedStories, fetchStories, seenStoryIds, type StorySummary } from "@/lib/story-feed";
-import { StoryViewer } from "@/components/stories/StoryViewer";
+import dynamic from "next/dynamic";
 import { useI18n } from "@/components/i18n/language-provider";
 import { useAuth } from "@/components/auth/auth-provider";
+
+const StoryViewer = dynamic(() => import("@/components/stories/StoryViewer").then(m => m.StoryViewer), { ssr: false });
 
 /**
  * The story row under the header — real, admin-published stories only (GET /api/story, resolved

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useI18n } from "@/components/i18n/language-provider";
 import type { Product } from "@/lib/products";
@@ -33,21 +33,31 @@ const PAGE = 9;
 // loader gives up. A page can legitimately add zero products — every row on it unavailable in the
 // selected country — so one empty page is not the end of the catalogue; ten in a row effectively is.
 const MAX_EMPTY_PAGE_PULLS = 10;
+const ceiling = (items: Product[]) => items.reduce((highest, p) => Math.max(highest, Math.ceil(p.price / 100) * 100), 500);
 
 export function ProductsView({
   initialCategory,
   initialBrand,
   initialFeed,
+  initialCategories,
+  initialFiltered,
 }: {
   initialCategory?: string;
   initialBrand?: string;
   initialFeed?: { items: Product[]; hasMore: boolean };
+  initialCategories?: Category[];
+  initialFiltered?: Product[];
 }) {
   const { t, locale } = useI18n();
 
   // How many of the loaded products are revealed. Declared up here with the browse-mode state rather
   // than beside the filter controls, because the catalogue fetch below has to reset it.
   const [visible, setVisible] = useState(PAGE);
+  const [priceCeil, setPriceCeil] = useState(() => ceiling([...(initialFeed?.items ?? []), ...(initialFiltered ?? [])]));
+  const widenPriceCeil = useCallback((items: Product[]) => {
+    const highest = ceiling(items);
+    setPriceCeil(previous => Math.max(previous, highest));
+  }, []);
 
   // ── Browse mode: the plain catalogue, accumulated page by page ─────────────
   const [catalog, setCatalog] = useState<Product[] | null>(() => initialFeed?.items ?? null);
@@ -75,6 +85,7 @@ export function ProductsView({
     Promise.resolve(cachedProducts(locale)).then(cached => {
       if (gen !== catalogGen.current || !cached) return;
       setCatalog(cached.items);
+      widenPriceCeil(cached.items);
       serverPageRef.current = 0;
       setHasMore(cached.hasMore);
       setVisible(PAGE);
@@ -83,6 +94,7 @@ export function ProductsView({
       .then(({ items, hasMore: more }) => {
         if (gen !== catalogGen.current) return;
         setCatalog(items);
+        widenPriceCeil(items);
         serverPageRef.current = 0;
         setHasMore(more);
         // Back to the first screenful, because this replaced the catalogue. Not needed while loading
@@ -96,7 +108,7 @@ export function ProductsView({
         if (gen === catalogGen.current) setBrowseError(true);
       });
     return () => { catalogGen.current += 1; };
-  }, [locale, retryNonce]);
+  }, [locale, retryNonce, widenPriceCeil]);
 
   /**
    * Pulls the next catalogue page, reporting what it added and whether any remain.
@@ -117,6 +129,7 @@ export function ProductsView({
       const { items, hasMore: more } = await fetchProducts(locale, { page: next });
       if (gen !== catalogGen.current) return { added: 0, more: false }; // a locale switch replaced it
       setCatalog((prev) => [...(prev ?? []), ...items]);
+      widenPriceCeil(items);
       serverPageRef.current = next;
       setHasMore(more);
       return { added: items.length, more };
@@ -131,7 +144,7 @@ export function ProductsView({
   }
 
   // ── The real category list — ids drive /api/product/search, names label chips ──
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
   useEffect(() => {
     let cancelled = false;
     fetchCategories(locale)
@@ -157,9 +170,10 @@ export function ProductsView({
   const [filters, setFilters] = useState<Filters>(() => {
     const id = initialBrand?.trim().toLowerCase();
     // Only a UUID: the backend filters brands by id, so a name here would silently match nothing.
-    return id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)
-      ? { ...DEFAULT_FILTERS, brands: [id] }
-      : DEFAULT_FILTERS;
+    return { ...DEFAULT_FILTERS,
+      categories: initialCategories && initialCategory ? [initialCategory] : [],
+      brands: id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id) ? [id] : [],
+    };
   });
   const [sort, setSort] = useState<SortKey>("featured");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -169,7 +183,7 @@ export function ProductsView({
   // resolved against the active-locale AND the English lists. Resolution happens exactly once:
   // whatever the outcome, the user owns the chip afterwards (a locale switch must not re-add a
   // filter they removed).
-  const appliedInitial = useRef(false);
+  const appliedInitial = useRef(initialCategories !== undefined);
   useEffect(() => {
     if (appliedInitial.current || !initialCategory) return;
     let stale = false;
@@ -225,22 +239,19 @@ export function ProductsView({
         : null,
     [filters, sort],
   );
-  const [results, setResults] = useState<Product[] | null>(null);
-  const [searching, setSearching] = useState(false);
-  const [searchError, setSearchError] = useState(false);
+  const [searchState, setSearchState] = useState<{ key: string | null; locale: string; items: Product[] | null; busy: boolean; error: boolean }>(() => ({ key: serverKey, locale, items: initialFiltered ?? null, busy: false, error: false }));
+  const currentSearch = searchState.key === serverKey && searchState.locale === locale ? searchState : null;
+  const results = currentSearch?.items ?? null;
+  const searching = serverKey !== null && (!currentSearch || currentSearch.busy);
+  const searchError = currentSearch?.error ?? false;
 
   useEffect(() => {
-    if (serverKey === null) {
-      setResults(null);
-      setSearching(false);
-      setSearchError(false);
-      return;
-    }
+    if (serverKey === null) return;
     let cancelled = false;
-    setSearching(true);
     // Debounce: slider drags re-run this effect per step; the cleanup cancels the previous
     // timer so only the resting value hits the network.
     const timer = setTimeout(() => {
+      setSearchState(previous => ({ key: serverKey, locale, items: previous.key === serverKey && previous.locale === locale ? previous.items : null, busy: true, error: false }));
       const q = JSON.parse(serverKey) as {
         c: string[];
         b: string[];
@@ -262,33 +273,22 @@ export function ProductsView({
             if (item.brandId && item.brand) named[item.brandId] = item.brand;
           }
           if (Object.keys(named).length) setBrandNames((prev) => ({ ...prev, ...named }));
-          setResults(items);
-          setSearchError(false);
+          widenPriceCeil(items);
+          setSearchState({ key: serverKey, locale, items, busy: false, error: false });
         })
         .catch(() => {
           // Keep whatever was on screen; the error card owns the grid until a retry succeeds.
-          if (!cancelled) setSearchError(true);
-        })
-        .finally(() => {
-          if (!cancelled) setSearching(false);
+          if (!cancelled) setSearchState(previous => ({ key: serverKey, locale, items: previous.key === serverKey && previous.locale === locale ? previous.items : null, busy: false, error: true }));
         });
     }, 300);
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [serverKey, locale, retryNonce]);
+  }, [serverKey, locale, retryNonce, widenPriceCeil]);
 
   // Slider scale: grows to the priciest product seen and never shrinks mid-session, so the
   // thumbs don't jump under the user's pointer when new pages load.
-  const [priceCeil, setPriceCeil] = useState(500);
-  useEffect(() => {
-    let maxSeen = 0;
-    for (const p of catalog ?? []) maxSeen = Math.max(maxSeen, p.price);
-    for (const p of results ?? []) maxSeen = Math.max(maxSeen, p.price);
-    if (maxSeen > 0)
-      setPriceCeil((prev) => Math.max(prev, Math.ceil(maxSeen / 100) * 100));
-  }, [catalog, results]);
 
   const filtered = useMemo(() => {
     const base =
@@ -448,7 +448,7 @@ export function ProductsView({
       {/* Heading */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-          {t.shop.title}
+          {filters.categories.length === 1 && categoryName(filters.categories[0]) || t.shop.title}
         </h1>
         <p className="mt-1 text-sm text-muted">{t.shop.subtitle}</p>
       </div>
