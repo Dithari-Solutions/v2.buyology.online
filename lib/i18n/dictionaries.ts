@@ -85,6 +85,7 @@ export interface Dict {
     heard: string;
   };
   departments: { label: string; viewAll: string; shopNow: string };
+  popular: { title: string; description: string; viewAll: string; featured: string; promotions: string };
   deals: {
     title: string;
     endsIn: string;
@@ -1344,6 +1345,13 @@ const en: Dict = {
     label: "Departments",
     viewAll: "View all categories",
     shopNow: "Shop now",
+  },
+  popular: {
+    title: "Popular products",
+    description: "Explore available products and compare models, specifications and prices.",
+    viewAll: "View all products",
+    featured: "Featured",
+    promotions: "Featured offers",
   },
   deals: {
     title: "Flash deals",
@@ -2911,6 +2919,13 @@ const az: Dict = {
     label: "Şöbələr",
     viewAll: "Bütün kateqoriyalara bax",
     shopNow: "İndi al",
+  },
+  popular: {
+    title: "Populyar məhsullar",
+    description: "Mövcud məhsulları kəşf edin, modelləri, xüsusiyyətləri və qiymətləri müqayisə edin.",
+    viewAll: "Bütün məhsullara bax",
+    featured: "Seçilmiş",
+    promotions: "Seçilmiş təkliflər",
   },
   deals: {
     title: "Fləş endirimlər",
@@ -4492,6 +4507,13 @@ const ar: Dict = {
     label: "الأقسام",
     viewAll: "عرض كل الفئات",
     shopNow: "تسوّق الآن",
+  },
+  popular: {
+    title: "منتجات رائجة",
+    description: "تصفّح المنتجات المتاحة وقارن بين الموديلات والمواصفات والأسعار.",
+    viewAll: "عرض جميع المنتجات",
+    featured: "منتجات مختارة",
+    promotions: "العروض المميزة",
   },
   deals: {
     title: "عروض خاطفة",

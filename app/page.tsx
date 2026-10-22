@@ -8,6 +8,7 @@ import { HomeFaq } from "@/components/home/HomeFaq";
 import { CategoryBanners } from "@/components/home/CategoryBanners";
 import { FeatureStrip } from "@/components/home/FeatureStrip";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
+import { PopularProducts } from "@/components/home/PopularProducts";
 import { BuyologyAI } from "@/components/home/BuyologyAI";
 import { Metrics } from "@/components/home/Metrics";
 import { getDict, getLocale } from "@/lib/i18n/server";
@@ -57,6 +58,7 @@ export default async function Home() {
         <Stories />
         {giveaway}
         {departments}
+        <PopularProducts />
         <FeatureStrip />
         {/* Flash sale. Fetches in the browser and renders nothing until it has something on sale,
             so it never delays this page and never leaves an empty rail behind. */}

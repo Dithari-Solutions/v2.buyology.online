@@ -136,8 +136,8 @@ export function FeaturedCarousel({
               onLoad={i === 0 ? () => setHeroReady(true) : undefined}
               onError={i === 0 ? () => setHeroReady(true) : undefined}
               quality={75}
-              sizes="(min-width: 1024px) 760px, 100vw"
-              className="object-cover"
+              sizes="(min-width: 1400px) 1352px, (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)"
+              className="bg-surface-2 object-contain"
             />}
             {/* Scrims only exist to make OUR overlay copy legible. */}
             {headline && (

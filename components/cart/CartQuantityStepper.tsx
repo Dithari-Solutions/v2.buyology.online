@@ -21,10 +21,12 @@ export function CartQuantityStepper({
   productId,
   productName,
   className = "",
+  tabIndex,
 }: {
   productId: string;
   productName: string;
   className?: string;
+  tabIndex?: number;
 }) {
   const { t } = useI18n();
   const { setQty, removeItem } = useCart();
@@ -41,6 +43,7 @@ export function CartQuantityStepper({
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="inline-flex flex-1 items-center justify-between rounded-full border border-border">
         <button
+          tabIndex={tabIndex}
           type="button"
           // Minus at 1 removes the line: setQty(id, 0) delegates to removeItem. That is the behaviour
           // the cart page already has, and it means the control cannot get stuck at a quantity of 1.
@@ -54,6 +57,7 @@ export function CartQuantityStepper({
           {line.qty}
         </span>
         <button
+          tabIndex={tabIndex}
           type="button"
           onClick={() => setQty(line.id, line.qty + 1)}
           disabled={atMax}
@@ -66,6 +70,7 @@ export function CartQuantityStepper({
       {/* An explicit remove as well as minus-to-zero. Reaching for "take this out" by pressing minus
           repeatedly is not obvious, and the cart page offers both for the same reason. */}
       <button
+        tabIndex={tabIndex}
         type="button"
         onClick={() => removeItem(line.id)}
         aria-label={`${t.cart.remove}: ${productName}`}

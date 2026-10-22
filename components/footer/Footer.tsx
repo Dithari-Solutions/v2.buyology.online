@@ -28,7 +28,7 @@ export async function Footer() {
     >
       {/* Newsletter */}
       <div className="border-b border-white/10">
-        <div className="mx-auto grid max-w-[1400px] gap-6 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-12">
+        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-12">
           <div>
             <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
               {f.newsletter.title}

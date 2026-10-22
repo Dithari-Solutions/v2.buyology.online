@@ -19,11 +19,14 @@ export function ProductCard({
   bestsellerLabel,
   refurbishedLabel,
   wishlistLabel,
+  duplicate = false,
 }: {
   product: Product;
   bestsellerLabel: string;
   refurbishedLabel: string;
   wishlistLabel: string;
+  /** Loop copies remain clickable but do not repeat the keyboard navigation. */
+  duplicate?: boolean;
 }) {
   const filled = Math.round(product.rating);
   const { has, toggle } = useWishlist();
@@ -104,6 +107,7 @@ export function ProductCard({
 
         {/* Wishlist (end) */}
         <button
+          tabIndex={duplicate ? -1 : undefined}
           type="button"
           onClick={(e) => {
             const willAdd = !wished;
@@ -144,6 +148,7 @@ export function ProductCard({
             at 1.04 the two-line box has room for the top of a third line under the ellipsis. */}
         <h3 className="line-clamp-2 h-[2.25rem] text-[13px] font-semibold leading-snug! text-foreground sm:mt-1 sm:h-[2.75rem] sm:text-base">
           <Link
+            tabIndex={duplicate ? -1 : undefined}
             href={product.href}
             className="after:absolute after:inset-0 after:z-[2] after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
@@ -206,7 +211,7 @@ export function ProductCard({
 
         {/* Above the card-wide product link, or it would just open the product. */}
         <div className="relative z-[3]">
-          <AddToCartButton product={product} />
+          <AddToCartButton product={product} tabIndex={duplicate ? -1 : undefined} />
         </div>
       </div>
     </article>

@@ -1,39 +1,38 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchCategories, type Category } from "@/lib/catalogue";
-import { renderableRoots } from "@/lib/category-nav";
+import { fetchCategories, fetchNavigationCatalogue, type Category } from "@/lib/catalogue";
+import { stockedCategories } from "@/lib/category-nav";
 import { useI18n } from "@/components/i18n/language-provider";
 
 export { categoryHref, categoryIcon } from "@/lib/category-nav";
 
 /**
- * The LIVE category taxonomy for client navigation surfaces (header mega-menu, mobile
- * menu, command palette). The static nav-data category list once pointed at slugs that
- * never existed in the backend — every link led to an empty page. Names arrive localized
- * per request language; links carry the category ID (ids are locale-stable, slugs are not).
+ * Active categories with products in the visitor's market, shared by header navigation,
+ * mobile navigation and the command palette. Unbranded products count too. Availability
+ * and brand tiles share a single catalogue read; names arrive in the requested language.
  *
  * `null` while loading (render a skeleton), `[]` on failure (render nothing — the
  * all-products link always stands). fetchCategories memoizes per locale+market with a
- * short TTL, so every consumer in the header shares one request.
+ * short TTL, so every consumer in the header shares the requests.
  */
 export function useLiveCategories(): Category[] | null {
   const { locale } = useI18n();
-  const [cats, setCats] = useState<Category[] | null>(null);
+  const [result, setResult] = useState<{ locale: string; categories: Category[] } | null>(null);
 
   useEffect(() => {
     let stale = false;
-    fetchCategories(locale)
-      .then((list) => {
-        if (!stale) setCats(renderableRoots(list));
+    Promise.all([fetchCategories(locale), fetchNavigationCatalogue(locale)])
+      .then(([list, inventory]) => {
+        if (!stale) setResult({ locale, categories: stockedCategories(list, inventory.categoryIds) });
       })
       .catch(() => {
-        if (!stale) setCats([]);
+        if (!stale) setResult({ locale, categories: [] });
       });
     return () => {
       stale = true;
     };
   }, [locale]);
 
-  return cats;
+  return result?.locale === locale ? result.categories : null;
 }

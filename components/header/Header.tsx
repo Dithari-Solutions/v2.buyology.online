@@ -16,6 +16,7 @@ import {
   ArrowRightShortIcon,
   BagIcon,
   CloseIcon,
+  ChevronDownIcon,
   HeartIcon,
   MenuIcon,
   TagIcon,
@@ -155,35 +156,6 @@ export function Header() {
                 <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />
               </Link>
 
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-                {t.palette.services}
-              </p>
-              <ul className="mb-3 grid grid-cols-2 gap-1">
-                {mobileServices.map((s) => {
-                  const Icon = s.icon;
-                  return (
-                    <li key={s.href}>
-                      <Link
-                        href={s.href}
-                        onClick={close}
-                        className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-surface-2 ${
-                          s.accent
-                            ? "font-semibold text-warn dark:text-gold"
-                            : "font-medium text-foreground"
-                        }`}
-                      >
-                        <Icon className="h-[18px] w-[18px] shrink-0 text-brand-icon" />
-                        {/* The badge wraps under the label when the half-width cell is too narrow. */}
-                        <span className="flex min-w-0 flex-wrap items-center gap-x-2">
-                          {t.items[s.key].label}
-                          {s.key === "svc-announcements" && <AnnouncementsBadge />}
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-
               {(liveCategories?.length ?? 0) > 0 && (
                 <>
                   <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
@@ -204,6 +176,34 @@ export function Header() {
                   </ul>
                 </>
               )}
+              <details className="group/services mt-3 border-t border-border pt-3">
+                <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-brand-icon [&::-webkit-details-marker]:hidden">{t.palette.services}<ChevronDownIcon className="h-4 w-4 transition-transform group-open/services:rotate-180" /></summary>
+                <ul className="mb-3 grid grid-cols-2 gap-1">
+                  {mobileServices.map((s) => {
+                    const Icon = s.icon;
+                    return (
+                      <li key={s.href}>
+                        <Link
+                          href={s.href}
+                          onClick={close}
+                          className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-surface-2 ${
+                            s.accent
+                              ? "font-semibold text-warn dark:text-gold"
+                              : "font-medium text-foreground"
+                          }`}
+                        >
+                          <Icon className="h-[18px] w-[18px] shrink-0 text-brand-icon" />
+                          {/* The badge wraps under the label when the half-width cell is too narrow. */}
+                          <span className="flex min-w-0 flex-wrap items-center gap-x-2">
+                            {t.items[s.key].label}
+                            {s.key === "svc-announcements" && <AnnouncementsBadge />}
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </details>
             </div>
 
             <div className="mx-auto grid max-w-[1400px] grid-cols-3 gap-1 border-t border-border px-4 py-2 text-sm text-muted sm:flex sm:flex-wrap sm:gap-x-5 sm:gap-y-2 sm:px-6 sm:py-3">

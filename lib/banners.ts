@@ -66,6 +66,3 @@ function withApprovedCopy(banner: Banner, locale: Locale): Banner {
   const copy = fallbackBannerCopy(banner.id, locale);
   return copy ? { ...banner, ...copy } : banner;
 }
-
-/** How many banners lead the region as the big rotating hero; the rest become side tiles. */
-export const HERO_BANNER_COUNT = 4;

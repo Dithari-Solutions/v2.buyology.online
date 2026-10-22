@@ -182,8 +182,13 @@ export function fetchCategories(locale: Locale, market?: Market): Promise<Catego
 /** A brand as the menu needs it: the id filters the catalogue, the name labels the tile. */
 export type CategoryBrand = { id: string; name: string };
 
+type NavigationCatalogue = {
+  categoryIds: Set<string>;
+  brands: Map<string, CategoryBrand[]>;
+};
+
 /**
- * The brands each category actually has products from, biggest name in the category first.
+ * Stocked category IDs and the brands each category carries, biggest brand first.
  *
  * <p>Built from ONE catalogue read rather than a request per category: /api/product/search with no
  * filters returns the whole matched list, every row carrying its categoryId, brandId and brandName,
@@ -196,18 +201,18 @@ export type CategoryBrand = { id: string; name: string };
  * and so answers "HP" with a product nobody tagged HP.
  *
  * <p>Ordered by how many products carry the brand, so the biggest name in a category leads. Never
- * throws: an empty map simply means the menu shows categories without brand marks.
+ * throws: an empty snapshot keeps All products available without advertising empty departments.
  */
 const CATEGORY_BRANDS_TTL_MS = 5 * 60_000;
 const categoryBrandsCache = new Map<
   string,
-  { promise: Promise<Map<string, CategoryBrand[]>>; at: number }
+  { promise: Promise<NavigationCatalogue>; at: number }
 >();
 
-export function fetchCategoryBrands(
+export function fetchNavigationCatalogue(
   locale: Locale,
   market?: Market,
-): Promise<Map<string, CategoryBrand[]>> {
+): Promise<NavigationCatalogue> {
   const m = market ?? currentMarket();
   const cacheKey = `${locale}:${m.countryCode}`;
   const entry = categoryBrandsCache.get(cacheKey);
@@ -216,9 +221,12 @@ export function fetchCategoryBrands(
 
   const promise = get<ApiProduct[]>("/api/product/search", params(locale, {}, market))
     .then((rows) => {
+      const categoryIds = new Set<string>();
       const counts = new Map<string, Map<string, { brand: CategoryBrand; count: number }>>();
       for (const row of rows) {
+        if (row.availableInSelectedCountry === false) continue;
         const categoryId = row.categoryId?.trim();
+        if (categoryId) categoryIds.add(categoryId);
         const brandId = row.brandId?.trim();
         const name = row.brandName?.trim();
         // A product with no brand tagged is simply not a brand the menu can offer.
@@ -238,14 +246,30 @@ export function fetchCategoryBrands(
             .map((e) => e.brand),
         );
       }
-      return byCategory;
+      return { categoryIds, brands: byCategory };
     })
     .catch(() => {
       categoryBrandsCache.delete(cacheKey); // a failed fetch must not poison the session
-      return new Map<string, CategoryBrand[]>();
+      return { categoryIds: new Set<string>(), brands: new Map<string, CategoryBrand[]>() };
     });
   categoryBrandsCache.set(cacheKey, { promise, at: Date.now() });
   return promise;
+}
+
+export async function fetchCategoryBrands(locale: Locale, market?: Market): Promise<Map<string, CategoryBrand[]>> {
+  return (await fetchNavigationCatalogue(locale, market)).brands;
+}
+
+/** Review engagement leads the home selection; ties preserve the catalogue's own ordering. */
+export async function fetchPopularProducts(locale: Locale): Promise<Product[]> {
+  // Shared with navigation through cachedFeed: no per-category requests or second full feed.
+  const rows = await get<ApiProduct[]>("/api/product/search", params(locale));
+  const unique = new Map(rows.filter((row) => row.availableInSelectedCountry !== false
+    && row.availabilityStatus !== "OUT_OF_STOCK" && (row.availableQuantity == null || row.availableQuantity > 0))
+    .map((row) => [row.id, row]));
+  const popular = [...unique.values()].sort((a, b) => (b.totalReviews ?? 0) - (a.totalReviews ?? 0)
+    || (b.averageRating ?? 0) - (a.averageRating ?? 0)).slice(0, 12);
+  return withCategoryNames(locale, popular);
 }
 
 // ── The adapter ──────────────────────────────────────────────────────────────

@@ -19,7 +19,7 @@ import {
  * wishlist all render ProductCard, which renders this — so there is one place to change and no chance
  * of one grid behaving differently from another.
  */
-export function AddToCartButton({ product }: { product: Product }) {
+export function AddToCartButton({ product, tabIndex }: { product: Product; tabIndex?: number }) {
   const { t } = useI18n();
   const { addItem } = useCart();
   const { fly } = useFly();
@@ -55,6 +55,7 @@ export function AddToCartButton({ product }: { product: Product }) {
   if (line) {
     return (
       <CartQuantityStepper
+        tabIndex={tabIndex}
         productId={product.id}
         productName={product.name}
         className="mt-2 sm:mt-3"
@@ -65,6 +66,7 @@ export function AddToCartButton({ product }: { product: Product }) {
   return (
     <>
       <button
+        tabIndex={tabIndex}
         type="button"
         onClick={onClick}
         disabled={soldOut}

@@ -61,3 +61,19 @@ export function renderableRoots(list: Category[]): Category[] {
     (c) => !c.parentId && !!c.name && (!c.status || c.status.toUpperCase() === "ACTIVE"),
   );
 }
+
+/** Use exact product categories, including stocked subcategories; links filter by exact ID. */
+export function stockedCategories(list: Category[], categoryIds: ReadonlySet<string>): Category[] {
+  const byId = new Map(list.map((category) => [category.id, category]));
+  return list.filter((category) => {
+    if (!category.name?.trim() || !categoryIds.has(category.id)) return false;
+    const visited = new Set<string>();
+    let ancestor: Category | undefined = category;
+    while (ancestor) {
+      if (visited.has(ancestor.id) || (ancestor.status && ancestor.status.toUpperCase() !== "ACTIVE")) return false;
+      visited.add(ancestor.id);
+      ancestor = ancestor.parentId ? byId.get(ancestor.parentId) : undefined;
+    }
+    return true;
+  });
+}
