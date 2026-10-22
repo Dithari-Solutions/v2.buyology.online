@@ -58,8 +58,8 @@ export default async function Home() {
         <Stories />
         {giveaway}
         {departments}
-        <PopularProducts />
         <FeatureStrip />
+        <PopularProducts />
         {/* Flash sale. Fetches in the browser and renders nothing until it has something on sale,
             so it never delays this page and never leaves an empty rail behind. */}
         <ProductCarousel />

@@ -85,12 +85,6 @@ export function PrimaryNav() {
           </div>}
         </div>
 
-        <ul aria-label={t.palette.categories} className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {categories?.map((category) => <li key={category.id} className="shrink-0" onMouseEnter={close}>
-            <Link href={categoryHref(category)} onClick={close} onFocus={close} className={`${linkClass} text-foreground`}>{category.name}</Link>
-          </li>)}
-        </ul>
-
         <div className="shrink-0" onMouseEnter={() => scheduleOpen("services")} onMouseLeave={scheduleClose}>
           <button ref={serviceTrigger} type="button" aria-expanded={open === "services"} aria-controls="mega-services" onClick={() => toggle("services")} className={`${linkClass} font-semibold text-brand-icon`}>
             {t.palette.services}<ChevronDownIcon className={`h-4 w-4 transition-transform ${open === "services" ? "rotate-180" : ""}`} />
@@ -110,6 +104,12 @@ export function PrimaryNav() {
             </div>
           </div>}
         </div>
+        <ul aria-label={t.palette.categories} className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {categories?.map((category) => <li key={category.id} className="shrink-0" onMouseEnter={close}>
+            <Link href={categoryHref(category)} onClick={close} onFocus={close} className={`${linkClass} text-foreground`}>{category.name}</Link>
+          </li>)}
+        </ul>
+
         <a href={WHO_WE_ARE_URL} onMouseEnter={close} className={`${linkClass} hidden xl:inline-flex`}><UsersIcon className="h-4 w-4 text-brand-icon" />{t.header.whoWeAre}</a>
         <Link href={buyobot.href} onMouseEnter={close} onClick={close} className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-sm font-semibold text-primary-fg hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><BuyobotIcon className="h-4 w-4" />{t.items[buyobot.key].label}</Link>
       </div>

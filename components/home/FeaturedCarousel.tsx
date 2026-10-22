@@ -33,9 +33,11 @@ const AUTOPLAY_MS = 5000;
 export function FeaturedCarousel({
   banners,
   label,
+  sizes = "(min-width: 1400px) 1352px, (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)",
 }: {
   banners: Banner[];
   label: string;
+  sizes?: string;
 }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -136,7 +138,7 @@ export function FeaturedCarousel({
               onLoad={i === 0 ? () => setHeroReady(true) : undefined}
               onError={i === 0 ? () => setHeroReady(true) : undefined}
               quality={75}
-              sizes="(min-width: 1400px) 1352px, (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)"
+              sizes={sizes}
               className="bg-surface-2 object-contain"
             />}
             {/* Scrims only exist to make OUR overlay copy legible. */}

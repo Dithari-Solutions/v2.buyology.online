@@ -156,27 +156,7 @@ export function Header() {
                 <ArrowRightShortIcon className="h-4 w-4 rtl:-scale-x-100" />
               </Link>
 
-              {(liveCategories?.length ?? 0) > 0 && (
-                <>
-                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-                    {t.palette.categories}
-                  </p>
-                  <ul className="grid grid-cols-2 gap-1">
-                    {liveCategories!.map((c) => (
-                      <li key={c.id}>
-                        <Link
-                          href={categoryHref(c)}
-                          onClick={close}
-                          className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-2"
-                        >
-                          {c.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-              <details className="group/services mt-3 border-t border-border pt-3">
+              <details className="group/services mb-3 border-b border-border pb-3">
                 <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-brand-icon [&::-webkit-details-marker]:hidden">{t.palette.services}<ChevronDownIcon className="h-4 w-4 transition-transform group-open/services:rotate-180" /></summary>
                 <ul className="mb-3 grid grid-cols-2 gap-1">
                   {mobileServices.map((s) => {
@@ -204,6 +184,26 @@ export function Header() {
                   })}
                 </ul>
               </details>
+              {(liveCategories?.length ?? 0) > 0 && (
+                <>
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                    {t.palette.categories}
+                  </p>
+                  <ul className="grid grid-cols-2 gap-1">
+                    {liveCategories!.map((c) => (
+                      <li key={c.id}>
+                        <Link
+                          href={categoryHref(c)}
+                          onClick={close}
+                          className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-2"
+                        >
+                          {c.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
 
             <div className="mx-auto grid max-w-[1400px] grid-cols-3 gap-1 border-t border-border px-4 py-2 text-sm text-muted sm:flex sm:flex-wrap sm:gap-x-5 sm:gap-y-2 sm:px-6 sm:py-3">
