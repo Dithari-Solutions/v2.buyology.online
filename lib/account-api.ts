@@ -75,6 +75,14 @@ export function isCancellable(status: OrderStatus): boolean {
   ].includes(status);
 }
 
+/** One unit's warranty card, as listed on its order item. The card itself lives on Dithari's site. */
+export type OrderItemWarranty = {
+  serialNumber: string;
+  status?: "ACTIVE" | "EXPIRING_SOON" | "EXPIRED" | "VOID";
+  startDate?: string;
+  endDate?: string;
+};
+
 export type OrderItem = {
   id: string;
   productId?: string | null;
@@ -85,6 +93,8 @@ export type OrderItem = {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  /** One per unit, issued when the order is delivered. Absent before then or without a warranty. */
+  warranties?: OrderItemWarranty[] | null;
 };
 
 export type TrackingEvent = {

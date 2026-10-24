@@ -83,6 +83,16 @@ export const WHO_WE_ARE_URL = "https://web.buyology.online";
 export const DITHARI_URL = "https://dithari.com";
 
 /**
+ * Dithari's warranty checker. Warranty cards are shown there, not here: this site lists only each
+ * delivered unit's serial and links to the card, which opens straight on the serial it is given.
+ */
+export const DITHARI_WARRANTY_URL = "https://v2.dithari.com/warranty";
+
+export function dithariWarrantyUrl(serial: string): string {
+  return `${DITHARI_WARRANTY_URL}?serial=${encodeURIComponent(serial)}`;
+}
+
+/**
  * A wa.me link that opens WhatsApp with a message already typed.
  *
  * <p>The number must have NO leading "+" and no spaces — wa.me silently fails to resolve a chat

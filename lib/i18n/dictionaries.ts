@@ -914,6 +914,10 @@ export interface Dict {
         shippedOn: string;
         deliveredOn: string;
         eta: string;
+        /** Label before a delivered item's warranty serial number. */
+        warrantySerial: string;
+        /** Opens the item's warranty card on Dithari's site. */
+        checkWarranty: string;
       };
     };
     addresses: {
@@ -2460,6 +2464,8 @@ const en: Dict = {
         deliveredOn: "Delivered on",
         back: "Back to orders",
         eta: "Estimated delivery",
+        warrantySerial: "Warranty serial",
+        checkWarranty: "Check your warranty",
       },
     },
     addresses: {
@@ -4048,6 +4054,8 @@ const az: Dict = {
         deliveredOn: "Çatdırılıb:",
         back: "Sifarişlərə qayıt",
         eta: "Təxmini çatdırılma",
+        warrantySerial: "Zəmanət seriya nömrəsi",
+        checkWarranty: "Zəmanətinizi yoxlayın",
       },
     },
     addresses: {
@@ -5619,6 +5627,8 @@ const ar: Dict = {
         deliveredOn: "تم التوصيل في",
         back: "العودة إلى الطلبات",
         eta: "التوصيل المتوقع",
+        warrantySerial: "الرقم التسلسلي للضمان",
+        checkWarranty: "تحقق من ضمانك",
       },
     },
     addresses: {

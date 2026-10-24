@@ -23,7 +23,8 @@ import { TabbyLogo, TamaraLogo } from "@/components/cart/payment-logos";
 import { RefundCard } from "@/components/account/RefundCard";
 import { CancelOrderFlow } from "@/components/account/CancelOrderFlow";
 import { PENDING_ORDER_KEY, PENDING_TX_KEY } from "@/components/checkout/CheckoutView";
-import { ChevronLeftIcon, StarIcon, TruckIcon, WalletIcon } from "@/components/icons";
+import { ChevronLeftIcon, ShieldCheckIcon, StarIcon, TruckIcon, WalletIcon } from "@/components/icons";
+import { dithariWarrantyUrl } from "@/lib/site";
 
 /**
  * One purchased line: the order's own snapshot (name, image, price locked at purchase)
@@ -34,10 +35,14 @@ function OrderItemRow({
   item,
   money,
   reviewsLabel,
+  warrantySerialLabel,
+  checkWarrantyLabel,
 }: {
   item: OrderItem;
   money: (n: number | null | undefined) => string | null;
   reviewsLabel: string;
+  warrantySerialLabel: string;
+  checkWarrantyLabel: string;
 }) {
   const { product: detail } = useProductLookup(item.productId ?? null);
   const name = item.productName ?? detail?.name ?? item.variantSku ?? item.productSku ?? "—";
@@ -104,6 +109,32 @@ function OrderItemRow({
         </Link>
       ) : (
         <div className="flex items-start gap-4">{body}</div>
+      )}
+      {/* Beside the row, not in it: the row is already a link, and links cannot nest. Only the
+          serial is shown here; the card itself is on Dithari's checker. */}
+      {item.warranties && item.warranties.length > 0 && (
+        <ul className="mt-2 space-y-1.5 sm:ps-24">
+          {item.warranties.map((w) => (
+            <li
+              key={w.serialNumber}
+              className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-border bg-surface px-3 py-2"
+            >
+              <ShieldCheckIcon className="h-4 w-4 shrink-0 text-brand-icon" aria-hidden="true" />
+              <span className="text-xs text-muted">{warrantySerialLabel}</span>
+              <span className="select-all font-mono text-sm font-medium text-foreground" dir="ltr">
+                {w.serialNumber}
+              </span>
+              <a
+                href={dithariWarrantyUrl(w.serialNumber)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ms-auto rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {checkWarrantyLabel}
+              </a>
+            </li>
+          ))}
+        </ul>
       )}
     </li>
   );
@@ -334,6 +365,8 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                   item={item}
                   money={money}
                   reviewsLabel={t.cart.reviews}
+                  warrantySerialLabel={d.warrantySerial}
+                  checkWarrantyLabel={d.checkWarranty}
                 />
               ))}
             </ul>
